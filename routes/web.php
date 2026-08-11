@@ -70,7 +70,20 @@ Route::middleware('auth')->group(function () {
     Route::view('/clientes', 'clients')->name('clients.index');
     Route::view('/empresas', 'companies')->name('companies.index');
     Route::view('/materiales', 'materials')->name('materials.index');
-    Route::view('/reportes', 'reports')->name('reports.index');
+    Route::get('/reportes', function() {
+        $totalVentas = \App\Models\Order::where('status', 'Entregado')->sum('total_price');
+        $pedidosPorMes = \App\Models\Order::selectRaw('strftime("%m", created_at) as mes, count(*) as total')
+            ->groupBy('mes')
+            ->get();
+        $pedidosActivos = \App\Models\Order::where('status', '!=', 'Entregado')->count();
+        $topClientes = \App\Models\Order::selectRaw('client_name, count(*) as pedidos, sum(total_price) as gastado')
+            ->groupBy('client_name')
+            ->orderByDesc('gastado')
+            ->limit(5)
+            ->get();
+            
+        return view('reports', compact('totalVentas', 'pedidosPorMes', 'pedidosActivos', 'topClientes'));
+    })->name('reports.index');
     Route::view('/ajustes', 'settings')->name('settings.index');
     Route::view('/ayuda', 'help')->name('help.index');
 });

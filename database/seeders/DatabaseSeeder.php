@@ -15,22 +15,32 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        $admin = User::factory()->create([
-            'name' => 'Admin Ventas',
+        User::factory()->create([
+            'name' => 'Admin User',
             'email' => 'admin@verdemadera.com',
+            'password' => bcrypt('password'),
             'role' => 'admin',
         ]);
 
-        $ops = User::factory()->create([
-            'name' => 'Operaciones',
-            'email' => 'ops@verdemadera.com',
-            'role' => 'ops',
+        User::factory()->create([
+            'name' => 'Ventas User',
+            'email' => 'ventas@verdemadera.com',
+            'password' => bcrypt('password'),
+            'role' => 'ventas',
+        ]);
+
+        User::factory()->create([
+            'name' => 'Operacion User',
+            'email' => 'operacion@verdemadera.com',
+            'password' => bcrypt('password'),
+            'role' => 'operacion',
         ]);
 
         $client = User::factory()->create([
-            'name' => 'Laura Mendoza',
-            'email' => 'laura@grupohorizonte.com',
-            'role' => 'client',
+            'name' => 'Cliente VIP',
+            'email' => 'cliente@verdemadera.com',
+            'password' => bcrypt('password'),
+            'role' => 'cliente',
         ]);
 
         // Create some sample orders based on the mockup

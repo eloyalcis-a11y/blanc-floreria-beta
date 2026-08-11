@@ -16,24 +16,36 @@
         </div>
     </div>
 
-    <!-- Charts Placeholder -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
         <div class="bg-white rounded-[14px] p-6 shadow-[0_4px_16px_rgba(0,0,0,0.02)] border border-[#EBEBEB]">
-            <h3 class="text-[14px] text-[#2C211A] font-semibold mb-4">Ventas por Canal</h3>
-            <div class="h-[250px] w-full flex items-center justify-center bg-[#F5F4F0] rounded-xl border border-dashed border-gray-300">
-                <div class="text-center">
-                    <svg class="w-10 h-10 text-gray-300 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"></path></svg>
-                    <p class="text-[12px] text-gray-400 font-medium">Gráfico de Pastel (Próximamente)</p>
+            <h3 class="text-[14px] text-[#2C211A] font-semibold mb-4 uppercase tracking-wider">Métricas Principales</h3>
+            <div class="space-y-6">
+                <div>
+                    <p class="text-[11px] text-[#757575] font-semibold mb-1 uppercase tracking-wider">Ingresos Totales (Entregados)</p>
+                    <p class="text-[32px] text-[#2C211A] font-sans-custom font-light">MX$ {{ number_format($totalVentas ?? 0, 2) }}</p>
+                </div>
+                <div>
+                    <p class="text-[11px] text-[#757575] font-semibold mb-1 uppercase tracking-wider">Pedidos en Curso</p>
+                    <p class="text-[24px] text-[#2C211A] font-sans-custom font-light">{{ $pedidosActivos ?? 0 }}</p>
                 </div>
             </div>
         </div>
         <div class="bg-white rounded-[14px] p-6 shadow-[0_4px_16px_rgba(0,0,0,0.02)] border border-[#EBEBEB]">
-            <h3 class="text-[14px] text-[#2C211A] font-semibold mb-4">Ingresos Mensuales</h3>
-            <div class="h-[250px] w-full flex items-center justify-center bg-[#F5F4F0] rounded-xl border border-dashed border-gray-300">
-                <div class="text-center">
-                    <svg class="w-10 h-10 text-gray-300 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"></path></svg>
-                    <p class="text-[12px] text-gray-400 font-medium">Gráfico de Barras (Próximamente)</p>
-                </div>
+            <h3 class="text-[14px] text-[#2C211A] font-semibold mb-4 uppercase tracking-wider">Top Clientes</h3>
+            <div class="space-y-4">
+                @if(isset($topClientes) && $topClientes->count() > 0)
+                    @foreach($topClientes as $cliente)
+                    <div class="flex justify-between items-center border-b border-gray-100 pb-2">
+                        <div>
+                            <p class="text-[13px] font-medium text-[#2C211A]">{{ $cliente->client_name }}</p>
+                            <p class="text-[11px] text-gray-500">{{ $cliente->pedidos }} pedido(s)</p>
+                        </div>
+                        <p class="text-[14px] font-semibold text-emerald-700">MX$ {{ number_format($cliente->gastado, 2) }}</p>
+                    </div>
+                    @endforeach
+                @else
+                    <p class="text-[12px] text-gray-400 font-medium text-center py-4">No hay datos suficientes</p>
+                @endif
             </div>
         </div>
     </div>
