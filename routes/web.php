@@ -26,7 +26,7 @@ Route::get('/dashboard', function (\Illuminate\Http\Request $request) {
         });
     }
 
-    $orders = $query->get();
+    $orders = $query->paginate(10)->withQueryString();
     
     // Para los contadores globales independientemente del filtro actual
     $allOrdersCount = \App\Models\Order::count();

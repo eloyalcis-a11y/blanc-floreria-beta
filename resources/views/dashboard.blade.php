@@ -199,16 +199,8 @@
             @endforeach
         </div>
 
-        <div class="p-4 md:mt-4 text-[12px] text-[#757575] flex justify-center items-center">
-            <span class="mr-6 font-medium">Mostrando 1-{{ $orders->count() }} de {{ $orders->count() }} pedidos</span>
-            <div class="flex gap-4">
-                <button class="text-[#757575] hover:text-[#2C211A] font-medium">&lt;</button>
-                <button class="font-bold text-[#2C211A]">1</button>
-                <button class="text-[#757575] hover:text-[#2C211A] font-medium">2</button>
-                <button class="text-[#757575] hover:text-[#2C211A] font-medium">3</button>
-                <button class="text-[#757575] hover:text-[#2C211A] font-medium">12</button>
-                <button class="text-[#757575] hover:text-[#2C211A] font-medium">&gt;</button>
-            </div>
+        <div class="p-4 md:mt-4 text-[12px] text-[#757575]">
+            {{ $orders->links() }}
         </div>
     </div>
 </x-app-layout>
