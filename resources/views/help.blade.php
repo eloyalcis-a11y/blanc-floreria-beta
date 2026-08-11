@@ -9,7 +9,7 @@
             <!-- FAQ Item -->
             <div class="bg-white rounded-[14px] p-6 shadow-[0_4px_16px_rgba(0,0,0,0.02)] border border-[#EBEBEB]">
                 <h3 class="text-[16px] text-[#2C211A] font-semibold mb-2 flex items-center">
-                    <svg class="w-5 h-5 mr-2 text-[#4C9156]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <svg class="w-5 h-5 mr-2 text-[#4A1525]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                     ¿Cómo busco un pedido específico?
                 </h3>
                 <p class="text-[13px] text-gray-600 leading-relaxed">
@@ -20,7 +20,7 @@
             <!-- FAQ Item -->
             <div class="bg-white rounded-[14px] p-6 shadow-[0_4px_16px_rgba(0,0,0,0.02)] border border-[#EBEBEB]">
                 <h3 class="text-[16px] text-[#2C211A] font-semibold mb-2 flex items-center">
-                    <svg class="w-5 h-5 mr-2 text-[#4C9156]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <svg class="w-5 h-5 mr-2 text-[#4A1525]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                     ¿Qué significan las etiquetas Shopify y Nori?
                 </h3>
                 <p class="text-[13px] text-gray-600 leading-relaxed">
@@ -30,10 +30,10 @@
         </div>
 
         <div class="space-y-4">
-            <div class="bg-emerald-700 rounded-[14px] p-6 text-white shadow-md">
+            <div class="bg-[#4A1525] rounded-[14px] p-6 text-white shadow-md">
                 <h3 class="text-[16px] font-semibold mb-2">¿Necesitas soporte técnico?</h3>
                 <p class="text-[12px] text-gray-200 mb-6">Contacta al equipo de desarrollo para problemas con las integraciones o errores del sistema.</p>
-                <button class="w-full bg-white text-[#3A5A40] px-4 py-2 rounded-md text-[13px] font-bold transition-colors shadow-sm hover:bg-gray-100">
+                <button class="w-full bg-white text-[#4A1525] px-4 py-2 rounded-md text-[13px] font-bold transition-colors shadow-sm hover:bg-gray-100">
                     Crear Ticket
                 </button>
             </div>

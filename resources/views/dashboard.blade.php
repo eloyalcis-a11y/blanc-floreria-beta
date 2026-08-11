@@ -8,10 +8,10 @@
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
         <a href="{{ route('dashboard', ['status' => 'Todos']) }}" class="bg-white rounded-[14px] p-5 shadow-[0_4px_16px_rgba(0,0,0,0.02)] border border-[#EBEBEB] flex flex-col justify-between hover:shadow-md transition-shadow cursor-pointer block">
             <div>
-                <h3 class="text-[11px] text-[#4C9156] font-semibold uppercase tracking-wider mb-2">Total Pedidos</h3>
+                <h3 class="text-[11px] text-[#4A1525] font-semibold uppercase tracking-wider mb-2">Total Pedidos</h3>
                 <p class="text-[40px] font-sans-custom font-light text-[#2C211A] leading-none">{{ $allOrdersCount ?? $orders->count() }}</p>
             </div>
-            <p class="text-[11px] text-[#4C9156] mt-4 flex items-center font-medium">
+            <p class="text-[11px] text-[#4A1525] mt-4 flex items-center font-medium">
                 <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 10l7-7m0 0l7 7m-7-7v18"></path></svg>
                 +12 este mes
             </p>
@@ -41,7 +41,7 @@
                 <h3 class="text-[11px] text-[#2C211A] font-semibold uppercase tracking-wider mb-2">Entregados</h3>
                 <p class="text-[40px] font-sans-custom font-light text-[#2C211A] leading-none">{{ $entregadosCount ?? $orders->where('status', 'Entregado')->count() }}</p>
             </div>
-            <p class="text-[11px] text-[#4C9156] mt-4 flex items-center font-medium">
+            <p class="text-[11px] text-[#4A1525] mt-4 flex items-center font-medium">
                 <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                 +8 esta semana
             </p>
@@ -55,7 +55,7 @@
             <form method="GET" action="{{ route('dashboard') }}" class="flex flex-col md:flex-row gap-3 w-full justify-between" id="filter-form">
                 <div class="flex gap-2 w-full md:w-auto">
                     <div class="relative flex-1 md:w-[280px]">
-                        <input type="text" name="search" value="{{ request('search') }}" placeholder="Buscar pedido, cliente o empresa..." class="pl-10 pr-4 py-2 border border-[#EBEBEB] rounded-md text-[13px] text-gray-500 w-full focus:ring-[#4C9156] focus:border-[#4C9156] bg-transparent">
+                        <input type="text" name="search" value="{{ request('search') }}" placeholder="Buscar pedido, cliente o empresa..." class="pl-10 pr-4 py-2 border border-[#EBEBEB] rounded-md text-[13px] text-gray-500 w-full focus:ring-[#4A1525] focus:border-[#4A1525] bg-transparent">
                         <svg class="w-4 h-4 text-gray-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                     </div>
                     <button type="submit" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-2 rounded-md text-[13px] font-medium transition-colors border border-[#EBEBEB]">
@@ -63,14 +63,14 @@
                     </button>
                 </div>
                 <div class="flex gap-2 justify-between w-full md:w-auto mt-2 md:mt-0">
-                    <select name="status" onchange="document.getElementById('filter-form').submit()" class="border border-[#EBEBEB] rounded-md text-[13px] text-[#2C211A] font-medium py-2 pl-3 pr-8 focus:ring-[#4C9156] focus:border-[#4C9156] bg-transparent">
+                    <select name="status" onchange="document.getElementById('filter-form').submit()" class="border border-[#EBEBEB] rounded-md text-[13px] text-[#2C211A] font-medium py-2 pl-3 pr-8 focus:ring-[#4A1525] focus:border-[#4A1525] bg-transparent">
                         <option value="Todos" {{ request('status') == 'Todos' ? 'selected' : '' }}>Estado: Todos</option>
                         <option value="Cotizado" {{ request('status') == 'Cotizado' ? 'selected' : '' }}>Cotizado</option>
                         <option value="Confirmado" {{ request('status') == 'Confirmado' ? 'selected' : '' }}>Confirmado</option>
                         <option value="En producción" {{ request('status') == 'En producción' ? 'selected' : '' }}>En producción</option>
                         <option value="Entregado" {{ request('status') == 'Entregado' ? 'selected' : '' }}>Entregado</option>
                     </select>
-                    <a href="{{ route('orders.create') }}" class="bg-emerald-700 hover:bg-emerald-800 text-white px-4 py-2 rounded-lg text-[13px] font-medium transition-all shadow-sm hover:shadow-md flex items-center shadow-sm">
+                    <a href="{{ route('orders.create') }}" class="bg-[#4A1525] hover:bg-[#340f1a] text-white px-4 py-2 rounded-lg text-[13px] font-medium transition-all shadow-sm hover:shadow-md flex items-center shadow-sm">
                         <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
                         <span class="hidden md:inline">Nuevo Pedido</span>
                         <span class="md:hidden">Nuevo</span>
@@ -80,7 +80,7 @@
         </div>
         <div class="px-5 pb-4 md:px-0 md:pb-5 border-b border-gray-100 md:border-none flex gap-2 overflow-x-auto scrollbar-hide">
             <span class="text-[11px] font-semibold text-gray-500 uppercase tracking-wider py-1.5 mr-2">Filtros Rápidos:</span>
-            <a href="{{ route('dashboard', ['filter' => 'proximas']) }}" class="px-3 py-1.5 {{ request('filter') == 'proximas' ? 'bg-emerald-700 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200' }} rounded-full text-[11px] font-medium whitespace-nowrap transition-colors flex items-center gap-1.5">
+            <a href="{{ route('dashboard', ['filter' => 'proximas']) }}" class="px-3 py-1.5 {{ request('filter') == 'proximas' ? 'bg-[#4A1525] text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200' }} rounded-full text-[11px] font-medium whitespace-nowrap transition-colors flex items-center gap-1.5">
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                 Próximas Entregas
             </a>
@@ -134,7 +134,7 @@
                                     $statusClasses = [
                                         'Confirmado' => 'bg-[#4F75DA] text-white',
                                         'En producción' => 'bg-[#E08544] text-white',
-                                        'Entregado' => 'bg-[#4C9156] text-white',
+                                        'Entregado' => 'bg-[#4A1525] text-white',
                                         'Cotizado' => 'bg-[#E9C441] text-white',
                                     ];
                                     $class = $statusClasses[$order->status] ?? 'bg-gray-400 text-white';
@@ -144,7 +144,7 @@
                                 </span>
                             </td>
                             <td class="py-5 px-2 text-center">
-                                <a href="{{ route('orders.show', $order) }}" class="text-[#A2BA74] hover:text-[#4C9156] inline-block">
+                                <a href="{{ route('orders.show', $order) }}" class="text-[#4A1525] hover:text-[#4A1525] inline-block">
                                     <svg class="w-6 h-6 mx-auto" fill="currentColor" viewBox="0 0 20 20"><path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z"></path></svg>
                                 </a>
                             </td>
@@ -158,10 +158,10 @@
         <div class="md:hidden space-y-4 bg-[#F5F4F0] p-4">
             <!-- Filter Pills -->
             <div class="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-                <a href="{{ route('dashboard', ['status' => 'Todos']) }}" class="px-4 py-1.5 {{ request('status') == 'Todos' || !request('status') ? 'bg-emerald-700 text-white' : 'bg-[#E8E8E8] text-[#757575]' }} text-[11px] rounded-lg font-medium whitespace-nowrap shadow-sm">Todos</a>
-                <a href="{{ route('dashboard', ['status' => 'Cotizado']) }}" class="px-4 py-1.5 {{ request('status') == 'Cotizado' ? 'bg-emerald-700 text-white' : 'bg-[#E8E8E8] text-[#757575]' }} text-[11px] rounded-lg font-medium whitespace-nowrap shadow-sm">Cotizado</a>
-                <a href="{{ route('dashboard', ['status' => 'Confirmado']) }}" class="px-4 py-1.5 {{ request('status') == 'Confirmado' ? 'bg-emerald-700 text-white' : 'bg-[#E8E8E8] text-[#757575]' }} text-[11px] rounded-lg font-medium whitespace-nowrap shadow-sm">Confirmado</a>
-                <a href="{{ route('dashboard', ['status' => 'En producción']) }}" class="px-4 py-1.5 {{ request('status') == 'En producción' ? 'bg-emerald-700 text-white' : 'bg-[#E8E8E8] text-[#757575]' }} text-[11px] rounded-lg font-medium whitespace-nowrap shadow-sm">En producción</a>
+                <a href="{{ route('dashboard', ['status' => 'Todos']) }}" class="px-4 py-1.5 {{ request('status') == 'Todos' || !request('status') ? 'bg-[#4A1525] text-white' : 'bg-[#E8E8E8] text-[#757575]' }} text-[11px] rounded-lg font-medium whitespace-nowrap shadow-sm">Todos</a>
+                <a href="{{ route('dashboard', ['status' => 'Cotizado']) }}" class="px-4 py-1.5 {{ request('status') == 'Cotizado' ? 'bg-[#4A1525] text-white' : 'bg-[#E8E8E8] text-[#757575]' }} text-[11px] rounded-lg font-medium whitespace-nowrap shadow-sm">Cotizado</a>
+                <a href="{{ route('dashboard', ['status' => 'Confirmado']) }}" class="px-4 py-1.5 {{ request('status') == 'Confirmado' ? 'bg-[#4A1525] text-white' : 'bg-[#E8E8E8] text-[#757575]' }} text-[11px] rounded-lg font-medium whitespace-nowrap shadow-sm">Confirmado</a>
+                <a href="{{ route('dashboard', ['status' => 'En producción']) }}" class="px-4 py-1.5 {{ request('status') == 'En producción' ? 'bg-[#4A1525] text-white' : 'bg-[#E8E8E8] text-[#757575]' }} text-[11px] rounded-lg font-medium whitespace-nowrap shadow-sm">En producción</a>
             </div>
 
             @if($orders->isEmpty())
@@ -175,9 +175,9 @@
                     <div class="flex justify-between items-start mb-3">
                         @php
                             $statusMobileClasses = [
-                                'Confirmado' => 'bg-[#E5EFDC] text-[#4C9156]',
+                                'Confirmado' => 'bg-[#FAFAFA] text-[#4A1525]',
                                 'En producción' => 'bg-[#FBE8D6] text-[#E08544]',
-                                'Entregado' => 'bg-[#E5EFDC] text-[#4C9156]',
+                                'Entregado' => 'bg-[#FAFAFA] text-[#4A1525]',
                                 'Cotizado' => 'bg-[#FEF6D9] text-[#E9C441]',
                             ];
                             $mobileClass = $statusMobileClasses[$order->status] ?? 'bg-gray-100 text-gray-700';
@@ -185,7 +185,7 @@
                             $sourceIcon = $order->source === 'Shopify' ? '<span class="px-1.5 py-0.5 bg-green-100 text-green-800 text-[9px] rounded uppercase font-bold mr-1">Shopify</span>' : ($order->source === 'Nori' ? '<span class="px-1.5 py-0.5 bg-blue-100 text-blue-800 text-[9px] rounded uppercase font-bold mr-1">Nori</span>' : '');
                         @endphp
                         <div class="flex items-center gap-2">
-                            <a href="{{ route('orders.show', $order) }}" class="text-[#2C211A] font-semibold text-[13px] hover:text-[#4C9156]">{!! $sourceIcon !!}#{{ str_pad($order->id, 4, '0', STR_PAD_LEFT) }}</a>
+                            <a href="{{ route('orders.show', $order) }}" class="text-[#2C211A] font-semibold text-[13px] hover:text-[#4A1525]">{!! $sourceIcon !!}#{{ str_pad($order->id, 4, '0', STR_PAD_LEFT) }}</a>
                             <span class="w-1 h-1 rounded-lg bg-gray-300"></span>
                             <span class="px-3 py-1 text-[11px] rounded-lg font-bold tracking-wide {{ $mobileClass }}">{{ $order->status }}</span>
                         </div>
@@ -209,9 +209,9 @@
                     </div>
                     
                     <div>
-                        <p class="text-[11px] text-[#2C211A] font-medium mb-2">Estatus: <span class="{{ str_contains($mobileClass, 'text-[#4C9156]') ? 'text-[#4C9156]' : 'text-[#E08544]' }} font-semibold">{{ $order->status }}</span> — Detalle logístico</p>
+                        <p class="text-[11px] text-[#2C211A] font-medium mb-2">Estatus: <span class="{{ str_contains($mobileClass, 'text-[#4A1525]') ? 'text-[#4A1525]' : 'text-[#E08544]' }} font-semibold">{{ $order->status }}</span> — Detalle logístico</p>
                         <div class="w-full bg-[#EBEBEB] rounded-lg h-1.5">
-                            <div class="{{ str_contains($mobileClass, 'text-[#4C9156]') ? 'bg-[#4C9156]' : 'bg-[#E08544]' }} h-1.5 rounded-lg" style="width: 45%"></div>
+                            <div class="{{ str_contains($mobileClass, 'text-[#4A1525]') ? 'bg-[#4A1525]' : 'bg-[#E08544]' }} h-1.5 rounded-lg" style="width: 45%"></div>
                         </div>
                     </div>
                 </div>

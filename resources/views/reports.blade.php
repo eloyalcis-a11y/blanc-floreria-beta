@@ -5,12 +5,12 @@
             <p class="text-[#757575] text-[13px] font-sans-custom">Métricas y KPIs del negocio</p>
         </div>
         <div class="flex gap-2">
-            <select class="border border-[#EBEBEB] rounded-md text-[13px] text-[#2C211A] font-medium py-2 px-3 focus:ring-[#4C9156] focus:border-[#4C9156] bg-transparent">
+            <select class="border border-[#EBEBEB] rounded-md text-[13px] text-[#2C211A] font-medium py-2 px-3 focus:ring-[#4A1525] focus:border-[#4A1525] bg-transparent">
                 <option>Este mes</option>
                 <option>Mes pasado</option>
                 <option>Este año</option>
             </select>
-            <button class="bg-emerald-700 hover:bg-emerald-800 text-white px-4 py-2 rounded-lg text-[13px] font-medium transition-all shadow-sm hover:shadow-md shadow-sm">
+            <button class="bg-[#4A1525] hover:bg-[#340f1a] text-white px-4 py-2 rounded-lg text-[13px] font-medium transition-all shadow-sm hover:shadow-md shadow-sm">
                 Descargar PDF
             </button>
         </div>
@@ -40,7 +40,7 @@
                             <p class="text-[13px] font-medium text-[#2C211A]">{{ $cliente->client_name }}</p>
                             <p class="text-[11px] text-gray-500">{{ $cliente->pedidos }} pedido(s)</p>
                         </div>
-                        <p class="text-[14px] font-semibold text-emerald-700">MX$ {{ number_format($cliente->gastado, 2) }}</p>
+                        <p class="text-[14px] font-semibold text-[#4A1525]">MX$ {{ number_format($cliente->gastado, 2) }}</p>
                     </div>
                     @endforeach
                 @else

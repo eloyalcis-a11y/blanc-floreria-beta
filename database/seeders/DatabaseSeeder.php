@@ -15,30 +15,30 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        User::factory()->create([
-            'name' => 'Admin User',
-            'email' => 'admin@verdemadera.com',
+        \App\Models\User::factory()->create([
+            'name' => 'Admin Blanc Florería',
+            'email' => 'admin@blancfloreria.com',
             'password' => bcrypt('password'),
             'role' => 'admin',
         ]);
 
-        User::factory()->create([
-            'name' => 'Ventas User',
-            'email' => 'ventas@verdemadera.com',
+        \App\Models\User::factory()->create([
+            'name' => 'Ventas',
+            'email' => 'ventas@blancfloreria.com',
             'password' => bcrypt('password'),
             'role' => 'ventas',
         ]);
 
-        User::factory()->create([
-            'name' => 'Operacion User',
-            'email' => 'operacion@verdemadera.com',
+        \App\Models\User::factory()->create([
+            'name' => 'Operación',
+            'email' => 'operacion@blancfloreria.com',
             'password' => bcrypt('password'),
             'role' => 'operacion',
         ]);
 
-        $client = User::factory()->create([
-            'name' => 'Cliente VIP',
-            'email' => 'cliente@verdemadera.com',
+        $client = \App\Models\User::factory()->create([
+            'name' => 'Cliente Demo',
+            'email' => 'cliente@blancfloreria.com',
             'password' => bcrypt('password'),
             'role' => 'cliente',
         ]);

@@ -10,12 +10,12 @@
                 <h3 class="text-[16px] text-[#2C211A] font-semibold mb-4 border-b border-gray-100 pb-2">Información de la Empresa</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-[12px] font-medium text-gray-700 mb-1">Nombre Comercial</label>
-                        <input type="text" value="Verde Madera" class="w-full border border-[#EBEBEB] rounded-md text-[13px] text-gray-900 py-2 px-3 focus:ring-[#4C9156] focus:border-[#4C9156]">
+                        <label class="text-[11px] text-[#757575] font-semibold mb-1 uppercase tracking-wider block">Nombre de la Empresa</label>
+                        <input type="text" value="Blanc Florería" class="w-full border border-[#EBEBEB] rounded-md text-[13px] text-gray-900 py-2 px-3 focus:ring-[#4A1525] focus:border-[#4A1525]">
                     </div>
                     <div>
-                        <label class="block text-[12px] font-medium text-gray-700 mb-1">Correo de Contacto</label>
-                        <input type="email" value="contacto@verdemadera.com.mx" class="w-full border border-[#EBEBEB] rounded-md text-[13px] text-gray-900 py-2 px-3 focus:ring-[#4C9156] focus:border-[#4C9156]">
+                        <label class="text-[11px] text-[#757575] font-semibold mb-1 uppercase tracking-wider block">Correo de Contacto</label>
+                        <input type="email" value="contacto@blancfloreria.com" class="w-full border border-[#EBEBEB] rounded-md text-[13px] text-gray-900 py-2 px-3 focus:ring-[#4A1525] focus:border-[#4A1525]">
                     </div>
                 </div>
             </div>
@@ -48,7 +48,7 @@
             </div>
 
             <div class="flex justify-end pt-4">
-                <button type="button" class="bg-emerald-700 hover:bg-emerald-800 text-white px-6 py-2.5 rounded-lg text-[13px] font-medium transition-all shadow-sm hover:shadow-md shadow-sm">
+                <button type="button" class="bg-[#4A1525] hover:bg-[#340f1a] text-white px-6 py-2.5 rounded-lg text-[13px] font-medium transition-all shadow-sm hover:shadow-md shadow-sm">
                     Guardar Cambios
                 </button>
             </div>

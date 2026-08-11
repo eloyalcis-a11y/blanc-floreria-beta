@@ -2,7 +2,7 @@
     <div class="mb-8 md:pt-4 flex justify-between items-start">
         <div>
             <div class="flex items-center gap-3 mb-1">
-                <a href="{{ route('dashboard') }}" class="text-gray-400 hover:text-emerald-700 transition-colors">
+                <a href="{{ route('dashboard') }}" class="text-gray-400 hover:text-[#4A1525] transition-colors">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
                 </a>
                 <h2 class="text-[32px] font-serif-custom font-normal text-[#2C211A] leading-tight">Pedido #{{ str_pad($order->id, 4, '0', STR_PAD_LEFT) }}</h2>
@@ -19,7 +19,7 @@
             $statusClasses = [
                 'Confirmado' => 'bg-[#4F75DA] text-white',
                 'En producción' => 'bg-[#E08544] text-white',
-                'Entregado' => 'bg-[#4C9156] text-white',
+                'Entregado' => 'bg-[#4A1525] text-white',
                 'Cotizado' => 'bg-[#E9C441] text-white',
             ];
             $class = $statusClasses[$order->status] ?? 'bg-gray-400 text-white';
@@ -120,19 +120,19 @@
                     @csrf
                     @method('PATCH')
                     <div class="flex gap-2">
-                        <select name="status" class="w-full border border-gray-200 rounded-lg px-2 py-2 text-[12px] focus:ring-emerald-700 focus:border-emerald-700 font-medium text-gray-700">
+                        <select name="status" class="w-full border border-gray-200 rounded-lg px-2 py-2 text-[12px] focus:ring-[#4A1525] focus:border-[#4A1525] font-medium text-gray-700">
                             <option value="Cotizado" {{ $order->status == 'Cotizado' ? 'selected' : '' }}>Cotizado</option>
                             <option value="Confirmado" {{ $order->status == 'Confirmado' ? 'selected' : '' }}>Confirmado</option>
                             <option value="En producción" {{ $order->status == 'En producción' ? 'selected' : '' }}>En producción</option>
                             <option value="Entregado" {{ $order->status == 'Entregado' ? 'selected' : '' }}>Entregado</option>
                         </select>
-                        <button type="submit" class="bg-emerald-700 hover:bg-emerald-800 text-white px-3 py-2 rounded-lg text-[12px] font-medium transition-all shadow-sm flex items-center justify-center" title="Actualizar Estatus">
+                        <button type="submit" class="bg-[#4A1525] hover:bg-[#340f1a] text-white px-3 py-2 rounded-lg text-[12px] font-medium transition-all shadow-sm flex items-center justify-center" title="Actualizar Estatus">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                         </button>
                     </div>
                 </form>
                 <button class="w-full mb-3 bg-white hover:bg-gray-50 text-gray-700 border border-gray-200 py-2.5 rounded-lg text-[13px] font-medium transition-all flex justify-center items-center gap-2">
-                    <svg class="w-4 h-4 text-emerald-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                    <svg class="w-4 h-4 text-[#4A1525]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
                     Imprimir Orden
                 </button>
                 <button class="w-full bg-white hover:bg-red-50 text-red-600 border border-red-100 hover:border-red-200 py-2.5 rounded-lg text-[13px] font-medium transition-all flex justify-center items-center gap-2">

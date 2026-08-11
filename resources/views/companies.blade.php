@@ -4,7 +4,7 @@
             <h2 class="text-[32px] font-serif-custom font-normal text-[#2C211A] mb-1 leading-tight">Directorio de Empresas</h2>
             <p class="text-[#757575] text-[13px] font-sans-custom">Cuentas corporativas registradas</p>
         </div>
-        <button class="bg-emerald-700 hover:bg-emerald-800 text-white px-4 py-2 rounded-lg text-[13px] font-medium transition-all shadow-sm hover:shadow-md flex items-center shadow-sm">
+        <button class="bg-[#4A1525] hover:bg-[#340f1a] text-white px-4 py-2 rounded-lg text-[13px] font-medium transition-all shadow-sm hover:shadow-md flex items-center shadow-sm">
             <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
             Nueva Empresa
         </button>
@@ -14,7 +14,7 @@
         <div class="p-5 md:p-0 border-b border-gray-100 md:border-none flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
             <h3 class="text-[22px] font-serif-custom text-[#2C211A]">Todas las Empresas</h3>
             <div class="relative w-full md:w-[280px]">
-                <input type="text" placeholder="Buscar por razón social, RFC..." class="pl-10 pr-4 py-2 border border-[#EBEBEB] rounded-md text-[13px] text-gray-500 w-full focus:ring-[#4C9156] focus:border-[#4C9156] bg-transparent">
+                <input type="text" placeholder="Buscar por razón social, RFC..." class="pl-10 pr-4 py-2 border border-[#EBEBEB] rounded-md text-[13px] text-gray-500 w-full focus:ring-[#4A1525] focus:border-[#4A1525] bg-transparent">
                 <svg class="w-4 h-4 text-gray-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
             </div>
         </div>
