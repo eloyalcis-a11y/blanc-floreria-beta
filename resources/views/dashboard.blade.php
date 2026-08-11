@@ -63,7 +63,7 @@
                     </button>
                 </div>
                 <div class="flex gap-2 justify-between w-full md:w-auto mt-2 md:mt-0">
-                    <select name="status" onchange="document.getElementById('filter-form').submit()" class="border border-[#EBEBEB] rounded-md text-[13px] text-[#2C211A] font-medium py-2 px-3 focus:ring-[#4C9156] focus:border-[#4C9156] bg-transparent">
+                    <select name="status" onchange="document.getElementById('filter-form').submit()" class="border border-[#EBEBEB] rounded-md text-[13px] text-[#2C211A] font-medium py-2 pl-3 pr-8 focus:ring-[#4C9156] focus:border-[#4C9156] bg-transparent">
                         <option value="Todos" {{ request('status') == 'Todos' ? 'selected' : '' }}>Estado: Todos</option>
                         <option value="Cotizado" {{ request('status') == 'Cotizado' ? 'selected' : '' }}>Cotizado</option>
                         <option value="Confirmado" {{ request('status') == 'Confirmado' ? 'selected' : '' }}>Confirmado</option>
