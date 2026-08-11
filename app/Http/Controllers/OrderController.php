@@ -30,4 +30,9 @@ class OrderController extends Controller
 
         return redirect()->route('dashboard')->with('success', 'Pedido creado exitosamente.');
     }
+
+    public function show(\App\Models\Order $order)
+    {
+        return view('orders.show', compact('order'));
+    }
 }

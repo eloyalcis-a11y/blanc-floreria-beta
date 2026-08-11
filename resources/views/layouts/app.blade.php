@@ -34,7 +34,7 @@
                             </svg>
                         </div>
                         <h1 class="text-[17px] font-sans-custom font-medium text-[#A2BA74] tracking-[0.2em] uppercase">Verde Madera</h1>
-                        <p class="text-[10px] text-gray-300 mt-1 tracking-wider">Regalos Corporativos</p>
+                        <p class="text-[10px] text-gray-300 mt-1 tracking-wider">Arreglos Florales</p>
                     </div>
                 </div>
                 

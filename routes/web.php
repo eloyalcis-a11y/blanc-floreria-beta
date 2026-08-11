@@ -45,6 +45,7 @@ Route::middleware('auth')->group(function () {
     // Admin/Ops Orders
     Route::get('/orders/create', [\App\Http\Controllers\OrderController::class, 'create'])->name('orders.create');
     Route::post('/orders', [\App\Http\Controllers\OrderController::class, 'store'])->name('orders.store');
+    Route::get('/orders/{order}', [\App\Http\Controllers\OrderController::class, 'show'])->name('orders.show');
     
     // Vistas Beta (Prototipos para presentación)
     Route::view('/inicio', 'home')->name('home');

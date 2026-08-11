@@ -23,7 +23,7 @@
                     </svg>
                 </div>
                 <h1 class="text-3xl font-serif text-[#3A2F25] tracking-wider uppercase">Verde Madera</h1>
-                <p class="text-sm text-gray-500 mt-1">Regalos Corporativos</p>
+                <p class="text-sm text-gray-500 mt-1">Arreglos Florales</p>
             </div>
 
             <div class="w-full sm:max-w-md px-8 py-8 bg-white shadow-xl border border-gray-100 overflow-hidden sm:rounded-2xl">
