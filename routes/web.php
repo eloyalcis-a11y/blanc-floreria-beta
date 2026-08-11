@@ -10,6 +10,11 @@ Route::get('/', function () {
 Route::get('/dashboard', function (\Illuminate\Http\Request $request) {
     $query = \App\Models\Order::latest();
     
+    // Candado de seguridad: Si es cliente, solo ve sus pedidos
+    if (auth()->user()->role === 'cliente') {
+        $query->where('user_id', auth()->id());
+    }
+    
     // Filtro por Estatus
     if ($request->filled('status') && $request->status !== 'Estado: Todos' && $request->status !== 'Todos') {
         $query->where('status', $request->status);
@@ -45,11 +50,16 @@ Route::get('/dashboard', function (\Illuminate\Http\Request $request) {
 
     $orders = $query->paginate(10)->withQueryString();
     
-    // Para los contadores globales independientemente del filtro actual
-    $allOrdersCount = \App\Models\Order::count();
-    $cotizadosCount = \App\Models\Order::where('status', 'Cotizado')->count();
-    $enProduccionCount = \App\Models\Order::where('status', 'En producción')->count();
-    $entregadosCount = \App\Models\Order::where('status', 'Entregado')->count();
+    // Para los contadores globales
+    $baseQuery = \App\Models\Order::query();
+    if (auth()->user()->role === 'cliente') {
+        $baseQuery->where('user_id', auth()->id());
+    }
+
+    $allOrdersCount = (clone $baseQuery)->count();
+    $cotizadosCount = (clone $baseQuery)->where('status', 'Cotizado')->count();
+    $enProduccionCount = (clone $baseQuery)->where('status', 'En producción')->count();
+    $entregadosCount = (clone $baseQuery)->where('status', 'Entregado')->count();
 
     return view('dashboard', compact('orders', 'allOrdersCount', 'cotizadosCount', 'enProduccionCount', 'entregadosCount'));
 })->middleware(['auth', 'verified'])->name('dashboard');
