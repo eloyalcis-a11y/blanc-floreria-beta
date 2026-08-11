@@ -1,4 +1,4 @@
-FROM php:8.2-cli
+FROM php:8.4-cli
 
 # Instalar dependencias del sistema y Node.js para compilar los estilos
 RUN apt-get update -y && apt-get install -y unzip git curl libsqlite3-dev \
