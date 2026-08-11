@@ -44,4 +44,15 @@ class OrderController extends Controller
         
         return redirect()->back()->with('success', 'Estado de ruta actualizado.');
     }
+
+    public function updateStatus(Request $request, \App\Models\Order $order)
+    {
+        $validated = $request->validate([
+            'status' => 'required|string|in:Cotizado,Confirmado,En producción,Entregado'
+        ]);
+
+        $order->update(['status' => $validated['status']]);
+        
+        return redirect()->back()->with('success', 'Estatus actualizado.');
+    }
 }

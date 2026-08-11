@@ -116,10 +116,21 @@
                     @endif
                 </form>
 
-                <button class="w-full mb-3 bg-emerald-700 hover:bg-emerald-800 text-white py-2.5 rounded-lg text-[13px] font-medium transition-all shadow-sm hover:shadow-md flex justify-center items-center gap-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-                    Editar Pedido
-                </button>
+                <form action="{{ route('orders.update-status', $order) }}" method="POST" class="mb-3">
+                    @csrf
+                    @method('PATCH')
+                    <div class="flex gap-2">
+                        <select name="status" class="w-full border border-gray-200 rounded-lg px-2 py-2 text-[12px] focus:ring-emerald-700 focus:border-emerald-700 font-medium text-gray-700">
+                            <option value="Cotizado" {{ $order->status == 'Cotizado' ? 'selected' : '' }}>Cotizado</option>
+                            <option value="Confirmado" {{ $order->status == 'Confirmado' ? 'selected' : '' }}>Confirmado</option>
+                            <option value="En producción" {{ $order->status == 'En producción' ? 'selected' : '' }}>En producción</option>
+                            <option value="Entregado" {{ $order->status == 'Entregado' ? 'selected' : '' }}>Entregado</option>
+                        </select>
+                        <button type="submit" class="bg-emerald-700 hover:bg-emerald-800 text-white px-3 py-2 rounded-lg text-[12px] font-medium transition-all shadow-sm flex items-center justify-center" title="Actualizar Estatus">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                        </button>
+                    </div>
+                </form>
                 <button class="w-full mb-3 bg-white hover:bg-gray-50 text-gray-700 border border-gray-200 py-2.5 rounded-lg text-[13px] font-medium transition-all flex justify-center items-center gap-2">
                     <svg class="w-4 h-4 text-emerald-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
                     Imprimir Orden

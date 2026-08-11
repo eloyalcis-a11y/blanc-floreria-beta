@@ -74,6 +74,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/orders', [\App\Http\Controllers\OrderController::class, 'store'])->name('orders.store');
     Route::get('/orders/{order}', [\App\Http\Controllers\OrderController::class, 'show'])->name('orders.show');
     Route::patch('/orders/{order}/toggle-route', [\App\Http\Controllers\OrderController::class, 'toggleRoute'])->name('orders.toggle-route');
+    Route::patch('/orders/{order}/status', [\App\Http\Controllers\OrderController::class, 'updateStatus'])->name('orders.update-status');
     
     // Vistas Beta (Prototipos para presentación)
     Route::view('/inicio', 'home')->name('home');
