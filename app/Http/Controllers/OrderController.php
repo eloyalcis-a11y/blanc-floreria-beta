@@ -35,4 +35,13 @@ class OrderController extends Controller
     {
         return view('orders.show', compact('order'));
     }
+
+    public function toggleRoute(\App\Models\Order $order)
+    {
+        $order->update([
+            'is_in_route' => !$order->is_in_route
+        ]);
+        
+        return redirect()->back()->with('success', 'Estado de ruta actualizado.');
+    }
 }

@@ -64,6 +64,10 @@
                         <p class="text-[20px] text-[#2C211A] font-sans-custom font-light">MX$ {{ number_format($order->total_price, 2) }}</p>
                     </div>
                     <div>
+                        <p class="text-[11px] text-[#757575] font-semibold mb-1 uppercase tracking-wider">Método de Pago</p>
+                        <p class="text-[15px] text-[#2C211A] font-medium">{{ $order->payment_method ?: 'No especificado' }}</p>
+                    </div>
+                    <div>
                         <p class="text-[11px] text-[#757575] font-semibold mb-1 uppercase tracking-wider">Fecha Estimada de Entrega</p>
                         <p class="text-[15px] text-[#2C211A] font-medium">
                             @if($order->delivery_date)
@@ -96,6 +100,22 @@
             <div class="bg-white rounded-[14px] p-5 shadow-[0_4px_16px_rgba(0,0,0,0.02)] border border-[#EBEBEB]">
                 <h3 class="text-[12px] font-bold text-[#2C211A] uppercase tracking-wider mb-4">Acciones Rápidas</h3>
                 
+                <form action="{{ route('orders.toggle-route', $order) }}" method="POST" class="mb-3">
+                    @csrf
+                    @method('PATCH')
+                    @if($order->is_in_route)
+                        <button type="submit" class="w-full bg-amber-500 hover:bg-amber-600 text-white py-2.5 rounded-lg text-[13px] font-medium transition-all shadow-sm hover:shadow-md flex justify-center items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                            Quitar de Ruta
+                        </button>
+                    @else
+                        <button type="submit" class="w-full bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200 py-2.5 rounded-lg text-[13px] font-medium transition-all flex justify-center items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
+                            Marcar en Ruta
+                        </button>
+                    @endif
+                </form>
+
                 <button class="w-full mb-3 bg-emerald-700 hover:bg-emerald-800 text-white py-2.5 rounded-lg text-[13px] font-medium transition-all shadow-sm hover:shadow-md flex justify-center items-center gap-2">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                     Editar Pedido

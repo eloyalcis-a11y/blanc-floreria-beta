@@ -78,7 +78,26 @@
                 </div>
             </form>
         </div>
-
+        <div class="px-5 pb-4 md:px-0 md:pb-5 border-b border-gray-100 md:border-none flex gap-2 overflow-x-auto scrollbar-hide">
+            <span class="text-[11px] font-semibold text-gray-500 uppercase tracking-wider py-1.5 mr-2">Filtros Rápidos:</span>
+            <a href="{{ route('dashboard', ['filter' => 'proximas']) }}" class="px-3 py-1.5 {{ request('filter') == 'proximas' ? 'bg-emerald-700 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200' }} rounded-full text-[11px] font-medium whitespace-nowrap transition-colors flex items-center gap-1.5">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                Próximas Entregas
+            </a>
+            <a href="{{ route('dashboard', ['filter' => 'por_vencer']) }}" class="px-3 py-1.5 {{ request('filter') == 'por_vencer' ? 'bg-red-600 text-white' : 'bg-red-50 text-red-700 hover:bg-red-100' }} rounded-full text-[11px] font-medium whitespace-nowrap transition-colors flex items-center gap-1.5">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                Por Vencer
+            </a>
+            <a href="{{ route('dashboard', ['filter' => 'en_ruta']) }}" class="px-3 py-1.5 {{ request('filter') == 'en_ruta' ? 'bg-amber-500 text-white' : 'bg-amber-50 text-amber-700 hover:bg-amber-100' }} rounded-full text-[11px] font-medium whitespace-nowrap transition-colors flex items-center gap-1.5">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
+                En Ruta
+            </a>
+            @if(request()->has('filter'))
+                <a href="{{ route('dashboard') }}" class="px-3 py-1.5 text-gray-500 hover:text-gray-700 text-[11px] font-medium whitespace-nowrap flex items-center transition-colors">
+                    Limpiar Filtro
+                </a>
+            @endif
+        </div>
         <!-- Desktop Table View -->
         <div class="hidden md:block overflow-x-auto bg-[#F5F4F0]">
             <table class="w-full text-left border-collapse">

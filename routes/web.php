@@ -26,6 +26,23 @@ Route::get('/dashboard', function (\Illuminate\Http\Request $request) {
         });
     }
 
+    // Filtros Rápidos Logísticos
+    if ($request->filled('filter')) {
+        if ($request->filter === 'proximas') {
+            $query->whereNotNull('delivery_date')
+                  ->where('status', '!=', 'Entregado')
+                  ->orderBy('delivery_date', 'asc');
+        } elseif ($request->filter === 'en_ruta') {
+            $query->where('is_in_route', true)
+                  ->where('status', '!=', 'Entregado');
+        } elseif ($request->filter === 'por_vencer') {
+            $query->whereNotNull('delivery_date')
+                  ->where('status', '!=', 'Entregado')
+                  ->where('delivery_date', '<=', now()->addDays(2))
+                  ->orderBy('delivery_date', 'asc');
+        }
+    }
+
     $orders = $query->paginate(10)->withQueryString();
     
     // Para los contadores globales independientemente del filtro actual
@@ -46,6 +63,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/orders/create', [\App\Http\Controllers\OrderController::class, 'create'])->name('orders.create');
     Route::post('/orders', [\App\Http\Controllers\OrderController::class, 'store'])->name('orders.store');
     Route::get('/orders/{order}', [\App\Http\Controllers\OrderController::class, 'show'])->name('orders.show');
+    Route::patch('/orders/{order}/toggle-route', [\App\Http\Controllers\OrderController::class, 'toggleRoute'])->name('orders.toggle-route');
     
     // Vistas Beta (Prototipos para presentación)
     Route::view('/inicio', 'home')->name('home');
