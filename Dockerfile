@@ -18,13 +18,8 @@ COPY . .
 RUN composer install --no-interaction --optimize-autoloader
 RUN npm install && npm run build
 
-# Preparar la base de datos SQLite y correr migraciones
-RUN touch database/database.sqlite
-RUN php artisan migrate --force
-RUN php artisan db:seed --force
-
 # Exponer el puerto
 EXPOSE 10000
 
-# Comando para iniciar el servidor
-CMD php artisan serve --host=0.0.0.0 --port=10000
+# Comando para iniciar el servidor (Migramos y seedeamos en runtime)
+CMD touch database/database.sqlite && php artisan migrate --force && php artisan db:seed --force && php artisan serve --host=0.0.0.0 --port=10000
