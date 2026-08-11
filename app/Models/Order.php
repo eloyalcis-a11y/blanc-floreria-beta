@@ -20,6 +20,8 @@ class Order extends Model
         'image_url',
         'delivery_date',
         'is_in_route',
+        'source',
+        'nori_id',
     ];
 
     protected $casts = [

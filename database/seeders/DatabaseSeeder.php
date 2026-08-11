@@ -52,7 +52,7 @@ class DatabaseSeeder extends Seeder
             'order_number' => 'PD-1283',
             'client_name' => 'Carlos Ruiz',
             'company' => 'Innovatech S.A.',
-            'material' => 'Ramo Buchón 100 Rosas',
+            'material' => 'Arreglo Floral Premium 100 Rosas',
             'quantity' => 1,
             'total_price' => 28800,
             'status' => 'En producción',
