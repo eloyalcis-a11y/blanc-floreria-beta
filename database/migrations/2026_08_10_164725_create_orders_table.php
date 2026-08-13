@@ -21,10 +21,22 @@ return new class extends Migration
             $table->integer('quantity');
             $table->decimal('unit_price', 10, 2)->nullable();
             $table->decimal('total_price', 10, 2)->nullable();
-            $table->string('status')->default('Cotizado'); // Cotizado, Confirmado, En producción, Entregado
+            $table->string('status')->default('Pendiente de Pago'); // Pendiente de Pago, Cotizado, Confirmado, En producción, Entregado
+            $table->string('payment_proof_path')->nullable();
+            $table->string('product_code')->nullable();
+            $table->string('reference_image_path')->nullable();
+            $table->text('notes')->nullable();
+            $table->string('sender_name')->nullable();
+            $table->decimal('shipping_cost', 10, 2)->nullable();
+            $table->string('client_phone')->nullable();
+            $table->string('client_email')->nullable();
+            $table->text('dedication_message')->nullable();
+            $table->string('salesperson')->nullable();
             $table->string('payment_method')->nullable();
             $table->string('image_url')->nullable();
             $table->date('delivery_date')->nullable();
+            $table->string('delivery_time')->nullable();
+            $table->text('delivery_address')->nullable();
             $table->boolean('is_in_route')->default(false);
             $table->timestamps();
         });

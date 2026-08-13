@@ -1,7 +1,15 @@
 <x-app-layout>
-    <div class="mb-8 md:pt-4">
-        <h2 class="text-[32px] font-serif-custom font-normal text-[#2C211A] mb-1 leading-tight">Control de Pedidos</h2>
-        <p class="text-[#757575] text-[13px] font-sans-custom">Gestión de pedidos de arreglos florales — Octubre 2024</p>
+    <div class="mb-8 md:pt-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+            <h2 class="text-[32px] font-serif-custom font-normal text-[#2C211A] mb-1 leading-tight">Control de Pedidos</h2>
+            <p class="text-[#757575] text-[13px] font-sans-custom">Gestión de pedidos de arreglos florales — Octubre 2024</p>
+        </div>
+        <div>
+            <a href="{{ route('reports.export', request()->all()) }}" class="bg-white hover:bg-gray-50 text-[#2E7D32] border border-[#A5D6A7] px-4 py-2.5 rounded-lg text-[13px] font-medium transition-all shadow-sm flex items-center justify-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                Descargar Reporte Excel
+            </a>
+        </div>
     </div>
 
     <!-- Summary Cards -->
@@ -48,6 +56,48 @@
         </a>
     </div>
 
+    <!-- Próximos a Entregar -->
+    @if(isset($upcomingOrders) && $upcomingOrders->count() > 0)
+    <div class="mb-8">
+        <h3 class="text-[20px] font-serif-custom text-[#2C211A] mb-4 flex items-center gap-2">
+            <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            Próximos a Entregar (Próximas 48 hrs)
+        </h3>
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-gray-50 border-b border-gray-100 text-[11px] font-bold text-[#757575] uppercase tracking-wider">
+                            <th class="px-5 py-4">Pedido</th>
+                            <th class="px-5 py-4">Destinatario</th>
+                            <th class="px-5 py-4">Día de Entrega</th>
+                            <th class="px-5 py-4">Hora Estimada</th>
+                            <th class="px-5 py-4 text-center">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100 bg-white text-[13px] text-[#2C211A] font-medium">
+                        @foreach($upcomingOrders as $upOrder)
+                            <tr class="hover:bg-gray-50 transition-colors group cursor-pointer" onclick="window.location='{{ route('orders.show', $upOrder) }}'">
+                                <td class="px-5 py-4 font-bold text-[#4A1525]">{{ $upOrder->order_number }}</td>
+                                <td class="px-5 py-4">{{ $upOrder->client_name }}</td>
+                                <td class="px-5 py-4 font-semibold text-amber-700">
+                                    {{ \Carbon\Carbon::parse($upOrder->delivery_date)->isToday() ? 'HOY' : (\Carbon\Carbon::parse($upOrder->delivery_date)->isTomorrow() ? 'Mañana' : \Carbon\Carbon::parse($upOrder->delivery_date)->format('d \d\e M')) }}
+                                </td>
+                                <td class="px-5 py-4">{{ $upOrder->delivery_time ?: 'No especificado' }}</td>
+                                <td class="px-5 py-4 text-center">
+                                    <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-50 text-amber-700 rounded-md text-xs font-bold border border-amber-200 uppercase tracking-wide">
+                                        {{ $upOrder->status }}
+                                    </span>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    @endif
+
     <!-- Orders Section -->
     <div class="bg-white md:bg-transparent rounded-2xl md:rounded-none shadow-sm md:shadow-none border border-gray-100 md:border-none overflow-hidden mb-20 md:mb-0">
         <div class="p-5 md:p-0 border-b border-gray-100 md:border-none flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
@@ -65,9 +115,11 @@
                 <div class="flex gap-2 justify-between w-full md:w-auto mt-2 md:mt-0">
                     <select name="status" onchange="document.getElementById('filter-form').submit()" class="border border-[#EBEBEB] rounded-md text-[13px] text-[#2C211A] font-medium py-2 pl-3 pr-8 focus:ring-[#4A1525] focus:border-[#4A1525] bg-transparent">
                         <option value="Todos" {{ request('status') == 'Todos' ? 'selected' : '' }}>Estado: Todos</option>
+                        <option value="Pendiente de Pago" {{ request('status') == 'Pendiente de Pago' ? 'selected' : '' }}>Pendiente de Pago</option>
                         <option value="Cotizado" {{ request('status') == 'Cotizado' ? 'selected' : '' }}>Cotizado</option>
                         <option value="Confirmado" {{ request('status') == 'Confirmado' ? 'selected' : '' }}>Confirmado</option>
-                        <option value="En producción" {{ request('status') == 'En producción' ? 'selected' : '' }}>En producción</option>
+                        <option value="En proceso" {{ request('status') == 'En proceso' ? 'selected' : '' }}>En proceso</option>
+                        <option value="En ruta" {{ request('status') == 'En ruta' ? 'selected' : '' }}>En ruta</option>
                         <option value="Entregado" {{ request('status') == 'Entregado' ? 'selected' : '' }}>Entregado</option>
                     </select>
                     <a href="{{ route('orders.create') }}" class="bg-[#4A1525] hover:bg-[#340f1a] text-white px-4 py-2 rounded-lg text-[13px] font-medium transition-all shadow-sm hover:shadow-md flex items-center shadow-sm">
@@ -132,14 +184,15 @@
                             <td class="py-5 px-2 text-center">
                                 @php
                                     $statusClasses = [
-                                        'Confirmado' => 'bg-[#4F75DA] text-white',
-                                        'En producción' => 'bg-[#E08544] text-white',
+                                        'Pendiente de Pago' => 'bg-red-50 text-red-600 border border-red-200',
+                                        'Cotizado' => 'bg-amber-50 text-amber-600 border border-amber-200',
+                                        'Confirmado' => 'bg-blue-50 text-blue-600 border border-blue-200',
+                                        'En producción' => 'bg-[#4A1525] text-white',
                                         'Entregado' => 'bg-[#4A1525] text-white',
-                                        'Cotizado' => 'bg-[#E9C441] text-white',
                                     ];
-                                    $class = $statusClasses[$order->status] ?? 'bg-gray-400 text-white';
+                                    $badgeClass = $statusClasses[$order->status] ?? 'bg-gray-100 text-gray-800 border-gray-200';
                                 @endphp
-                                <span class="px-4 py-1.5 text-[11px] rounded-lg font-medium tracking-wide {{ $class }}">
+                                <span class="px-4 py-1.5 text-[11px] rounded-lg font-medium tracking-wide {{ $badgeClass }}">
                                     {{ $order->status }}
                                 </span>
                             </td>
@@ -157,11 +210,12 @@
         <!-- Mobile Cards View (Hidden on Desktop) -->
         <div class="md:hidden space-y-4 bg-[#F5F4F0] p-4">
             <!-- Filter Pills -->
-            <div class="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-                <a href="{{ route('dashboard', ['status' => 'Todos']) }}" class="px-4 py-1.5 {{ request('status') == 'Todos' || !request('status') ? 'bg-[#4A1525] text-white' : 'bg-[#E8E8E8] text-[#757575]' }} text-[11px] rounded-lg font-medium whitespace-nowrap shadow-sm">Todos</a>
-                <a href="{{ route('dashboard', ['status' => 'Cotizado']) }}" class="px-4 py-1.5 {{ request('status') == 'Cotizado' ? 'bg-[#4A1525] text-white' : 'bg-[#E8E8E8] text-[#757575]' }} text-[11px] rounded-lg font-medium whitespace-nowrap shadow-sm">Cotizado</a>
+            <div class="flex gap-2 overflow-x-auto pb-4 hide-scrollbar">
+                <a href="{{ route('dashboard', ['status' => 'Todos']) }}" class="px-4 py-1.5 {{ request('status') == 'Todos' || !request('status') ? 'bg-[#4A1525] text-white' : 'bg-[#E8E8E8] text-[#757575]' }} text-[11px] rounded-lg font-medium whitespace-nowrap shadow-sm">Todos ({{ $allOrdersCount ?? 0 }})</a>
+                <a href="{{ route('dashboard', ['status' => 'Pendiente de Pago']) }}" class="px-4 py-1.5 {{ request('status') == 'Pendiente de Pago' ? 'bg-[#4A1525] text-white' : 'bg-[#E8E8E8] text-[#757575]' }} text-[11px] rounded-lg font-medium whitespace-nowrap shadow-sm">Pendiente ({{ $pendientesCount ?? 0 }})</a>
+                <a href="{{ route('dashboard', ['status' => 'Cotizado']) }}" class="px-4 py-1.5 {{ request('status') == 'Cotizado' ? 'bg-[#4A1525] text-white' : 'bg-[#E8E8E8] text-[#757575]' }} text-[11px] rounded-lg font-medium whitespace-nowrap shadow-sm">Cotizado ({{ $cotizadosCount ?? 0 }})</a>
                 <a href="{{ route('dashboard', ['status' => 'Confirmado']) }}" class="px-4 py-1.5 {{ request('status') == 'Confirmado' ? 'bg-[#4A1525] text-white' : 'bg-[#E8E8E8] text-[#757575]' }} text-[11px] rounded-lg font-medium whitespace-nowrap shadow-sm">Confirmado</a>
-                <a href="{{ route('dashboard', ['status' => 'En producción']) }}" class="px-4 py-1.5 {{ request('status') == 'En producción' ? 'bg-[#4A1525] text-white' : 'bg-[#E8E8E8] text-[#757575]' }} text-[11px] rounded-lg font-medium whitespace-nowrap shadow-sm">En producción</a>
+                <a href="{{ route('dashboard', ['status' => 'En producción']) }}" class="px-4 py-1.5 {{ request('status') == 'En producción' ? 'bg-[#4A1525] text-white' : 'bg-[#E8E8E8] text-[#757575]' }} text-[11px] rounded-lg font-medium whitespace-nowrap shadow-sm">En producción ({{ $enProduccionCount ?? 0 }})</a>
             </div>
 
             @if($orders->isEmpty())
@@ -174,13 +228,14 @@
                 <div class="bg-white rounded-[14px] p-5 shadow-[0_2px_8px_rgba(0,0,0,0.04)] border border-[#EBEBEB]">
                     <div class="flex justify-between items-start mb-3">
                         @php
-                            $statusMobileClasses = [
+                            $statusClasses = [
+                                'Pendiente de Pago' => 'bg-red-50 text-red-600',
+                                'Cotizado' => 'bg-amber-50 text-amber-600',
                                 'Confirmado' => 'bg-[#FAFAFA] text-[#4A1525]',
-                                'En producción' => 'bg-[#FBE8D6] text-[#E08544]',
+                                'En producción' => 'bg-[#FAFAFA] text-[#4A1525]',
                                 'Entregado' => 'bg-[#FAFAFA] text-[#4A1525]',
-                                'Cotizado' => 'bg-[#FEF6D9] text-[#E9C441]',
                             ];
-                            $mobileClass = $statusMobileClasses[$order->status] ?? 'bg-gray-100 text-gray-700';
+                            $mobileClass = $statusClasses[$order->status] ?? 'bg-gray-100 text-gray-800';
                             
                             $sourceIcon = $order->source === 'Shopify' ? '<span class="px-1.5 py-0.5 bg-green-100 text-green-800 text-[9px] rounded uppercase font-bold mr-1">Shopify</span>' : ($order->source === 'Nori' ? '<span class="px-1.5 py-0.5 bg-blue-100 text-blue-800 text-[9px] rounded uppercase font-bold mr-1">Nori</span>' : '');
                         @endphp

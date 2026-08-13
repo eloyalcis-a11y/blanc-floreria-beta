@@ -40,6 +40,8 @@ Route::get('/dashboard', function (\Illuminate\Http\Request $request) {
         } elseif ($request->filter === 'en_ruta') {
             $query->where('is_in_route', true)
                   ->where('status', '!=', 'Entregado');
+        } elseif ($request->filter === 'pendientes_pago') {
+            $query->where('status', 'Pendiente de Pago');
         } elseif ($request->filter === 'por_vencer') {
             $query->whereNotNull('delivery_date')
                   ->where('status', '!=', 'Entregado')
@@ -57,12 +59,24 @@ Route::get('/dashboard', function (\Illuminate\Http\Request $request) {
     }
 
     $allOrdersCount = (clone $baseQuery)->count();
+    $pendientesCount = (clone $baseQuery)->where('status', 'Pendiente de Pago')->count();
     $cotizadosCount = (clone $baseQuery)->where('status', 'Cotizado')->count();
-    $enProduccionCount = (clone $baseQuery)->where('status', 'En producción')->count();
+    $enProduccionCount = (clone $baseQuery)->whereIn('status', ['En proceso', 'En ruta'])->count();
     $entregadosCount = (clone $baseQuery)->where('status', 'Entregado')->count();
 
-    return view('dashboard', compact('orders', 'allOrdersCount', 'cotizadosCount', 'enProduccionCount', 'entregadosCount'));
+    // Próximos a entregar (hoy y próximos días) excluyendo entregados
+    $upcomingOrders = (clone $baseQuery)
+        ->where('status', '!=', 'Entregado')
+        ->whereNotNull('delivery_date')
+        ->whereDate('delivery_date', '>=', now()->toDateString())
+        ->whereDate('delivery_date', '<=', now()->addDays(2)->toDateString())
+        ->orderBy('delivery_date', 'asc')
+        ->get();
+
+    return view('dashboard', compact('orders', 'allOrdersCount', 'pendientesCount', 'cotizadosCount', 'enProduccionCount', 'entregadosCount', 'upcomingOrders'));
 })->middleware(['auth', 'verified'])->name('dashboard');
+
+Route::get('/tracking/{order_number}', [\App\Http\Controllers\TrackingController::class, 'show'])->name('tracking.show');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -75,26 +89,21 @@ Route::middleware('auth')->group(function () {
     Route::get('/orders/{order}', [\App\Http\Controllers\OrderController::class, 'show'])->name('orders.show');
     Route::patch('/orders/{order}/toggle-route', [\App\Http\Controllers\OrderController::class, 'toggleRoute'])->name('orders.toggle-route');
     Route::patch('/orders/{order}/status', [\App\Http\Controllers\OrderController::class, 'updateStatus'])->name('orders.update-status');
+    Route::patch('/orders/{order}/financials', [\App\Http\Controllers\OrderController::class, 'updateFinancials'])->name('orders.update-financials');
+    
+    // Reportes
+    Route::get('/reports/export', [\App\Http\Controllers\ReportController::class, 'export'])->name('reports.export');
+    
+    // Notificaciones
+    Route::get('/notifications', [\App\Http\Controllers\NotificationController::class, 'index'])->name('notifications.index');
+    Route::get('/notifications/{id}/read', [\App\Http\Controllers\NotificationController::class, 'read'])->name('notifications.read');
     
     // Vistas Beta (Prototipos para presentación)
     Route::view('/inicio', 'home')->name('home');
     Route::view('/clientes', 'clients')->name('clients.index');
     Route::view('/empresas', 'companies')->name('companies.index');
     Route::view('/materiales', 'materials')->name('materials.index');
-    Route::get('/reportes', function() {
-        $totalVentas = \App\Models\Order::where('status', 'Entregado')->sum('total_price');
-        $pedidosPorMes = \App\Models\Order::selectRaw('strftime("%m", created_at) as mes, count(*) as total')
-            ->groupBy('mes')
-            ->get();
-        $pedidosActivos = \App\Models\Order::where('status', '!=', 'Entregado')->count();
-        $topClientes = \App\Models\Order::selectRaw('client_name, count(*) as pedidos, sum(total_price) as gastado')
-            ->groupBy('client_name')
-            ->orderByDesc('gastado')
-            ->limit(5)
-            ->get();
-            
-        return view('reports', compact('totalVentas', 'pedidosPorMes', 'pedidosActivos', 'topClientes'));
-    })->name('reports.index');
+    Route::get('/reportes', [\App\Http\Controllers\ReportController::class, 'index'])->name('reports.index');
     Route::view('/ajustes', 'settings')->name('settings.index');
     Route::view('/ayuda', 'help')->name('help.index');
 });
