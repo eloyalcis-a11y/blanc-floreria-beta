@@ -52,7 +52,7 @@ class ShopifyWebhookController extends Controller
 
         // 6. Crear el pedido en nuestra base de datos local
         Order::create([
-            'order_number' => $payload['order_number'] ?? $payload['id'], // Número de orden de shopify
+            'order_number' => $payload['name'] ?? ('#' . ($payload['order_number'] ?? $payload['id'])), // Mantiene el folio exacto de Shopify (ej. #1024)
             'user_id' => 1, // Usuario administrador por defecto
             'client_name' => $clientName,
             'company' => $company,

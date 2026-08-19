@@ -108,11 +108,10 @@ Route::middleware('auth')->group(function () {
     Route::view('/ayuda', 'help')->name('help.index');
 });
 
-// Public route for clients
-Route::get('/pedido-cliente', [\App\Http\Controllers\OrderController::class, 'create'])->name('client.order.create');
-Route::post('/pedido-cliente', [\App\Http\Controllers\OrderController::class, 'store'])->name('client.order.store');
-
 require __DIR__.'/auth.php';
 
-// Shopify Webhooks
+// Shopify Webhooks e Integración
 Route::post('/webhook/shopify/orders/create', [\App\Http\Controllers\ShopifyWebhookController::class, 'handleOrderCreate'])->name('webhook.shopify.orders.create');
+Route::get('/shopify/install', [\App\Http\Controllers\ShopifyAuthController::class, 'install'])->name('shopify.install');
+Route::get('/shopify/callback', [\App\Http\Controllers\ShopifyAuthController::class, 'callback'])->name('shopify.callback');
+Route::get('/api/shopify/products', [\App\Http\Controllers\ShopifyProductController::class, 'search'])->name('shopify.products.search');

@@ -56,8 +56,13 @@
                         <p class="text-[11px] text-[#757575] font-semibold mb-1 uppercase tracking-wider">Correo Electrónico</p>
                         <p class="text-[15px] text-[#2C211A] font-medium">{{ $order->client_email ?: 'No proporcionado' }}</p>
                     </div>
-                    <div class="col-span-2 bg-gray-50 p-4 rounded-lg border border-gray-100">
-                        <p class="text-[11px] text-[#757575] font-semibold mb-1 uppercase tracking-wider text-center">Nombre del Remitente (Quien Envía)</p>
+                    <div class="col-span-2 grid grid-cols-2 gap-4 bg-gray-50 p-4 rounded-lg border border-gray-100 mt-2">
+                        <div>
+                            <p class="text-[11px] text-[#757575] font-semibold mb-1 uppercase tracking-wider text-center">Nombre de Quien Recibe</p>
+                            <p class="text-[16px] text-[#4A1525] font-bold text-center font-serif-custom">{{ $order->recipient_name ?: 'No especificado' }}</p>
+                        </div>
+                        <div>
+                            <p class="text-[11px] text-[#757575] font-semibold mb-1 uppercase tracking-wider text-center">Nombre del Remitente (Quien Envía)</p>
                         <p class="text-[16px] text-[#2C211A] font-medium text-center">{{ $order->sender_name ?: 'Mismo que el comprador' }}</p>
                     </div>
                 </div>
@@ -105,6 +110,12 @@
                     <div>
                         <p class="text-[11px] text-[#757575] font-semibold mb-1 uppercase tracking-wider">Método de Pago</p>
                         <p class="text-[15px] text-[#2C211A] font-medium">{{ $order->payment_method ?: 'No especificado' }}</p>
+                        @if($order->payment_method === 'Nómina')
+                            <p class="text-[12px] text-gray-500 mt-1">RFC: <span class="font-medium text-gray-700">{{ $order->payroll_rfc }}</span></p>
+                            <p class="text-[12px] text-gray-500">Área: <span class="font-medium text-gray-700">{{ $order->payroll_area }}</span></p>
+                        @elseif($order->payment_method === 'Cuentas por cobrar')
+                            <p class="text-[12px] text-gray-500 mt-1">Cobrar a: <span class="font-medium text-gray-700">{{ $order->accounts_receivable_entity }}</span></p>
+                        @endif
                     </div>
                     <div>
                         <p class="text-[11px] text-[#757575] font-semibold mb-1 uppercase tracking-wider">Gastos de Envío</p>
@@ -149,7 +160,25 @@
                     </div>
                     <div class="col-span-2">
                         <p class="text-[11px] text-[#757575] font-semibold mb-1 uppercase tracking-wider">Domicilio de Entrega</p>
-                        <p class="text-[15px] text-[#2C211A] font-medium">{{ $order->delivery_address ?: 'No especificado' }}</p>
+                        @if($order->delivery_street || $order->delivery_neighborhood)
+                            <p class="text-[15px] text-[#2C211A] font-medium mb-1">
+                                {{ $order->delivery_street }}<br>
+                                {{ $order->delivery_neighborhood }}{{ $order->delivery_zip ? ', C.P. '.$order->delivery_zip : '' }}
+                            </p>
+                            @if($order->delivery_references)
+                                <p class="text-[13px] text-gray-500 italic mb-3">Ref: {{ $order->delivery_references }}</p>
+                            @endif
+                            
+                            @php
+                                $mapsQuery = urlencode(trim($order->delivery_street . ' ' . $order->delivery_neighborhood . ' ' . $order->delivery_zip));
+                            @endphp
+                            <a href="https://www.google.com/maps/search/?api=1&query={{ $mapsQuery }}" target="_blank" class="inline-flex items-center gap-2 bg-[#25D366] hover:bg-[#20bd5a] text-white px-4 py-2 rounded-lg font-bold text-sm transition-colors shadow-sm">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.243-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                                Abrir en Google Maps
+                            </a>
+                        @else
+                            <p class="text-[15px] text-[#2C211A] font-medium">{{ $order->delivery_address ?: 'No especificado' }}</p>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -204,22 +233,32 @@
         <!-- Sidebar Actions & Files -->
         <div class="space-y-4">
             <!-- Referencia del arreglo -->
-            @if($order->reference_image_path)
+            @if($order->image_url)
             <div class="bg-white rounded-[14px] overflow-hidden shadow-[0_4px_16px_rgba(0,0,0,0.02)] border border-[#EBEBEB]">
                 <div class="p-4 border-b border-gray-100 bg-gray-50">
                     <h3 class="text-[12px] font-bold text-[#2C211A] uppercase tracking-wider flex items-center gap-2">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                        Referencia del Arreglo
+                        Referencia
                     </h3>
                 </div>
-                <div class="p-4">
-                    <a href="{{ Storage::url($order->reference_image_path) }}" target="_blank" class="block">
-                        <div class="aspect-square bg-gray-100 rounded-lg overflow-hidden flex items-center justify-center group relative">
-                            <div class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                <span class="text-white text-sm font-medium">Ver completo</span>
-                            </div>
-                            <img src="{{ Storage::url($order->reference_image_path) }}" alt="Referencia" class="object-cover w-full h-full">
+                
+                @php
+                    $isPdf = Str::endsWith(strtolower($order->image_url), '.pdf');
+                @endphp
+                
+                <div class="p-2">
+                    <a href="{{ $order->image_url }}" target="_blank" class="block rounded-lg overflow-hidden border border-gray-100 relative group">
+                        <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                            <span class="text-white text-xs font-semibold bg-[#4A1525]/80 px-3 py-1.5 rounded-full backdrop-blur-sm">Ampliar Imagen</span>
                         </div>
+                        @if($isPdf)
+                            <div class="bg-gray-50 h-32 flex flex-col items-center justify-center text-center">
+                                <span class="text-3xl mb-2">📄</span>
+                                <span class="text-[11px] font-medium text-gray-700 px-4">Documento PDF</span>
+                            </div>
+                        @else
+                            <img src="{{ $order->image_url }}" alt="Referencia" class="object-cover w-full h-48">
+                        @endif
                     </a>
                 </div>
             </div>

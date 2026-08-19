@@ -18,42 +18,50 @@ class OrderController extends Controller
     public function store(Request $request)
     {
         $rules = [
+            'arrangement_type' => 'required|in:catalogo,personalizado',
             'client_name' => 'required|string|max:255',
+            'recipient_name' => 'nullable|string|max:255',
             'company' => 'nullable|string|max:255',
             'material' => 'required|string|max:255',
             'quantity' => 'required|integer|min:1',
             'payment_method' => 'nullable|string',
+            'payroll_rfc' => 'nullable|string|max:255',
+            'payroll_area' => 'nullable|string|max:255',
+            'accounts_receivable_entity' => 'nullable|string|max:255',
             'product_code' => 'nullable|string|max:255',
             'notes' => 'nullable|string',
             'sender_name' => 'nullable|string|max:255',
             'shipping_cost' => 'nullable|numeric|min:0',
             'delivery_date' => 'nullable|date',
             'delivery_time' => 'nullable|string|max:255',
-            'delivery_address' => 'nullable|string',
+            'delivery_street' => 'nullable|string|max:255',
+            'delivery_neighborhood' => 'nullable|string|max:255',
+            'delivery_zip' => 'nullable|string|max:20',
+            'delivery_references' => 'nullable|string',
             'client_phone' => 'nullable|string|max:255',
             'client_email' => 'nullable|email|max:255',
             'dedication_message' => 'nullable|string',
             'salesperson' => 'nullable|string|max:255',
             'reference_image' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'shopify_image_url' => 'nullable|url',
         ];
 
-        // Solo exigimos comprobante si es cliente. Si es admin, puede que lo pague después o en efectivo.
-        if (!auth()->check() || auth()->user()->role === 'cliente') {
-            $rules['payment_proof'] = 'required|file|mimes:jpg,jpeg,png,pdf|max:5120';
-        } else {
-            $rules['payment_proof'] = 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120';
-        }
+        // El comprobante no es obligatorio para ventas/staff, pueden agregarlo después
+        $rules['payment_proof'] = 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120';
 
         $validated = $request->validate($rules);
 
-        $validated['order_number'] = 'PD-' . rand(1000, 9999);
-        $validated['user_id'] = auth()->id() ?? 1; // Fallback to 1 if not logged in
-        
-        if (!auth()->check() || auth()->user()->role === 'cliente') {
-            $validated['status'] = 'Pendiente de Pago';
+        // Generar folio secuencial (PD-0001, PD-0002...)
+        $lastOrder = \App\Models\Order::where('order_number', 'like', 'PD-%')->orderBy('id', 'desc')->first();
+        if ($lastOrder) {
+            $lastNumber = intval(str_replace('PD-', '', $lastOrder->order_number));
+            $validated['order_number'] = 'PD-' . str_pad($lastNumber + 1, 4, '0', STR_PAD_LEFT);
         } else {
-            $validated['status'] = 'Cotizado';
+            $validated['order_number'] = 'PD-0001';
         }
+        $validated['user_id'] = auth()->id();
+        
+        $validated['status'] = 'Cotizado';
         
         if ($request->hasFile('payment_proof')) {
             $path = $request->file('payment_proof')->store('payment_proofs', 'public');
@@ -62,7 +70,9 @@ class OrderController extends Controller
 
         if ($request->hasFile('reference_image')) {
             $path = $request->file('reference_image')->store('reference_images', 'public');
-            $validated['reference_image_path'] = $path;
+            $validated['image_url'] = '/storage/' . $path;
+        } elseif ($request->filled('shopify_image_url')) {
+            $validated['image_url'] = $request->input('shopify_image_url');
         }
         
         $order = \App\Models\Order::create($validated);
