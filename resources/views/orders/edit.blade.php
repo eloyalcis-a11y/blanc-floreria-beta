@@ -1,23 +1,23 @@
 <x-app-layout>
     <div class="max-w-4xl mx-auto mt-8">
         <div class="mb-6">
-            <h2 class="text-3xl font-serif text-[#3A2F25] mb-1">Nuevo Pedido</h2>
-            <p class="text-gray-500 text-sm">Ingresa los datos del nuevo pedido.</p>
+            <h2 class="text-3xl font-serif text-[#3A2F25] mb-1">Editar Pedido {{ $order->order_number }}</h2>
+            <p class="text-gray-500 text-sm">Edita los detalles del pedido.</p>
         </div>
 
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8">
             <form x-data="{ 
-                arrangementType: 'catalogo',
-                street: '',
-                neighborhood: '',
-                zip: '',
-                paymentMethod: 'Transferencia Bancaria',
-                searchQuery: '',
+                arrangementType: '{{ $order->arrangement_type ?: 'catalogo' }}',
+                street: '{{ $order->delivery_street }}',
+                neighborhood: '{{ $order->delivery_neighborhood }}',
+                zip: '{{ $order->delivery_zip }}',
+                paymentMethod: '{{ $order->payment_method ?: 'Transferencia Bancaria' }}',
+                searchQuery: '{{ $order->material }}',
                 searchResults: [],
                 isSearching: false,
                 selectedProduct: null,
-                selectedSku: '',
-                shopifyImageUrl: '',
+                selectedSku: '{{ $order->product_code }}',
+                shopifyImageUrl: '{{ $order->image_url }}',
                 async searchShopify() {
                     if (this.arrangementType !== 'catalogo') return;
                     if (this.searchQuery.length < 3) {
@@ -43,8 +43,9 @@
                     if (!q) return '#';
                     return 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(q);
                 }
-            }" action="{{ route('orders.store') }}" method="POST" enctype="multipart/form-data" class="space-y-8">
+            }" action="{{ route('orders.update', $order) }}" method="POST" enctype="multipart/form-data" class="space-y-8">
                 @csrf
+                    @method('PUT')
                 
                 <!-- Sección 1: Detalles del Cliente -->
                 <div>
@@ -52,27 +53,27 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Nombre del Cliente / Comprador *</label>
-                            <input type="text" name="client_name" required class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:ring-[#4A1525] focus:border-[#4A1525]" placeholder="Quien paga/ordena">
+                            <input type="text" name="client_name" value="{{ old('client_name', $order->client_name) }}" required class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:ring-[#4A1525] focus:border-[#4A1525]" placeholder="Quien paga/ordena">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Nombre de Quien Recibe</label>
-                            <input type="text" name="recipient_name" class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:ring-[#4A1525] focus:border-[#4A1525]" placeholder="Destinatario del arreglo">
+                            <input type="text" name="recipient_name" value="{{ old('recipient_name', $order->recipient_name) }}" class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:ring-[#4A1525] focus:border-[#4A1525]" placeholder="Destinatario del arreglo">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Empresa / Proyecto</label>
-                            <input type="text" name="company" class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:ring-[#4A1525] focus:border-[#4A1525]">
+                            <input type="text" name="company" value="{{ old('company', $order->company) }}" class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:ring-[#4A1525] focus:border-[#4A1525]">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Teléfono de Contacto</label>
-                            <input type="tel" name="client_phone" class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:ring-[#4A1525] focus:border-[#4A1525]">
+                            <input type="tel" name="client_phone" value="{{ old('client_phone', $order->client_phone) }}" class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:ring-[#4A1525] focus:border-[#4A1525]">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Correo Electrónico</label>
-                            <input type="email" name="client_email" class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:ring-[#4A1525] focus:border-[#4A1525]">
+                            <input type="email" name="client_email" value="{{ old('client_email', $order->client_email) }}" class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:ring-[#4A1525] focus:border-[#4A1525]">
                         </div>
                         <div class="md:col-span-2">
                             <label class="block text-sm font-medium text-gray-700 mb-2">Nombre del Remitente (Quien envía)</label>
-                            <input type="text" name="sender_name" class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:ring-[#4A1525] focus:border-[#4A1525]" placeholder="Ej. Familia López, Tu amigo Juan, etc.">
+                            <input type="text" name="sender_name" value="{{ old('sender_name', $order->sender_name) }}" class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:ring-[#4A1525] focus:border-[#4A1525]" placeholder="Ej. Familia López, Tu amigo Juan, etc.">
                         </div>
                     </div>
                 </div>
@@ -101,7 +102,7 @@
                             </label>
                             
                             <!-- Input de búsqueda / material -->
-                            <input type="text" name="material" x-model="searchQuery" @input.debounce.500ms="searchShopify" required autocomplete="off" class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:ring-[#4A1525] focus:border-[#4A1525]" placeholder="Ej. Ramo de 50 Rosas Rojas">
+                            <input type="text" name="material" value="{{ old('material', $order->material) }}" x-model="searchQuery" @input.debounce.500ms="searchShopify" required autocomplete="off" class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:ring-[#4A1525] focus:border-[#4A1525]" placeholder="Ej. Ramo de 50 Rosas Rojas">
                             
                             <!-- Cargando spinner -->
                             <div x-show="isSearching" class="absolute right-3 top-10 text-gray-400">
@@ -133,7 +134,7 @@
                         <!-- Solo catálogo -->
                         <div x-show="arrangementType === 'catalogo'" x-collapse>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Código del Modelo *</label>
-                            <input type="text" name="product_code" x-model="selectedSku" :required="arrangementType === 'catalogo'" class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:ring-[#4A1525] focus:border-[#4A1525] bg-gray-50" readonly>
+                            <input type="text" name="product_code" value="{{ old('product_code', $order->product_code) }}" x-model="selectedSku" :required="arrangementType === 'catalogo'" class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:ring-[#4A1525] focus:border-[#4A1525] bg-gray-50" readonly>
                             <p class="text-xs text-green-600 mt-1 font-medium" x-show="selectedSku">✓ Sincronizado con Shopify</p>
                         </div>
 
@@ -149,7 +150,10 @@
                             
                             <!-- Para Personalizado -->
                             <div x-show="arrangementType === 'personalizado'" x-collapse>
-                                <input type="file" name="reference_image" accept=".jpg,.jpeg,.png,.pdf" :required="arrangementType === 'personalizado'" class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:ring-[#4A1525] focus:border-[#4A1525] file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-gray-100 file:text-[#4A1525] hover:file:bg-gray-200">
+                                @if($order->image_url)
+                                    <p class="text-xs text-gray-500 mt-1">Ya cuenta con imagen. Sube otra solo si deseas reemplazarla.</p>
+                                @endif
+                                <input type="file" name="reference_image" accept=".jpg,.jpeg,.png,.pdf" :required="arrangementType === 'personalizado' && !'{{ $order->image_url }}'" class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:ring-[#4A1525] focus:border-[#4A1525] file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-gray-100 file:text-[#4A1525] hover:file:bg-gray-200">
                                 <p class="text-xs text-gray-400 mt-1">Sube una imagen de inspiración o boceto del arreglo a armar.</p>
                             </div>
 
@@ -176,11 +180,11 @@
 
                         <div class="md:col-span-2">
                             <label class="block text-sm font-medium text-gray-700 mb-2">Notas / Especificaciones adicionales</label>
-                            <textarea name="notes" rows="2" class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:ring-[#4A1525] focus:border-[#4A1525]" placeholder="Ej. Rosas bien abiertas, sin papel coreano, etc."></textarea>
+                            <textarea name="notes" rows="2" class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:ring-[#4A1525] focus:border-[#4A1525]" placeholder="Ej. Rosas bien abiertas, sin papel coreano, etc.">{{ old('notes', $order->notes) }}</textarea>
                         </div>
                         <div class="md:col-span-2">
                             <label class="block text-sm font-medium text-gray-700 mb-2">Mensaje o Dedicatoria para la Tarjeta</label>
-                            <textarea name="dedication_message" rows="3" class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:ring-[#4A1525] focus:border-[#4A1525]"></textarea>
+                            <textarea name="dedication_message" rows="3" class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:ring-[#4A1525] focus:border-[#4A1525]">{{ old('dedication_message', $order->dedication_message) }}</textarea>
                         </div>
                     </div>
                 </div>
@@ -191,19 +195,19 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Fecha de Entrega</label>
-                            <input type="date" name="delivery_date" class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:ring-[#4A1525] focus:border-[#4A1525]">
+                            <input type="date" name="delivery_date" value="{{ old('delivery_date', $order->delivery_date) }}" class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:ring-[#4A1525] focus:border-[#4A1525]">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Bloque de Entrega</label>
                             <select name="delivery_time" class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:ring-[#4A1525] focus:border-[#4A1525]">
                                 <option value="">Selecciona un bloque de entrega...</option>
-                                <option value="10:00 AM - 12:00 PM">10:00 AM - 12:00 PM</option>
-                                <option value="12:00 PM - 02:00 PM">12:00 PM - 02:00 PM</option>
-                                <option value="02:00 PM - 04:00 PM">02:00 PM - 04:00 PM</option>
-                                <option value="04:00 PM - 06:00 PM">04:00 PM - 06:00 PM</option>
-                                <option value="06:00 PM - 08:00 PM">06:00 PM - 08:00 PM</option>
-                                <option value="08:00 PM - 10:00 PM">08:00 PM - 10:00 PM</option>
-                                <option value="Horario Especial / Fuera de horario">Horario Especial / Fuera de horario</option>
+                                <option value="10:00 AM - 12:00 PM" {{ $order->delivery_time == '10:00 AM - 12:00 PM' ? 'selected' : '' }}>10:00 AM - 12:00 PM</option>
+                                <option value="12:00 PM - 02:00 PM" {{ $order->delivery_time == '12:00 PM - 02:00 PM' ? 'selected' : '' }}>12:00 PM - 02:00 PM</option>
+                                <option value="02:00 PM - 04:00 PM" {{ $order->delivery_time == '02:00 PM - 04:00 PM' ? 'selected' : '' }}>02:00 PM - 04:00 PM</option>
+                                <option value="04:00 PM - 06:00 PM" {{ $order->delivery_time == '04:00 PM - 06:00 PM' ? 'selected' : '' }}>04:00 PM - 06:00 PM</option>
+                                <option value="06:00 PM - 08:00 PM" {{ $order->delivery_time == '06:00 PM - 08:00 PM' ? 'selected' : '' }}>06:00 PM - 08:00 PM</option>
+                                <option value="08:00 PM - 10:00 PM" {{ $order->delivery_time == '08:00 PM - 10:00 PM' ? 'selected' : '' }}>08:00 PM - 10:00 PM</option>
+                                <option value="Horario Especial / Fuera de horario" {{ $order->delivery_time == 'Horario Especial / Fuera de horario' ? 'selected' : '' }}>Horario Especial / Fuera de horario</option>
                             </select>
                             <p class="text-xs text-gray-400 mt-1">Recuerda pedirlo con mínimo 2 horas de anticipación.</p>
                         </div>
@@ -213,19 +217,19 @@
                             <input type="text" name="driver_name" class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:ring-[#4A1525] focus:border-[#4A1525]" placeholder="Ej. Juan Pérez" value="{{ old('driver_name', ->driver_name ?? '') }}">
                         </div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Calle y Número *</label>
-                            <input type="text" name="delivery_street" x-model="street" required class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:ring-[#4A1525] focus:border-[#4A1525]" placeholder="Ej. Av. Reforma 222, Int 4">
+                            <input type="text" name="delivery_street" value="{{ old('delivery_street', $order->delivery_street) }}" x-model="street" required class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:ring-[#4A1525] focus:border-[#4A1525]" placeholder="Ej. Av. Reforma 222, Int 4">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Colonia / Fraccionamiento *</label>
-                            <input type="text" name="delivery_neighborhood" x-model="neighborhood" required class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:ring-[#4A1525] focus:border-[#4A1525]" placeholder="Ej. Juárez">
+                            <input type="text" name="delivery_neighborhood" value="{{ old('delivery_neighborhood', $order->delivery_neighborhood) }}" x-model="neighborhood" required class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:ring-[#4A1525] focus:border-[#4A1525]" placeholder="Ej. Juárez">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Código Postal (Opcional)</label>
-                            <input type="text" name="delivery_zip" x-model="zip" class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:ring-[#4A1525] focus:border-[#4A1525]" placeholder="Ej. 06600">
+                            <input type="text" name="delivery_zip" value="{{ old('delivery_zip', $order->delivery_zip) }}" x-model="zip" class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:ring-[#4A1525] focus:border-[#4A1525]" placeholder="Ej. 06600">
                         </div>
                         <div class="md:col-span-2">
                             <label class="block text-sm font-medium text-gray-700 mb-2">Referencias visuales o Link de Maps (Opcional)</label>
-                            <textarea name="delivery_references" rows="2" class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:ring-[#4A1525] focus:border-[#4A1525]" placeholder="Ej. Casa blanca con portón negro, frente al parque. O pega aquí el link de Maps."></textarea>
+                            <textarea name="delivery_references" rows="2" class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:ring-[#4A1525] focus:border-[#4A1525]" placeholder="Ej. Casa blanca con portón negro, frente al parque. O pega aquí el link de Maps.">{{ old('delivery_references', $order->delivery_references) }}</textarea>
                         </div>
                         <div class="md:col-span-2" x-show="street || neighborhood" x-collapse>
                             <div class="p-4 bg-gray-50 rounded-lg border border-gray-100 flex items-center justify-between">
@@ -262,33 +266,36 @@
                         <div class="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6" x-show="paymentMethod === 'Nómina'" x-collapse>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">RFC (Nómina) *</label>
-                                <input type="text" name="payroll_rfc" :required="paymentMethod === 'Nómina'" class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:ring-[#4A1525] focus:border-[#4A1525]" placeholder="Ingresa el RFC">
+                                <input type="text" name="payroll_rfc" value="{{ old('payroll_rfc', $order->payroll_rfc) }}" :required="paymentMethod === 'Nómina'" class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:ring-[#4A1525] focus:border-[#4A1525]" placeholder="Ingresa el RFC">
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Área o Departamento *</label>
-                                <input type="text" name="payroll_area" :required="paymentMethod === 'Nómina'" class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:ring-[#4A1525] focus:border-[#4A1525]" placeholder="Ej. Recursos Humanos">
+                                <input type="text" name="payroll_area" value="{{ old('payroll_area', $order->payroll_area) }}" :required="paymentMethod === 'Nómina'" class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:ring-[#4A1525] focus:border-[#4A1525]" placeholder="Ej. Recursos Humanos">
                             </div>
                         </div>
 
                         <!-- Campos Dinámicos de Cuentas por cobrar -->
                         <div class="md:col-span-2" x-show="paymentMethod === 'Cuentas por cobrar'" x-collapse>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Empresa / Persona a cobrar *</label>
-                            <input type="text" name="accounts_receivable_entity" :required="paymentMethod === 'Cuentas por cobrar'" class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:ring-[#4A1525] focus:border-[#4A1525]" placeholder="Nombre de la empresa o persona">
+                            <input type="text" name="accounts_receivable_entity" value="{{ old('accounts_receivable_entity', $order->accounts_receivable_entity) }}" :required="paymentMethod === 'Cuentas por cobrar'" class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:ring-[#4A1525] focus:border-[#4A1525]" placeholder="Nombre de la empresa o persona">
                         </div>
                         
                         @if(!auth()->check() || auth()->user()->role === 'cliente')
                             <div class="md:col-span-2">
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Comprobante de Pago (Obligatorio) *</label>
-                                <input type="file" name="payment_proof" accept=".jpg,.jpeg,.png,.pdf" required class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:ring-[#4A1525] focus:border-[#4A1525] file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#4A1525] file:text-white hover:file:bg-[#340f1a]">
+                                @if($order->payment_proof_path)
+                                    <p class="text-xs text-gray-500 mt-1">Ya cuenta con comprobante. Sube otro solo si deseas reemplazarlo.</p>
+                                @endif
+                                <input type="file" name="payment_proof" accept=".jpg,.jpeg,.png,.pdf" class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:ring-[#4A1525] focus:border-[#4A1525] file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#4A1525] file:text-white hover:file:bg-[#340f1a]">
                             </div>
                         @else
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Gastos de Envío (MX$)</label>
-                                <input type="number" step="0.01" min="0" name="shipping_cost" class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:ring-[#4A1525] focus:border-[#4A1525]" placeholder="0.00">
+                                <input type="number" step="0.01" min="0" name="shipping_cost" value="{{ old('shipping_cost', $order->shipping_cost) }}" class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:ring-[#4A1525] focus:border-[#4A1525]" placeholder="0.00">
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Vendedor Responsable</label>
-                                <input type="text" name="salesperson" class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:ring-[#4A1525] focus:border-[#4A1525]">
+                                <input type="text" name="salesperson" value="{{ old('salesperson', $order->salesperson) }}" class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:ring-[#4A1525] focus:border-[#4A1525]">
                             </div>
                             <div class="md:col-span-2">
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Comprobante de Pago (Si ya pagó)</label>

@@ -5,12 +5,48 @@
             <p class="text-[#757575] text-[13px] font-sans-custom">Gestión de pedidos de arreglos florales — Octubre 2024</p>
         </div>
         <div>
-            <a href="{{ route('reports.export', request()->all()) }}" class="bg-white hover:bg-gray-50 text-[#2E7D32] border border-[#A5D6A7] px-4 py-2.5 rounded-lg text-[13px] font-medium transition-all shadow-sm flex items-center justify-center gap-2">
+            <a href="{{ route('reports.export', request()->all()) }}" class="bg-white hover:bg-gray-50 px-4 py-2.5 rounded-lg text-[13px] font-medium transition-all shadow-sm flex items-center justify-center gap-2" style="color: #2E7D32; border: 1px solid #A5D6A7;">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                 Descargar Reporte Excel
             </a>
         </div>
     </div>
+
+    @if(isset($upcomingReminders) && $upcomingReminders->count() > 0)
+        <!-- Reminders Widget -->
+        <div class="mb-8 rounded-[16px] p-5 shadow-sm text-white flex flex-col md:flex-row gap-4 items-start md:items-center justify-between" style="background: linear-gradient(to right, #4A1525, #6b2038);">
+            <div class="flex items-start gap-4">
+                <div class="bg-white/10 p-3 rounded-xl mt-1">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+                </div>
+                <div>
+                    <h3 class="font-bold text-lg mb-2 text-white/90">Eventos Importantes (Próximos 3 días)</h3>
+                    <ul class="space-y-1.5">
+                        @foreach($upcomingReminders as $reminder)
+                            <li class="flex items-center gap-2 text-[15px] text-white">
+                                <span class="w-2 h-2 rounded-full {{ $reminder->days_left == 0 ? 'bg-red-400 animate-pulse' : 'bg-amber-400' }}"></span>
+                                <span class="font-semibold">{{ $reminder->title }}</span> 
+                                <span class="text-white/60 mx-1">&bull;</span>
+                                @if($reminder->days_left == 0)
+                                    <span class="text-red-300 font-bold tracking-wide uppercase text-xs">¡Es Hoy!</span>
+                                @elseif($reminder->days_left == 1)
+                                    <span class="text-amber-200">Mañana</span>
+                                @else
+                                    <span class="text-amber-100">Faltan {{ $reminder->days_left }} días</span>
+                                @endif
+                                @if($reminder->notes)
+                                    <span class="text-white/60 ml-1 text-sm hidden md:inline">({{ Str::limit($reminder->notes, 40) }})</span>
+                                @endif
+                            </li>
+                        @endforeach
+                    </ul>
+                </div>
+            </div>
+            <div class="mt-2 md:mt-0 ml-14 md:ml-0">
+                <a href="{{ route('reminders.index') }}" class="inline-block bg-white/10 hover:bg-white/20 text-white text-[13px] font-medium px-4 py-2 rounded-lg transition-colors border border-white/10">Administrar</a>
+            </div>
+        </div>
+    @endif
 
     <!-- Summary Cards -->
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
@@ -44,10 +80,10 @@
                 Avance promedio 68%
             </p>
         </a>
-        <a href="{{ route('dashboard', ['status' => 'Entregado']) }}" class="bg-white rounded-[14px] p-5 shadow-[0_4px_16px_rgba(0,0,0,0.02)] border border-[#EBEBEB] flex flex-col justify-between hover:shadow-md transition-shadow cursor-pointer block">
+        <a href="{{ route('dashboard', ['status' => 'Entregado y Pagado']) }}" class="bg-white rounded-[14px] p-5 shadow-[0_4px_16px_rgba(0,0,0,0.02)] border border-[#EBEBEB] flex flex-col justify-between hover:shadow-md transition-shadow cursor-pointer block">
             <div>
                 <h3 class="text-[11px] text-[#2C211A] font-semibold uppercase tracking-wider mb-2">Entregados</h3>
-                <p class="text-[40px] font-sans-custom font-light text-[#2C211A] leading-none">{{ $entregadosCount ?? $orders->where('status', 'Entregado')->count() }}</p>
+                <p class="text-[40px] font-sans-custom font-light text-[#2C211A] leading-none">{{ $entregadosCount ?? $orders->where('status', 'Entregado y Pagado')->count() }}</p>
             </div>
             <p class="text-[11px] text-[#4A1525] mt-4 flex items-center font-medium">
                 <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
@@ -115,12 +151,10 @@
                 <div class="flex gap-2 justify-between w-full md:w-auto mt-2 md:mt-0">
                     <select name="status" onchange="document.getElementById('filter-form').submit()" class="border border-[#EBEBEB] rounded-md text-[13px] text-[#2C211A] font-medium py-2 pl-3 pr-8 focus:ring-[#4A1525] focus:border-[#4A1525] bg-transparent">
                         <option value="Todos" {{ request('status') == 'Todos' ? 'selected' : '' }}>Estado: Todos</option>
-                        <option value="Pendiente de Pago" {{ request('status') == 'Pendiente de Pago' ? 'selected' : '' }}>Pendiente de Pago</option>
-                        <option value="Cotizado" {{ request('status') == 'Cotizado' ? 'selected' : '' }}>Cotizado</option>
-                        <option value="Confirmado" {{ request('status') == 'Confirmado' ? 'selected' : '' }}>Confirmado</option>
-                        <option value="En proceso" {{ request('status') == 'En proceso' ? 'selected' : '' }}>En proceso</option>
+                                                                                                <option value="En proceso" {{ request('status') == 'En proceso' ? 'selected' : '' }}>En proceso</option>
                         <option value="En ruta" {{ request('status') == 'En ruta' ? 'selected' : '' }}>En ruta</option>
                         <option value="Entregado" {{ request('status') == 'Entregado' ? 'selected' : '' }}>Entregado</option>
+                        <option value="Cerrado (Pagado)" {{ request('status') == 'Cerrado (Pagado)' ? 'selected' : '' }}>Cerrado (Pagado)</option>
                     </select>
                     <a href="{{ route('orders.create') }}" class="bg-[#4A1525] hover:bg-[#340f1a] text-white px-4 py-2 rounded-lg text-[13px] font-medium transition-all shadow-sm hover:shadow-md flex items-center shadow-sm">
                         <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
@@ -188,7 +222,8 @@
                                         'Cotizado' => 'bg-amber-50 text-amber-600 border border-amber-200',
                                         'Confirmado' => 'bg-blue-50 text-blue-600 border border-blue-200',
                                         'En producción' => 'bg-[#4A1525] text-white',
-                                        'Entregado' => 'bg-[#4A1525] text-white',
+                                        'Entregado' => 'bg-[#4C9156] text-white',
+                                        'Cerrado (Pagado)' => 'bg-[#4A1525] text-white',
                                     ];
                                     $badgeClass = $statusClasses[$order->status] ?? 'bg-gray-100 text-gray-800 border-gray-200';
                                 @endphp
@@ -233,7 +268,8 @@
                                 'Cotizado' => 'bg-amber-50 text-amber-600',
                                 'Confirmado' => 'bg-[#FAFAFA] text-[#4A1525]',
                                 'En producción' => 'bg-[#FAFAFA] text-[#4A1525]',
-                                'Entregado' => 'bg-[#FAFAFA] text-[#4A1525]',
+                                'Entregado' => 'bg-[#F2FDF4] text-[#4C9156]',
+                                'Cerrado (Pagado)' => 'bg-[#FAFAFA] text-[#4A1525]',
                             ];
                             $mobileClass = $statusClasses[$order->status] ?? 'bg-gray-100 text-gray-800';
                             

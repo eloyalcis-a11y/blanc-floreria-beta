@@ -23,6 +23,7 @@ class Order extends Model
         'reference_image_path',
         'notes',
         'sender_name',
+        'driver_name',
         'shipping_cost',
         'client_phone',
         'client_email',

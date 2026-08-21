@@ -6,12 +6,12 @@
         </div>
 
         @php
-            $statuses = ['Pendiente de Pago', 'Cotizado', 'Confirmado', 'En proceso', 'En ruta', 'Entregado'];
+            $statuses = ['En proceso', 'En ruta', 'Entregado', 'Cerrado (Pagado)'];
             $currentIndex = array_search($order->status, $statuses);
             
             // Si está pendiente de pago o cotizado, no mostramos el progreso completo aún o lo mostramos diferente.
             // Para simplificar, asumiremos un flujo lineal desde Confirmado.
-            $progressStatuses = ['Confirmado', 'En proceso', 'En ruta', 'Entregado'];
+            $progressStatuses = ['En proceso', 'En ruta', 'Entregado', 'Cerrado (Pagado)'];
             $progressIndex = array_search($order->status, $progressStatuses);
         @endphp
 
@@ -48,13 +48,13 @@
                 @if($order->status === 'En ruta')
                     <p class="text-sm text-amber-700 mt-2 flex items-center justify-center gap-2">
                         <svg class="w-5 h-5 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
-                        ¡Tu arreglo va en camino al domicilio!
+                        ¡Tu arreglo va en camino al domicilio{{ $order->driver_name ? ' con ' . $order->driver_name : '' }}!
                     </p>
                 @endif
             </div>
         </div>
 
-        @if($order->status === 'Entregado' && $order->delivery_photo_path)
+        @if($order->status === 'Entregado y Pagado' && $order->delivery_photo_path)
             <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 mb-8 overflow-hidden">
                 <h3 class="text-[14px] font-bold text-[#2C211A] uppercase tracking-wider mb-4 border-b border-gray-100 pb-2">Foto de Entrega</h3>
                 <div class="mt-4">

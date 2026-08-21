@@ -31,6 +31,7 @@ class OrderController extends Controller
             'product_code' => 'nullable|string|max:255',
             'notes' => 'nullable|string',
             'sender_name' => 'nullable|string|max:255',
+            'driver_name' => 'nullable|string|max:255',
             'shipping_cost' => 'nullable|numeric|min:0',
             'delivery_date' => 'nullable|date',
             'delivery_time' => 'nullable|string|max:255',
@@ -61,7 +62,7 @@ class OrderController extends Controller
         }
         $validated['user_id'] = auth()->id();
         
-        $validated['status'] = 'Cotizado';
+        $validated['status'] = 'En proceso';
         
         if ($request->hasFile('payment_proof')) {
             $path = $request->file('payment_proof')->store('payment_proofs', 'public');
@@ -77,10 +78,22 @@ class OrderController extends Controller
         
         $order = \App\Models\Order::create($validated);
 
-        // Notificar a administradores, ventas y operaciones
+        // Notificar a administradores, ventas y operaciones (App)
         $staff = User::whereIn('role', ['admin', 'ventas', 'operacion'])->get();
         if ($staff->count() > 0) {
             Notification::send($staff, new NewOrderNotification($order));
+        }
+
+        // Enviar correo a la lista de distribución
+        try {
+            Mail::to([
+                'jaky.vazquez@alciscorp.com',
+                'andrea.orquidea@alciscorp.com',
+                'atencionaclientes@blancfloreria.com.mx',
+                'asistente2@alciscorp.com'
+            ])->send(new \App\Mail\OrderCreatedMail($order));
+        } catch (\Exception $e) {
+            \Log::error('Error enviando correo de nuevo pedido manual: ' . $e->getMessage());
         }
 
         return redirect()->route('dashboard')->with('success', 'Pedido creado exitosamente.');
@@ -91,10 +104,62 @@ class OrderController extends Controller
         return view('orders.show', compact('order'));
     }
 
-    public function toggleRoute(\App\Models\Order $order)
+    public function edit(\App\Models\Order $order)
+    {
+        return view('orders.edit', compact('order'));
+    }
+
+    public function update(Request $request, \App\Models\Order $order)
+    {
+        $rules = [
+            'arrangement_type' => 'required|in:catalogo,personalizado',
+            'client_name' => 'required|string|max:255',
+            'recipient_name' => 'nullable|string|max:255',
+            'company' => 'nullable|string|max:255',
+            'material' => 'required|string|max:255',
+            'quantity' => 'required|integer|min:1',
+            'payment_method' => 'nullable|string',
+            'payroll_rfc' => 'nullable|string|max:255',
+            'payroll_area' => 'nullable|string|max:255',
+            'accounts_receivable_entity' => 'nullable|string|max:255',
+            'product_code' => 'nullable|string|max:255',
+            'notes' => 'nullable|string',
+            'sender_name' => 'nullable|string|max:255',
+            'driver_name' => 'nullable|string|max:255',
+            'shipping_cost' => 'nullable|numeric|min:0',
+            'delivery_date' => 'nullable|date',
+            'delivery_time' => 'nullable|string|max:255',
+            'delivery_street' => 'nullable|string|max:255',
+            'delivery_neighborhood' => 'nullable|string|max:255',
+            'delivery_zip' => 'nullable|string|max:20',
+            'delivery_references' => 'nullable|string',
+            'client_phone' => 'nullable|string|max:255',
+            'client_email' => 'nullable|email|max:255',
+            'dedication_message' => 'nullable|string',
+            'salesperson' => 'nullable|string|max:255',
+            'reference_image' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'shopify_image_url' => 'nullable|url',
+        ];
+
+        $validated = $request->validate($rules);
+
+        if ($request->hasFile('reference_image')) {
+            $path = $request->file('reference_image')->store('reference_images', 'public');
+            $validated['image_url'] = '/storage/' . $path;
+        } elseif ($request->filled('shopify_image_url')) {
+            $validated['image_url'] = $request->input('shopify_image_url');
+        }
+
+        $order->update($validated);
+
+        return redirect()->route('orders.show', $order)->with('success', 'Pedido actualizado correctamente.');
+    }
+
+    public function toggleRoute(Request $request, \App\Models\Order $order)
     {
         $order->update([
-            'is_in_route' => !$order->is_in_route
+            'is_in_route' => !$order->is_in_route,
+            'driver_name' => $request->driver_name ?? $order->driver_name
         ]);
         
         return redirect()->back()->with('success', 'Estado de ruta actualizado.');
@@ -103,20 +168,20 @@ class OrderController extends Controller
     public function updateStatus(Request $request, \App\Models\Order $order)
     {
         $validated = $request->validate([
-            'status' => 'required|string|in:Pendiente de Pago,Cotizado,Confirmado,En proceso,En ruta,Entregado',
+            'status' => 'required|string|in:En proceso,En ruta,Entregado,Cerrado (Pagado)',
             'delivery_photo' => 'nullable|file|mimes:jpg,jpeg,png|max:5120',
         ]);
 
         $updates = ['status' => $validated['status']];
 
-        if ($validated['status'] === 'Entregado' && $request->hasFile('delivery_photo')) {
+        if ($validated['status'] === 'Entregado y Pagado' && $request->hasFile('delivery_photo')) {
             $path = $request->file('delivery_photo')->store('delivery_photos', 'public');
             $updates['delivery_photo_path'] = $path;
         }
 
         $order->update($updates);
 
-        if ($validated['status'] === 'Entregado' && $order->client_email) {
+        if ($validated['status'] === 'Entregado y Pagado' && $order->client_email) {
             Mail::to($order->client_email)->send(new OrderDelivered($order));
         }
         

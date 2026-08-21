@@ -19,6 +19,16 @@ class ShopifyWebhookController extends Controller
             return response()->json(['message' => 'Invalid payload'], 400);
         }
 
+        // Filtrar pedidos no pagados (Solo aceptar 'paid')
+        if (isset($payload['financial_status']) && $payload['financial_status'] !== 'paid') {
+            Log::info('Shopify Webhook Ignorado: Pedido no pagado', [
+                'order_id' => $payload['id'],
+                'financial_status' => $payload['financial_status']
+            ]);
+            // Retornamos 200 para que Shopify no re-intente enviar el webhook de este pedido no pagado
+            return response()->json(['message' => 'Ignored. Order is not paid.'], 200);
+        }
+
         // 1. Extraer Cliente
         $clientName = 'Cliente Shopify';
         if (isset($payload['customer'])) {
@@ -51,7 +61,7 @@ class ShopifyWebhookController extends Controller
         $totalPrice = (float) ($payload['total_price'] ?? 0);
 
         // 6. Crear el pedido en nuestra base de datos local
-        Order::create([
+        $order = Order::create([
             'order_number' => $payload['name'] ?? ('#' . ($payload['order_number'] ?? $payload['id'])), // Mantiene el folio exacto de Shopify (ej. #1024)
             'user_id' => 1, // Usuario administrador por defecto
             'client_name' => $clientName,
@@ -62,9 +72,22 @@ class ShopifyWebhookController extends Controller
             'delivery_date' => null, 
             'image_url' => null,
             'status' => 'Confirmado', // Entra directo como confirmado al estar pagado en Shopify
+            'payment_method' => 'Shopify Payments',
             'is_in_route' => false,
             'source' => 'Shopify',
         ]);
+
+        // 6.5. Enviar correo a la lista de distribución
+        try {
+            \Illuminate\Support\Facades\Mail::to([
+                'jaky.vazquez@alciscorp.com',
+                'andrea.orquidea@alciscorp.com',
+                'atencionaclientes@blancfloreria.com.mx',
+                'asistente2@alciscorp.com'
+            ])->send(new \App\Mail\OrderCreatedMail($order));
+        } catch (\Exception $e) {
+            Log::error('Error enviando correo de nuevo pedido Shopify: ' . $e->getMessage());
+        }
 
         // 7. Enviar a Nori (Placeholder para cuando tengamos la BD conectada)
         try {

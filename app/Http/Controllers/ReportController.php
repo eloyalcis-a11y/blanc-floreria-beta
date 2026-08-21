@@ -11,7 +11,7 @@ class ReportController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Order::query();
+        $query = Order::query()->where('status', 'Cerrado (Pagado)');
 
         // 1. Filtrado de Fechas
         $dateRange = $request->get('date_range', 'mes'); // por defecto este mes
@@ -30,8 +30,8 @@ class ReportController extends Controller
         if ($request->filled('source') && $request->source !== 'Todos') {
             $query->where('source', $request->source);
         }
-        if ($request->filled('status') && $request->status !== 'Todos') {
-            $query->where('status', $request->status);
+        if ($request->filled('payment_method') && $request->payment_method !== 'Todos') {
+            $query->where('payment_method', $request->payment_method);
         }
 
         // 3. Cálculos de Métricas
@@ -41,12 +41,20 @@ class ReportController extends Controller
 
         $totalIngresos = 0;
         $totalEnvios = 0;
+        $paymentMethodTotals = [];
         
         foreach ($ordersForMetrics as $order) {
             // Formula del total del pedido: unit_price + extra_charge + shipping_cost - discount
             $totalOrder = ($order->unit_price ?? 0) + ($order->extra_charge ?? 0) + ($order->shipping_cost ?? 0) - ($order->discount ?? 0);
             $totalIngresos += $totalOrder;
             $totalEnvios += ($order->shipping_cost ?? 0);
+            
+            // Agrupar totales por método de pago
+            $method = $order->payment_method ?: 'No Especificado';
+            if (!isset($paymentMethodTotals[$method])) {
+                $paymentMethodTotals[$method] = 0;
+            }
+            $paymentMethodTotals[$method] += $totalOrder;
         }
 
         $cantidadPedidos = $ordersForMetrics->count();
@@ -70,13 +78,14 @@ class ReportController extends Controller
             'totalEnvios',
             'cantidadPedidos',
             'dateRange',
-            'topVendido'
+            'topVendido',
+            'paymentMethodTotals'
         ));
     }
 
     public function export(Request $request)
     {
-        $query = Order::query();
+        $query = Order::query()->where('status', 'Cerrado (Pagado)');
 
         // Aplicar los mismos filtros que en el index
         $dateRange = $request->get('date_range', 'mes');
@@ -92,8 +101,8 @@ class ReportController extends Controller
         }
 
         // Aplicar filtros similares a los del dashboard si se reciben
-        if ($request->filled('status') && $request->status !== 'Todos') {
-            $query->where('status', $request->status);
+        if ($request->filled('payment_method') && $request->payment_method !== 'Todos') {
+            $query->where('payment_method', $request->payment_method);
         }
         if ($request->filled('source') && $request->source !== 'Todos') {
             $query->where('source', $request->source);
@@ -116,38 +125,49 @@ class ReportController extends Controller
             // Agregar UTF-8 BOM para que Excel lo lea bien (acentos, ñ, etc.)
             fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
 
-            // Encabezados del Excel
+            // Encabezados exactos del Excel OCASIONES 2026 REPORTE
             fputcsv($file, [
-                'Número de Orden (Acuse)',
-                'Modelo',
-                'Comprador',
-                'Cantidad',
-                'Precio de Venta ($)',
-                'Cobro Adicional ($)',
-                'Gasto de Envío ($)',
-                'Descuentos Aplicados ($)',
-                'Monto Total ($)',
-                'Número de Ticket',
-                'Origen'
+                '#NOTA',
+                'MODELO',
+                'NOMBRE COMPLETO DEL SOLICITANTE2',
+                'FECHA DE ENTREGA',
+                'CANTIDAD',
+                '# Transito',
+                'Costo SAP',
+                'P.U..3',
+                'SUBTOTAL',
+                '15%',
+                'MÉTODO DE PAGO',
+                'TOTAL',
+                '#TICKET',
+                'FECHA DE CORTE'
             ]);
 
             foreach ($orders as $order) {
                 // Modelo puede ser product_code o material si no hay código
                 $modelo = $order->product_code ?: $order->material;
-                $total = ($order->unit_price ?? 0) + ($order->extra_charge ?? 0) + ($order->shipping_cost ?? 0) - ($order->discount ?? 0);
+                $pu = floatval($order->unit_price ?? 0);
+                $qty = intval($order->quantity ?? 1);
+                $subtotal = $pu * $qty;
+                $extra = floatval($order->extra_charge ?? 0) + floatval($order->shipping_cost ?? 0) - floatval($order->discount ?? 0);
+                $total = $subtotal + $extra;
+                $deliveryDate = $order->delivery_date ? \Carbon\Carbon::parse($order->delivery_date)->format('Y-m-d') : '';
 
                 fputcsv($file, [
                     $order->order_number,
                     $modelo,
                     $order->client_name,
-                    $order->quantity,
-                    $order->unit_price ?? '0.00',
-                    $order->extra_charge ?? '0.00',
-                    $order->shipping_cost ?? '0.00',
-                    $order->discount ?? '0.00',
+                    $deliveryDate,
+                    $qty,
+                    '', // # Transito (vacío manual)
+                    '', // Costo SAP (vacío manual)
+                    $pu,
+                    $subtotal,
+                    $extra,
+                    $order->payment_method ?: 'No Especificado',
                     $total,
                     $order->ticket_number ?? 'N/A',
-                    $order->source ?? 'página web'
+                    $order->created_at->format('Y-m-d')
                 ]);
             }
 

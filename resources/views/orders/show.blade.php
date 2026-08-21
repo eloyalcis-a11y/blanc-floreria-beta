@@ -17,18 +17,24 @@
         
         @php
             $statusClasses = [
-                'Pendiente de Pago' => 'bg-red-50 text-red-600 border border-red-200',
-                'Cotizado' => 'bg-[#E9C441] text-white',
-                'Confirmado' => 'bg-[#4F75DA] text-white',
+                
+                
+                
                 'En proceso' => 'bg-[#E08544] text-white',
                 'En ruta' => 'bg-amber-500 text-white',
-                'Entregado' => 'bg-[#4A1525] text-white',
+                'Entregado y Pagado' => 'bg-[#4A1525] text-white',
             ];
             $class = $statusClasses[$order->status] ?? 'bg-gray-400 text-white';
         @endphp
-        <span class="px-5 py-2 text-[13px] rounded-lg font-medium tracking-wide {{ $class }} shadow-sm">
-            Estatus: {{ $order->status }}
-        </span>
+        <div class="flex flex-col items-end gap-2">
+            <span class="px-5 py-2 text-[13px] rounded-lg font-medium tracking-wide {{ $class }} shadow-sm">
+                Estatus: {{ $order->status }}
+            </span>
+            <a href="{{ route('orders.edit', $order) }}" class="px-4 py-1.5 bg-white border border-gray-200 text-[#4A1525] rounded-md text-[13px] font-medium hover:bg-gray-50 transition-colors shadow-sm flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                Editar Pedido
+            </a>
+        </div>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -151,6 +157,9 @@
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
                                 En Ruta de Entrega
                             </span>
+                            @if($order->driver_name)
+                                <p class="text-[13px] text-gray-600 mt-2">Con: <span class="font-medium text-gray-800">{{ $order->driver_name }}</span></p>
+                            @endif
                         @else
                             <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-gray-50 text-gray-600 rounded-md text-sm font-medium border border-gray-200">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"></path></svg>
@@ -294,6 +303,9 @@
                             Quitar de Ruta
                         </button>
                     @else
+                        <div class="mb-2">
+                            <input type="text" name="driver_name" value="{{ $order->driver_name }}" placeholder="Nombre del chofer (opcional)" class="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-[12px] focus:ring-[#4A1525] focus:border-[#4A1525]">
+                        </div>
                         <button type="submit" class="w-full bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200 py-2.5 rounded-lg text-[13px] font-medium transition-all flex justify-center items-center gap-2">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
                             Marcar en Ruta
@@ -307,19 +319,17 @@
                     <div class="flex flex-col gap-2">
                         <div class="flex gap-2">
                             <select name="status" id="status-select" class="w-full border border-gray-200 rounded-lg px-2 py-2 text-[12px] focus:ring-[#4A1525] focus:border-[#4A1525] font-medium text-gray-700">
-                                <option value="Pendiente de Pago" {{ $order->status == 'Pendiente de Pago' ? 'selected' : '' }}>Pendiente de Pago</option>
-                                <option value="Cotizado" {{ $order->status == 'Cotizado' ? 'selected' : '' }}>Cotizado</option>
-                                <option value="Confirmado" {{ $order->status == 'Confirmado' ? 'selected' : '' }}>Confirmado</option>
-                                <option value="En proceso" {{ $order->status == 'En proceso' ? 'selected' : '' }}>En proceso</option>
+                                                                                                                                <option value="En proceso" {{ $order->status == 'En proceso' ? 'selected' : '' }}>En proceso</option>
                                 <option value="En ruta" {{ $order->status == 'En ruta' ? 'selected' : '' }}>En ruta</option>
-                                <option value="Entregado" {{ $order->status == 'Entregado' ? 'selected' : '' }}>Entregado</option>
+                                <option value="Entregado" {{ in_array($order->status, ['Entregado', 'Cerrado (Pagado)']) ? 'selected' : '' }}>Entregado (Al cliente)</option>
+                                <option value="Cerrado (Pagado)" {{ $order->status == 'Cerrado (Pagado)' ? 'selected' : '' }}>Cerrado (Pagado y Terminado)</option>
                             </select>
                             <button type="submit" class="bg-[#4A1525] hover:bg-[#340f1a] text-white px-3 py-2 rounded-lg text-[12px] font-medium transition-all shadow-sm flex items-center justify-center shrink-0" title="Actualizar Estatus">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                             </button>
                         </div>
                         
-                        <div id="delivery-photo-container" class="{{ $order->status == 'Entregado' ? '' : 'hidden' }} mt-2">
+                        <div id="delivery-photo-container" class="{{ $order->status == 'Entregado y Pagado' ? '' : 'hidden' }} mt-2">
                             <label class="block text-[11px] font-semibold text-gray-500 uppercase tracking-wider mb-1">Foto de Entrega (Opcional)</label>
                             <input type="file" name="delivery_photo" accept=".jpg,.jpeg,.png" class="w-full text-xs file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-xs file:bg-gray-100 hover:file:bg-gray-200">
                         </div>
@@ -329,7 +339,7 @@
                 <script>
                     document.getElementById('status-select').addEventListener('change', function() {
                         const container = document.getElementById('delivery-photo-container');
-                        if (this.value === 'Entregado') {
+                        if (this.value === 'Entregado y Pagado') {
                             container.classList.remove('hidden');
                         } else {
                             container.classList.add('hidden');

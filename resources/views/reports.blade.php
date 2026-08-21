@@ -2,10 +2,10 @@
     <div class="mb-8 md:pt-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
             <h2 class="text-[32px] font-serif-custom font-normal text-[#2C211A] mb-1 leading-tight">Reportes y Finanzas</h2>
-            <p class="text-[#757575] text-[13px] font-sans-custom">Métricas, exportación y control administrativo</p>
+            <p class="text-[#757575] text-[13px] font-sans-custom">Métricas de ingresos (Solo contabiliza pedidos entregados y pagados)</p>
         </div>
         <div class="flex gap-3">
-            <a href="{{ route('reports.export', request()->query()) }}" class="bg-[#217346] hover:bg-[#1a5c38] text-white px-5 py-2.5 rounded-lg text-[13px] font-medium transition-all shadow-sm hover:shadow-md flex items-center gap-2">
+            <a href="{{ route('reports.export', request()->query()) }}" class="px-5 py-2.5 rounded-lg text-[13px] font-medium transition-all shadow-sm hover:shadow-md flex items-center gap-2" style="background-color: #2E7D32; color: white;">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                 Descargar Excel
             </a>
@@ -29,21 +29,22 @@
                 <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">Origen</label>
                 <select name="source" class="w-full border-gray-200 rounded-lg text-sm text-gray-700 focus:ring-[#4A1525] focus:border-[#4A1525] py-2" onchange="this.form.submit()">
                     <option value="Todos">Todos los orígenes</option>
-                    <option value="página web" {{ request('source') === 'página web' ? 'selected' : '' }}>Página Web</option>
-                    <option value="whatsapp" {{ request('source') === 'whatsapp' ? 'selected' : '' }}>WhatsApp</option>
-                    <option value="tienda fisica" {{ request('source') === 'tienda fisica' ? 'selected' : '' }}>Tienda Física</option>
+                    <option value="Shopify" {{ request('source') === 'Shopify' ? 'selected' : '' }}>Tienda Web (Shopify)</option>
+                    <option value="Dashboard" {{ request('source') === 'Dashboard' ? 'selected' : '' }}>Manual (Equipo)</option>
                 </select>
             </div>
 
             <div class="w-full md:w-48">
-                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">Estado</label>
-                <select name="status" class="w-full border-gray-200 rounded-lg text-sm text-gray-700 focus:ring-[#4A1525] focus:border-[#4A1525] py-2" onchange="this.form.submit()">
-                    <option value="Todos">Todos los estados</option>
-                    <option value="Pendiente de Pago" {{ request('status') === 'Pendiente de Pago' ? 'selected' : '' }}>Pendiente de Pago</option>
-                    <option value="Confirmado" {{ request('status') === 'Confirmado' ? 'selected' : '' }}>Confirmado</option>
-                    <option value="En producción" {{ request('status') === 'En producción' ? 'selected' : '' }}>En producción</option>
-                    <option value="En ruta" {{ request('status') === 'En ruta' ? 'selected' : '' }}>En ruta</option>
-                    <option value="Entregado" {{ request('status') === 'Entregado' ? 'selected' : '' }}>Entregado</option>
+                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">Método de Pago</label>
+                <select name="payment_method" class="w-full border-gray-200 rounded-lg text-sm text-gray-700 focus:ring-[#4A1525] focus:border-[#4A1525] py-2" onchange="this.form.submit()">
+                    <option value="Todos">Todos los métodos</option>
+                    <option value="Shopify Payments" {{ request('payment_method') === 'Shopify Payments' ? 'selected' : '' }}>Shopify</option>
+                    <option value="Transferencia Bancaria" {{ request('payment_method') === 'Transferencia Bancaria' ? 'selected' : '' }}>Transferencia</option>
+                    <option value="Efectivo" {{ request('payment_method') === 'Efectivo' ? 'selected' : '' }}>Efectivo</option>
+                    <option value="Terminal Billpocket" {{ request('payment_method') === 'Terminal Billpocket' ? 'selected' : '' }}>Billpocket</option>
+                    <option value="Link de Pago" {{ request('payment_method') === 'Link de Pago' ? 'selected' : '' }}>Link de Pago</option>
+                    <option value="Cuentas por cobrar" {{ request('payment_method') === 'Cuentas por cobrar' ? 'selected' : '' }}>CxC</option>
+                    <option value="Nómina" {{ request('payment_method') === 'Nómina' ? 'selected' : '' }}>Nómina</option>
                 </select>
             </div>
             
@@ -76,6 +77,28 @@
         </div>
     </div>
 
+    <!-- Métricas por Método de Pago -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-8">
+        <div class="p-5 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+            <h3 class="text-[13px] font-bold text-[#2C211A] uppercase tracking-wider flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                Resumen por Método de Pago
+            </h3>
+        </div>
+        <div class="p-5">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                @forelse($paymentMethodTotals as $method => $total)
+                    <div class="bg-gray-50 rounded-lg p-4 border border-gray-100">
+                        <p class="text-[11px] text-gray-500 font-bold uppercase tracking-wider mb-1">{{ $method }}</p>
+                        <p class="text-xl text-[#2C211A] font-serif-custom">MX$ {{ number_format($total, 2) }}</p>
+                    </div>
+                @empty
+                    <div class="col-span-full text-center py-4 text-gray-500 text-sm">No hay datos de pagos para este periodo.</div>
+                @endforelse
+            </div>
+        </div>
+    </div>
+
     <!-- Tabla Preview -->
     <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
         <div class="p-5 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
@@ -84,33 +107,56 @@
             </h3>
         </div>
         <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
+            <table class="w-full text-left border-collapse whitespace-nowrap">
                 <thead>
-                    <tr class="bg-white border-b border-gray-100 text-[11px] font-bold text-gray-500 uppercase tracking-wider">
-                        <th class="p-4 pl-6 font-medium">Acuse</th>
-                        <th class="p-4 font-medium">Cliente</th>
-                        <th class="p-4 font-medium">Modelo</th>
-                        <th class="p-4 font-medium">Origen</th>
-                        <th class="p-4 font-medium">Ticket</th>
-                        <th class="p-4 font-medium text-right pr-6">Total</th>
+                    <tr class="bg-white border-b border-gray-100 text-[10px] font-bold text-gray-500 uppercase tracking-wider">
+                        <th class="p-3 pl-6 font-medium">#NOTA</th>
+                        <th class="p-3 font-medium">MODELO</th>
+                        <th class="p-3 font-medium">SOLICITANTE</th>
+                        <th class="p-3 font-medium">FECHA ENT.</th>
+                        <th class="p-3 font-medium text-center">CANT.</th>
+                        <th class="p-3 font-medium"># TRANSITO</th>
+                        <th class="p-3 font-medium">COSTO SAP</th>
+                        <th class="p-3 font-medium text-right">P.U.</th>
+                        <th class="p-3 font-medium text-right">SUBTOTAL</th>
+                        <th class="p-3 font-medium text-right">15%</th>
+                        <th class="p-3 font-medium">MÉTODO PAGO</th>
+                        <th class="p-3 font-medium text-right font-bold text-black">TOTAL</th>
+                        <th class="p-3 font-medium">#TICKET</th>
+                        <th class="p-3 pr-6 font-medium">FECHA CORTE</th>
                     </tr>
                 </thead>
-                <tbody class="text-[13px] text-gray-700 divide-y divide-gray-50">
+                <tbody class="text-[12px] text-gray-700 divide-y divide-gray-50">
                     @forelse($orders as $order)
                         @php
-                            $totalOrder = ($order->unit_price ?? 0) + ($order->extra_charge ?? 0) + ($order->shipping_cost ?? 0) - ($order->discount ?? 0);
+                            $modelo = $order->product_code ?: $order->material;
+                            $pu = floatval($order->unit_price ?? 0);
+                            $qty = intval($order->quantity ?? 1);
+                            $subtotal = $pu * $qty;
+                            $extra = floatval($order->extra_charge ?? 0) + floatval($order->shipping_cost ?? 0) - floatval($order->discount ?? 0);
+                            $total = $subtotal + $extra;
+                            $deliveryDate = $order->delivery_date ? \Carbon\Carbon::parse($order->delivery_date)->format('Y-m-d') : '';
+                            $fechaCorte = $order->created_at->format('Y-m-d');
                         @endphp
                         <tr class="hover:bg-gray-50 transition">
-                            <td class="p-4 pl-6 font-medium text-[#4A1525]">{{ $order->order_number }}</td>
-                            <td class="p-4">{{ $order->client_name }}</td>
-                            <td class="p-4">{{ $order->product_code ?: $order->material }}</td>
-                            <td class="p-4"><span class="px-2 py-1 bg-gray-100 rounded text-[10px] font-bold uppercase">{{ $order->source ?? 'página web' }}</span></td>
-                            <td class="p-4 text-gray-500">{{ $order->ticket_number ?? '-' }}</td>
-                            <td class="p-4 pr-6 text-right font-medium">MX$ {{ number_format($totalOrder, 2) }}</td>
+                            <td class="p-3 pl-6 font-medium text-[#4A1525]">{{ $order->order_number }}</td>
+                            <td class="p-3">{{ Str::limit($modelo, 20) }}</td>
+                            <td class="p-3">{{ Str::limit($order->client_name, 25) }}</td>
+                            <td class="p-3 text-gray-500">{{ $deliveryDate }}</td>
+                            <td class="p-3 text-center">{{ $qty }}</td>
+                            <td class="p-3"></td>
+                            <td class="p-3"></td>
+                            <td class="p-3 text-right">MX$ {{ number_format($pu, 2) }}</td>
+                            <td class="p-3 text-right text-gray-500">MX$ {{ number_format($subtotal, 2) }}</td>
+                            <td class="p-3 text-right text-gray-500">MX$ {{ number_format($extra, 2) }}</td>
+                            <td class="p-3"><span class="px-2 py-1 bg-gray-100 rounded text-[9px] font-bold uppercase">{{ $order->payment_method ?: 'N/E' }}</span></td>
+                            <td class="p-3 text-right font-bold text-black">MX$ {{ number_format($total, 2) }}</td>
+                            <td class="p-3 text-gray-500">{{ $order->ticket_number ?? 'N/A' }}</td>
+                            <td class="p-3 pr-6 text-gray-400 text-[10px]">{{ $fechaCorte }}</td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="p-8 text-center text-gray-500 text-xs">
+                            <td colspan="14" class="p-8 text-center text-gray-500 text-xs">
                                 No se encontraron pedidos con estos filtros en este periodo.
                             </td>
                         </tr>
