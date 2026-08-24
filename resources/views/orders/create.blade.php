@@ -210,7 +210,7 @@
                         <div class="md:col-span-2">
                             <div class="md:col-span-2">
                             <label class="block text-sm font-medium text-gray-700 mb-2">Nombre del Chofer / Repartidor (Opcional)</label>
-                            <input type="text" name="driver_name" class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:ring-[#4A1525] focus:border-[#4A1525]" placeholder="Ej. Juan Pérez" value="{{ old('driver_name', ->driver_name ?? '') }}">
+                            <input type="text" name="driver_name" class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:ring-[#4A1525] focus:border-[#4A1525]" placeholder="Ej. Juan Pérez" value="{{ old('driver_name') }}">
                         </div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Calle y Número *</label>
                             <input type="text" name="delivery_street" x-model="street" required class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:ring-[#4A1525] focus:border-[#4A1525]" placeholder="Ej. Av. Reforma 222, Int 4">
