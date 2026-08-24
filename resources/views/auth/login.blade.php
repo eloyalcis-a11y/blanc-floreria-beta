@@ -1,31 +1,31 @@
 <x-guest-layout>
     <!-- Alpine.js is included in Laravel Breeze by default, we'll use it for interactivity -->
-    <div x-data="{ email: '{{ old('email') }}', password: '', showPassword: false, get isValidEmail() { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.email); } }" class="w-full">
+    <div x-data="{ username: '{{ old('username') }}', password: '', showPassword: false, get isValidUser() { return this.username.trim().length >= 3; } }" class="w-full">
         <!-- Session Status -->
         <x-auth-session-status class="mb-4" :status="session('status')" />
 
         <form method="POST" action="{{ route('login') }}" class="space-y-6">
             @csrf
 
-            <!-- Email Address -->
+            <!-- Usuario -->
             <div class="relative group">
-                <label for="email" class="block text-[12px] font-medium text-gray-500 mb-1 uppercase tracking-wider transition-colors group-focus-within:text-[#4A1525]">
-                    Correo Electrónico
+                <label for="username" class="block text-[12px] font-medium text-gray-500 mb-1 uppercase tracking-wider transition-colors group-focus-within:text-[#4A1525]">
+                    Usuario
                 </label>
                 <div class="relative">
-                    <input id="email" 
-                           x-model="email"
+                    <input id="username" 
+                           x-model="username"
                            class="block w-full border-0 border-b-2 border-gray-200 bg-transparent py-3 pl-0 pr-10 text-gray-900 focus:border-[#4A1525] focus:ring-0 sm:text-sm transition-all duration-300 peer" 
-                           type="email" 
-                           name="email" 
+                           type="text" 
+                           name="username" 
                            required 
                            autofocus 
                            autocomplete="username"
-                           placeholder="tu@empresa.com" />
+                           placeholder="Ej. operacion" />
                     
                     <!-- Checkmark Icon (Animated) -->
                     <div class="absolute right-0 top-1/2 -translate-y-1/2 text-[#4A1525] transition-all duration-300"
-                         x-show="isValidEmail"
+                         x-show="isValidUser"
                          x-transition:enter="transition ease-out duration-300"
                          x-transition:enter-start="opacity-0 scale-50"
                          x-transition:enter-end="opacity-100 scale-100"
@@ -36,7 +36,7 @@
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
                     </div>
                 </div>
-                <x-input-error :messages="$errors->get('email')" class="mt-2" />
+                <x-input-error :messages="$errors->get('username')" class="mt-2" />
             </div>
 
             <!-- Password -->

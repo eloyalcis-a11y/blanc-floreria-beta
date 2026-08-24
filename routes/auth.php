@@ -12,10 +12,8 @@ use App\Http\Controllers\Auth\VerifyEmailController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('guest')->group(function () {
-    Route::get('register', [RegisteredUserController::class, 'create'])
-        ->name('register');
-
-    Route::post('register', [RegisteredUserController::class, 'store']);
+    // El registro publico queda deshabilitado a proposito: las cuentas se dan de
+    // alta desde el panel de Usuarios (solo admin). Ver UserController.
 
     Route::get('login', [AuthenticatedSessionController::class, 'create'])
         ->name('login');

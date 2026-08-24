@@ -83,11 +83,13 @@ Route::get('/dashboard', function (\Illuminate\Http\Request $request) {
     })->sortBy('days_left')->values();
 
     return view('dashboard', compact('orders', 'allOrdersCount', 'pendientesCount', 'cotizadosCount', 'enProduccionCount', 'entregadosCount', 'upcomingOrders', 'upcomingReminders'));
-})->name('dashboard');
+})->middleware('auth')->name('dashboard');
 
 Route::get('/tracking/{order_number}', [\App\Http\Controllers\TrackingController::class, 'show'])->name('tracking.show');
 
 
+// Todo lo de aqui adentro exige sesion iniciada.
+Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
@@ -114,9 +116,16 @@ Route::get('/tracking/{order_number}', [\App\Http\Controllers\TrackingController
     Route::resource('/recordatorios', \App\Http\Controllers\ReminderController::class)->names('reminders')->parameters(['recordatorios' => 'reminder']);
     Route::get('/reportes', [\App\Http\Controllers\ReportController::class, 'index'])->name('reports.index');
 
+    // Alta y baja de cuentas del personal (dentro se valida que sea admin)
+    Route::resource('/usuarios', \App\Http\Controllers\UserController::class)
+        ->names('users')->parameters(['usuarios' => 'user'])->except(['show']);
+});
+
 
 // Shopify Webhooks e Integración
 Route::post('/webhook/shopify/orders/create', [\App\Http\Controllers\ShopifyWebhookController::class, 'handleOrderCreate'])->name('webhook.shopify.orders.create');
 Route::get('/shopify/install', [\App\Http\Controllers\ShopifyAuthController::class, 'install'])->name('shopify.install');
 Route::get('/shopify/callback', [\App\Http\Controllers\ShopifyAuthController::class, 'callback'])->name('shopify.callback');
 Route::get('/api/shopify/products', [\App\Http\Controllers\ShopifyProductController::class, 'search'])->name('shopify.products.search');
+
+require __DIR__.'/auth.php';
