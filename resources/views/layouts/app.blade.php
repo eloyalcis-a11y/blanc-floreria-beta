@@ -22,10 +22,15 @@
         </style>
     </head>
     <body class="font-sans-custom antialiased text-gray-800 bg-[#F5F4F0]">
-        <div class="min-h-screen flex flex-col md:flex-row">
+        <div x-data="{ mobileMenuOpen: false }" class="min-h-screen flex flex-col md:flex-row">
             
-            <!-- Sidebar for Desktop -->
-            <aside class="hidden md:flex flex-col w-[260px] bg-blanc text-[#2C211A] shadow-[4px_0_24px_rgba(0,0,0,0.02)] min-h-screen relative z-10">
+            <!-- Sidebar -->
+            <aside :class="mobileMenuOpen ? 'flex absolute inset-y-0 left-0 z-50 shadow-2xl' : 'hidden md:flex'" class="flex-col w-[260px] bg-blanc text-[#2C211A] min-h-screen relative md:z-10 transition-all duration-300">
+                <!-- Close Button (Mobile) -->
+                <button @click="mobileMenuOpen = false" class="md:hidden absolute top-4 right-4 text-gray-500 hover:text-gray-800">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+
                 <div class="flex items-center justify-center pt-10 pb-8">
                     <div class="text-center">
                         <img src="{{ asset('images/logo.png') }}" alt="Blanc Florería" class="w-32 mx-auto mb-2">
@@ -109,7 +114,7 @@
                         @endif
                     </a>
 
-                    <button>
+                    <button @click="mobileMenuOpen = !mobileMenuOpen">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
                     </button>
                 </div>
@@ -121,29 +126,11 @@
                     {{ $slot }}
                 </div>
             </main>
-            
-            <!-- Mobile Bottom Navigation (as in mockup) -->
-            <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white shadow-[0_-4px_24px_rgba(0,0,0,0.05)] border-t flex justify-around p-3 z-50">
-                <a href="{{ route('home') }}" class="flex flex-col items-center {{ request()->routeIs('home') ? 'text-[#4A1525]' : 'text-gray-500 hover:text-[#4A1525]' }}">
-                    <div class="{{ request()->routeIs('home') ? 'bg-[#4A1525]/10 p-2 rounded-xl' : 'p-2' }}">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
-                    </div>
-                    <span class="text-[10px] {{ request()->routeIs('home') ? 'font-medium mt-1' : '' }}">Inicio</span>
-                </a>
-                <a href="{{ route('dashboard') }}" class="flex flex-col items-center {{ request()->routeIs('dashboard') ? 'text-[#4A1525]' : 'text-gray-500 hover:text-[#4A1525]' }}">
-                    <div class="{{ request()->routeIs('dashboard') ? 'bg-[#4A1525]/10 p-2 rounded-xl' : 'p-2' }}">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
-                    </div>
-                    <span class="text-[10px] {{ request()->routeIs('dashboard') ? 'font-medium mt-1' : '' }}">Pedidos</span>
-                </a>
-                <a href="{{ route('reminders.index') }}" class="flex flex-col items-center {{ request()->routeIs('reminders.*') ? 'text-[#4A1525]' : 'text-gray-500 hover:text-[#4A1525]' }}">
-                    <div class="{{ request()->routeIs('reminders.*') ? 'bg-[#4A1525]/10 p-2 rounded-xl' : 'p-2' }}">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                    </div>
-                    <span class="text-[10px] {{ request()->routeIs('reminders.*') ? 'font-medium mt-1' : '' }}">Alertas</span>
-                </a>
-
-            </nav>
+            <!-- Overlay for Mobile Menu -->
+            <div x-show="mobileMenuOpen" 
+                 @click="mobileMenuOpen = false" 
+                 class="md:hidden fixed inset-0 bg-black/20 z-40" 
+                 style="display: none;"></div>
         </div>
     </body>
 </html>
