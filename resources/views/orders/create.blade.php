@@ -20,7 +20,7 @@
                 shopifyImageUrl: '',
                 async searchShopify() {
                     if (this.arrangementType !== 'catalogo') return;
-                    if (this.searchQuery.length < 3) {
+                    if (this.searchQuery.length < 2) {
                         this.searchResults = [];
                         return;
                     }

@@ -54,11 +54,11 @@ class ShopifyProductController extends Controller
             }
 
             // Filtrar localmente ignorando mayúsculas y acentos
-            $queryNormalized = strtolower(iconv('UTF-8', 'ASCII//TRANSLIT', $query));
+            $queryNormalized = trim(strtolower(iconv('UTF-8', 'ASCII//TRANSLIT', $query)));
             
             $filtered = collect($products)->filter(function ($product) use ($queryNormalized) {
                 $titleNormalized = strtolower(iconv('UTF-8', 'ASCII//TRANSLIT', $product['title']));
-                $skuNormalized = strtolower($product['sku'] ?? '');
+                $skuNormalized = trim(strtolower($product['sku'] ?? ''));
                 
                 return str_contains($titleNormalized, $queryNormalized) || str_contains($skuNormalized, $queryNormalized);
             })->take(10)->values();
