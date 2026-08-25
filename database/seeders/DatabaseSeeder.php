@@ -16,10 +16,24 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         \App\Models\User::factory()->create([
-            'name' => 'Admin Blanc Florería',
+            'name' => 'admin',
             'email' => 'admin@blancfloreria.com',
-            'password' => bcrypt('password'),
+            'password' => bcrypt('Blanc2026*'),
             'role' => 'admin',
+        ]);
+
+        \App\Models\User::factory()->create([
+            'name' => 'blanc',
+            'email' => 'ventas@blancfloreria.com',
+            'password' => bcrypt('Blanc2026*'),
+            'role' => 'ventas',
+        ]);
+
+        \App\Models\User::factory()->create([
+            'name' => 'operacion',
+            'email' => 'operacion@blancfloreria.com',
+            'password' => bcrypt('Blanc2026*'),
+            'role' => 'operacion',
         ]);
     }
 }
