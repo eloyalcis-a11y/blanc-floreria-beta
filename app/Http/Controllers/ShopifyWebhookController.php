@@ -56,33 +56,39 @@ class ShopifyWebhookController extends Controller
         // 5. Precio
         $totalPrice = (float) ($payload['total_price'] ?? 0);
 
-        // 6. Crear el pedido en nuestra base de datos local
-        $order = Order::create([
-            'order_number' => $payload['name'] ?? ('#' . ($payload['order_number'] ?? $payload['id'])), // Mantiene el folio exacto de Shopify (ej. #1024)
-            'user_id' => 1, // Usuario administrador por defecto
-            'client_name' => $clientName,
-            'company' => $company,
-            'material' => $material,
-            'quantity' => $quantity,
-            'total_price' => $totalPrice,
-            'delivery_date' => null, 
-            'image_url' => null,
-            'status' => $localStatus, // Dinámico según el pago de Shopify
-            'payment_method' => 'Shopify Payments',
-            'is_in_route' => false,
-            'source' => 'Shopify',
-        ]);
+        // 6. Crear el pedido en nuestra base de datos local (Usamos firstOrCreate para evitar errores de duplicados si Shopify reintenta)
+        $orderNumber = $payload['name'] ?? ('#' . ($payload['order_number'] ?? $payload['id']));
+        
+        $order = Order::firstOrCreate(
+            ['order_number' => $orderNumber],
+            [
+                'user_id' => 1, // Usuario administrador por defecto
+                'client_name' => $clientName,
+                'company' => $company,
+                'material' => $material,
+                'quantity' => $quantity,
+                'total_price' => $totalPrice,
+                'delivery_date' => null, 
+                'image_url' => null,
+                'status' => $localStatus, // Dinámico según el pago de Shopify
+                'payment_method' => 'Shopify Payments',
+                'is_in_route' => false,
+                'source' => 'Shopify',
+            ]
+        );
 
-        // 6.5. Enviar correo a la lista de distribución
-        try {
-            \Illuminate\Support\Facades\Mail::to([
-                'jaky.vazquez@alciscorp.com',
-                'andrea.orquidea@alciscorp.com',
-                'atencionaclientes@blancfloreria.com.mx',
-                'asistente2@alciscorp.com'
-            ])->send(new \App\Mail\OrderCreatedMail($order));
-        } catch (\Exception $e) {
-            Log::error('Error enviando correo de nuevo pedido Shopify: ' . $e->getMessage());
+        // 6.5. Enviar correo a la lista de distribución (solo si es nuevo)
+        if ($order->wasRecentlyCreated) {
+            try {
+                \Illuminate\Support\Facades\Mail::to([
+                    'jaky.vazquez@alciscorp.com',
+                    'andrea.orquidea@alciscorp.com',
+                    'atencionaclientes@blancfloreria.com.mx',
+                    'asistente2@alciscorp.com'
+                ])->send(new \App\Mail\OrderCreatedMail($order));
+            } catch (\Exception $e) {
+                Log::error('Error enviando correo de nuevo pedido Shopify: ' . $e->getMessage());
+            }
         }
 
         // 7. Enviar a Nori (Placeholder para cuando tengamos la BD conectada)
