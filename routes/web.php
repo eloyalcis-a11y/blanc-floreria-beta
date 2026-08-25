@@ -83,11 +83,11 @@ Route::get('/dashboard', function (\Illuminate\Http\Request $request) {
     })->sortBy('days_left')->values();
 
     return view('dashboard', compact('orders', 'allOrdersCount', 'pendientesCount', 'cotizadosCount', 'enProduccionCount', 'entregadosCount', 'upcomingOrders', 'upcomingReminders'));
-})->name('dashboard');
+})->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::get('/tracking/{order_number}', [\App\Http\Controllers\TrackingController::class, 'show'])->name('tracking.show');
 
-
+Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
@@ -113,7 +113,9 @@ Route::get('/tracking/{order_number}', [\App\Http\Controllers\TrackingController
     Route::view('/inicio', 'home')->name('home');
     Route::resource('/recordatorios', \App\Http\Controllers\ReminderController::class)->names('reminders')->parameters(['recordatorios' => 'reminder']);
     Route::get('/reportes', [\App\Http\Controllers\ReportController::class, 'index'])->name('reports.index');
+});
 
+require __DIR__.'/auth.php';
 
 // Shopify Webhooks e Integración
 Route::post('/webhook/shopify/orders/create', [\App\Http\Controllers\ShopifyWebhookController::class, 'handleOrderCreate'])->name('webhook.shopify.orders.create');

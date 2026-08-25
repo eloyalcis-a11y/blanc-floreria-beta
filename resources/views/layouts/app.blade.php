@@ -74,7 +74,24 @@
                     </a>
                 </nav>
 
+                <div class="p-6">
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <button type="submit" class="flex items-center text-gray-500 hover:text-[#4A1525] w-full text-left transition-colors">
+                            <svg class="w-5 h-5 mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                            Cerrar sesión
+                        </button>
+                    </form>
+                </div>
                 @endauth
+                @guest
+                <nav class="flex-1 px-4 space-y-2 mt-4">
+                    <a href="{{ route('login') }}" class="flex items-center px-4 py-3 text-[#4A1525] hover:text-white transition-colors">
+                        <svg class="w-5 h-5 mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path></svg>
+                        Iniciar sesión
+                    </a>
+                </nav>
+                @endguest
             </aside>
 
             <!-- Mobile Header (Placeholder) -->
