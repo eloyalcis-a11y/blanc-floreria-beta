@@ -87,7 +87,6 @@ Route::get('/dashboard', function (\Illuminate\Http\Request $request) {
 
 Route::get('/tracking/{order_number}', [\App\Http\Controllers\TrackingController::class, 'show'])->name('tracking.show');
 
-
 // Todo lo de aqui adentro exige sesion iniciada.
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -121,11 +120,10 @@ Route::middleware('auth')->group(function () {
         ->names('users')->parameters(['usuarios' => 'user'])->except(['show']);
 });
 
+require __DIR__.'/auth.php';
 
 // Shopify Webhooks e Integración
 Route::post('/webhook/shopify/orders/create', [\App\Http\Controllers\ShopifyWebhookController::class, 'handleOrderCreate'])->name('webhook.shopify.orders.create');
 Route::get('/shopify/install', [\App\Http\Controllers\ShopifyAuthController::class, 'install'])->name('shopify.install');
 Route::get('/shopify/callback', [\App\Http\Controllers\ShopifyAuthController::class, 'callback'])->name('shopify.callback');
 Route::get('/api/shopify/products', [\App\Http\Controllers\ShopifyProductController::class, 'search'])->name('shopify.products.search');
-
-require __DIR__.'/auth.php';

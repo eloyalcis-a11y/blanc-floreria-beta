@@ -19,14 +19,10 @@ class ShopifyWebhookController extends Controller
             return response()->json(['message' => 'Invalid payload'], 400);
         }
 
-        // Filtrar pedidos no pagados (Solo aceptar 'paid')
-        if (isset($payload['financial_status']) && $payload['financial_status'] !== 'paid') {
-            Log::info('Shopify Webhook Ignorado: Pedido no pagado', [
-                'order_id' => $payload['id'],
-                'financial_status' => $payload['financial_status']
-            ]);
-            // Retornamos 200 para que Shopify no re-intente enviar el webhook de este pedido no pagado
-            return response()->json(['message' => 'Ignored. Order is not paid.'], 200);
+        // Determinar el status en nuestra BD basado en el financial_status
+        $localStatus = 'Pendiente de Pago';
+        if (isset($payload['financial_status']) && in_array($payload['financial_status'], ['paid', 'partially_paid'])) {
+            $localStatus = 'Confirmado';
         }
 
         // 1. Extraer Cliente
@@ -71,7 +67,7 @@ class ShopifyWebhookController extends Controller
             'total_price' => $totalPrice,
             'delivery_date' => null, 
             'image_url' => null,
-            'status' => 'Confirmado', // Entra directo como confirmado al estar pagado en Shopify
+            'status' => $localStatus, // Dinámico según el pago de Shopify
             'payment_method' => 'Shopify Payments',
             'is_in_route' => false,
             'source' => 'Shopify',

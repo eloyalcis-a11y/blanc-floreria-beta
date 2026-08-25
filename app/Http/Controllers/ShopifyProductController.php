@@ -46,7 +46,7 @@ class ShopifyProductController extends Controller
                     })->toArray();
                 }
                 
-                return [];
+                throw new \Exception('Failed to fetch from Shopify API');
             });
 
             if (empty($products)) {
