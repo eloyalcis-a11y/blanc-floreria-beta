@@ -18,6 +18,7 @@
                 selectedProduct: null,
                 selectedSku: '',
                 shopifyImageUrl: '',
+                deliveryTimeOption: '',
                 async searchShopify() {
                     if (this.arrangementType !== 'catalogo') return;
                     if (this.searchQuery.length < 2) {
@@ -195,7 +196,7 @@
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Bloque de Entrega</label>
-                            <select name="delivery_time" class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:ring-[#4A1525] focus:border-[#4A1525]">
+                            <select x-model="deliveryTimeOption" :name="deliveryTimeOption === 'Horario Especial / Fuera de horario' ? '' : 'delivery_time'" class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:ring-[#4A1525] focus:border-[#4A1525]">
                                 <option value="">Selecciona un bloque de entrega...</option>
                                 <option value="10:00 AM - 12:00 PM">10:00 AM - 12:00 PM</option>
                                 <option value="12:00 PM - 02:00 PM">12:00 PM - 02:00 PM</option>
@@ -205,6 +206,12 @@
                                 <option value="08:00 PM - 10:00 PM">08:00 PM - 10:00 PM</option>
                                 <option value="Horario Especial / Fuera de horario">Horario Especial / Fuera de horario</option>
                             </select>
+                            
+                            <div x-show="deliveryTimeOption === 'Horario Especial / Fuera de horario'" x-collapse class="mt-3">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Especifica el horario exacto *</label>
+                                <input type="text" :name="deliveryTimeOption === 'Horario Especial / Fuera de horario' ? 'delivery_time' : ''" :required="deliveryTimeOption === 'Horario Especial / Fuera de horario'" class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:ring-[#4A1525] focus:border-[#4A1525]" placeholder="Ej. 1:15 PM o Lo más pronto posible">
+                            </div>
+
                             <p class="text-xs text-gray-400 mt-1">Recuerda pedirlo con mínimo 2 horas de anticipación.</p>
                         </div>
                         <div class="md:col-span-2">

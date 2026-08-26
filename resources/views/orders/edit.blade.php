@@ -5,6 +5,20 @@
             <p class="text-gray-500 text-sm">Edita los detalles del pedido.</p>
         </div>
 
+@php
+    $standardBlocks = [
+        '10:00 AM - 12:00 PM',
+        '12:00 PM - 02:00 PM',
+        '02:00 PM - 04:00 PM',
+        '04:00 PM - 06:00 PM',
+        '06:00 PM - 08:00 PM',
+        '08:00 PM - 10:00 PM',
+        'Horario Especial / Fuera de horario'
+    ];
+    $isCustomTime = $order->delivery_time && !in_array($order->delivery_time, $standardBlocks);
+    $initialOption = $isCustomTime ? 'Horario Especial / Fuera de horario' : $order->delivery_time;
+@endphp
+
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8">
             <form x-data="{ 
                 arrangementType: '{{ $order->arrangement_type ?: 'catalogo' }}',
@@ -12,6 +26,7 @@
                 neighborhood: '{{ $order->delivery_neighborhood }}',
                 zip: '{{ $order->delivery_zip }}',
                 paymentMethod: '{{ $order->payment_method ?: 'Transferencia Bancaria' }}',
+                deliveryTimeOption: '{{ old('delivery_time', $initialOption) }}',
                 searchQuery: '{{ $order->material }}',
                 searchResults: [],
                 isSearching: false,
@@ -199,16 +214,22 @@
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Bloque de Entrega</label>
-                            <select name="delivery_time" class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:ring-[#4A1525] focus:border-[#4A1525]">
+                            <select x-model="deliveryTimeOption" :name="deliveryTimeOption === 'Horario Especial / Fuera de horario' ? '' : 'delivery_time'" class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:ring-[#4A1525] focus:border-[#4A1525]">
                                 <option value="">Selecciona un bloque de entrega...</option>
-                                <option value="10:00 AM - 12:00 PM" {{ $order->delivery_time == '10:00 AM - 12:00 PM' ? 'selected' : '' }}>10:00 AM - 12:00 PM</option>
-                                <option value="12:00 PM - 02:00 PM" {{ $order->delivery_time == '12:00 PM - 02:00 PM' ? 'selected' : '' }}>12:00 PM - 02:00 PM</option>
-                                <option value="02:00 PM - 04:00 PM" {{ $order->delivery_time == '02:00 PM - 04:00 PM' ? 'selected' : '' }}>02:00 PM - 04:00 PM</option>
-                                <option value="04:00 PM - 06:00 PM" {{ $order->delivery_time == '04:00 PM - 06:00 PM' ? 'selected' : '' }}>04:00 PM - 06:00 PM</option>
-                                <option value="06:00 PM - 08:00 PM" {{ $order->delivery_time == '06:00 PM - 08:00 PM' ? 'selected' : '' }}>06:00 PM - 08:00 PM</option>
-                                <option value="08:00 PM - 10:00 PM" {{ $order->delivery_time == '08:00 PM - 10:00 PM' ? 'selected' : '' }}>08:00 PM - 10:00 PM</option>
-                                <option value="Horario Especial / Fuera de horario" {{ $order->delivery_time == 'Horario Especial / Fuera de horario' ? 'selected' : '' }}>Horario Especial / Fuera de horario</option>
+                                <option value="10:00 AM - 12:00 PM">10:00 AM - 12:00 PM</option>
+                                <option value="12:00 PM - 02:00 PM">12:00 PM - 02:00 PM</option>
+                                <option value="02:00 PM - 04:00 PM">02:00 PM - 04:00 PM</option>
+                                <option value="04:00 PM - 06:00 PM">04:00 PM - 06:00 PM</option>
+                                <option value="06:00 PM - 08:00 PM">06:00 PM - 08:00 PM</option>
+                                <option value="08:00 PM - 10:00 PM">08:00 PM - 10:00 PM</option>
+                                <option value="Horario Especial / Fuera de horario">Horario Especial / Fuera de horario</option>
                             </select>
+
+                            <div x-show="deliveryTimeOption === 'Horario Especial / Fuera de horario'" x-cloak class="mt-3">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Especifica el horario exacto *</label>
+                                <input type="text" :name="deliveryTimeOption === 'Horario Especial / Fuera de horario' ? 'delivery_time' : ''" :required="deliveryTimeOption === 'Horario Especial / Fuera de horario'" value="{{ $isCustomTime ? $order->delivery_time : '' }}" class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:ring-[#4A1525] focus:border-[#4A1525]" placeholder="Ej. 1:15 PM o Lo más pronto posible">
+                            </div>
+
                             <p class="text-xs text-gray-400 mt-1">Recuerda pedirlo con mínimo 2 horas de anticipación.</p>
                         </div>
                         <div class="md:col-span-2">
