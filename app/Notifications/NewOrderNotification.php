@@ -42,7 +42,7 @@ class NewOrderNotification extends Notification
                     ->greeting('¡Hola equipo!')
                     ->line('Se ha registrado un nuevo pedido en la plataforma.')
                     ->line('Cliente: ' . $this->order->client_name)
-                    ->line('Total: $' . number_format($this->order->total_price, 2))
+                    ->line('Total: $' . number_format((float)$this->order->total_price, 2))
                     ->action('Ver Detalles del Pedido', route('orders.show', $this->order->id))
                     ->line('Por favor, atiende este pedido lo más pronto posible.');
     }

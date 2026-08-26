@@ -81,7 +81,11 @@ class OrderController extends Controller
         // Notificar a administradores, ventas y operaciones (App)
         $staff = User::whereIn('role', ['admin', 'ventas', 'operacion'])->get();
         if ($staff->count() > 0) {
-            Notification::send($staff, new NewOrderNotification($order));
+            try {
+                Notification::send($staff, new NewOrderNotification($order));
+            } catch (\Exception $e) {
+                \Log::error('Error enviando notificación push/email: ' . $e->getMessage());
+            }
         }
 
         // Enviar correo a la lista de distribución
