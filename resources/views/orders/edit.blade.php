@@ -32,18 +32,18 @@
 
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8">
             <form x-data="{ 
-                arrangementType: '{{ old('arrangement_type', $order->arrangement_type ?: 'catalogo') }}',
-                street: '{!! addslashes(old('delivery_street', $order->delivery_street)) !!}',
-                neighborhood: '{!! addslashes(old('delivery_neighborhood', $order->delivery_neighborhood)) !!}',
-                zip: '{!! addslashes(old('delivery_zip', $order->delivery_zip)) !!}',
-                paymentMethod: '{{ old('payment_method', $order->payment_method ?: 'Transferencia Bancaria') }}',
-                deliveryTimeOption: '{{ old('delivery_time', $initialOption) }}',
-                searchQuery: '{!! addslashes(old('material', $order->material)) !!}',
+                arrangementType: @json(old('arrangement_type', $order->arrangement_type ?: 'catalogo')),
+                street: @json(old('delivery_street', $order->delivery_street)),
+                neighborhood: @json(old('delivery_neighborhood', $order->delivery_neighborhood)),
+                zip: @json(old('delivery_zip', $order->delivery_zip)),
+                paymentMethod: @json(old('payment_method', $order->payment_method ?: 'Transferencia Bancaria')),
+                deliveryTimeOption: @json(old('delivery_time', $initialOption)),
+                searchQuery: @json(old('material', $order->material)),
                 searchResults: [],
                 isSearching: false,
                 selectedProduct: null,
-                selectedSku: '{!! addslashes(old('product_code', $order->product_code)) !!}',
-                shopifyImageUrl: '{!! addslashes(old('shopify_image_url', $order->image_url)) !!}',
+                selectedSku: @json(old('product_code', $order->product_code)),
+                shopifyImageUrl: @json(old('shopify_image_url', $order->image_url)),
                 async searchShopify() {
                     if (this.arrangementType !== 'catalogo') return;
                     if (this.searchQuery.length < 2) {
