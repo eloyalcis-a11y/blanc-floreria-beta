@@ -62,7 +62,10 @@ class ShopifyWebhookController extends Controller
         $order = Order::firstOrCreate(
             ['order_number' => $orderNumber],
             [
-                'user_id' => 1, // Usuario administrador por defecto
+                // Era 'user_id' => 1, pero ese usuario NO existe: la tabla users
+                // arranca en el 2, la llave foranea reventaba y el webhook devolvia
+                // 500, por lo que Shopify marcaba la entrega como fallida.
+                'user_id' => $this->usuarioParaPedidos(),
                 'client_name' => $clientName,
                 'company' => $company,
                 'material' => $material,
@@ -107,5 +110,21 @@ class ShopifyWebhookController extends Controller
         }
 
         return response()->json(['message' => 'Webhook procesado correctamente'], 200);
+    }
+    /**
+     * Dueño de los pedidos que entran por Shopify. Se puede fijar con
+     * SHOPIFY_ORDER_USER_ID en el .env; si no, se toma al Administrador y,
+     * en ultimo caso, el primer usuario que exista.
+     */
+    private function usuarioParaPedidos(): int
+    {
+        $configurado = (int) env('SHOPIFY_ORDER_USER_ID');
+
+        if ($configurado && \App\Models\User::whereKey($configurado)->exists()) {
+            return $configurado;
+        }
+
+        return (int) (\App\Models\User::where('name', 'Administrador')->value('id')
+            ?? \App\Models\User::min('id'));
     }
 }
