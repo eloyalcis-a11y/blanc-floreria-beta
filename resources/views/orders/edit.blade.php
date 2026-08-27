@@ -43,7 +43,11 @@
                 isSearching: false,
                 selectedProduct: null,
                 selectedSku: @json(old('product_code', $order->product_code)),
-                shopifyImageUrl: @json(old('shopify_image_url', $order->image_url)),
+                {{-- Solo se precarga si image_url es una URL absoluta. Cuando la imagen se
+                     subio a mano, image_url es una ruta local (/storage/...) y al mandarla
+                     en este campo la regla 'nullable|url' la rechazaba: los pedidos con
+                     imagen propia no se podian editar. --}}
+                shopifyImageUrl: @json(old('shopify_image_url', filter_var($order->image_url, FILTER_VALIDATE_URL) ? $order->image_url : '')),
                 async searchShopify() {
                     if (this.arrangementType !== "catalogo") return;
                     if (this.searchQuery.length < 2) {
