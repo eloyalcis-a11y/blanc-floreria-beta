@@ -31,14 +31,14 @@
                 shopifyImageUrl: @json(old('shopify_image_url', '')),
                 deliveryTimeOption: @json(old('delivery_time', '')),
                 async searchShopify() {
-                    if (this.arrangementType !== 'catalogo') return;
+                    if (this.arrangementType !== "catalogo") return;
                     if (this.searchQuery.length < 2) {
                         this.searchResults = [];
                         return;
                     }
                     this.isSearching = true;
                     try {
-                        let res = await fetch('/api/shopify/products?q=' + encodeURIComponent(this.searchQuery));
+                        let res = await fetch("/api/shopify/products?q=" + encodeURIComponent(this.searchQuery));
                         this.searchResults = await res.json();
                     } catch(e) { console.error(e); }
                     this.isSearching = false;
@@ -46,7 +46,6 @@
                 selectProduct(product) {
                     this.selectedProduct = product;
                     this.searchQuery = product.title;
-                    this.selectedSku = product.sku || '';
                     this.selectedSku = product.sku || "";
                     this.shopifyImageUrl = product.image || "";
                     this.searchResults = [];
