@@ -49,11 +49,29 @@ class ShopifyWebhookController extends Controller
         $quantity = 0;
         if (!empty($payload['line_items'])) {
             foreach ($payload['line_items'] as $item) {
+                // Ignorar el producto "Cliente Blanc"
+                $title = strtolower($item['title'] ?? '');
+                if (str_contains($title, 'cliente blanc')) {
+                    continue;
+                }
                 $quantity += (int) ($item['quantity'] ?? 0);
             }
         }
+        
+        // Si por alguna razón la cantidad quedó en 0, la forzamos a 1
+        if ($quantity <= 0) {
+            $quantity = 1;
+        }
 
-        // 5. Precio
+        // 5. Extraer Datos Financieros
+        $unitPrice = (float) ($payload['total_line_items_price'] ?? 0);
+        $discount = (float) ($payload['total_discounts'] ?? 0);
+        $shippingCost = 0;
+        if (!empty($payload['shipping_lines'])) {
+            foreach ($payload['shipping_lines'] as $shipping) {
+                $shippingCost += (float) ($shipping['price'] ?? 0);
+            }
+        }
         $totalPrice = (float) ($payload['total_price'] ?? 0);
 
         // 6. Crear el pedido en nuestra base de datos local (Usamos firstOrCreate para evitar errores de duplicados si Shopify reintenta)
@@ -70,6 +88,10 @@ class ShopifyWebhookController extends Controller
                 'company' => $company,
                 'material' => $material,
                 'quantity' => $quantity,
+                'unit_price' => $unitPrice,
+                'discount' => $discount,
+                'shipping_cost' => $shippingCost,
+                'extra_charge' => 0,
                 'total_price' => $totalPrice,
                 'delivery_date' => null, 
                 'image_url' => null,
