@@ -31,7 +31,7 @@
         @endif
 
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8">
-            <form x-data="{ 
+            <form x-data='{ 
                 arrangementType: @json(old('arrangement_type', $order->arrangement_type ?: 'catalogo')),
                 street: @json(old('delivery_street', $order->delivery_street)),
                 neighborhood: @json(old('delivery_neighborhood', $order->delivery_neighborhood)),
@@ -61,15 +61,16 @@
                     this.selectedProduct = product;
                     this.searchQuery = product.title;
                     this.selectedSku = product.sku || '';
-                    this.shopifyImageUrl = product.image || '';
+                    this.selectedSku = product.sku || "";
+                    this.shopifyImageUrl = product.image || "";
                     this.searchResults = [];
                 },
                 get mapsUrl() {
                     let q = `${this.street} ${this.neighborhood} ${this.zip}`.trim();
-                    if (!q) return '#';
-                    return 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(q);
+                    if (!q) return "#";
+                    return "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(q);
                 }
-            }" action="{{ route('orders.update', $order) }}" method="POST" enctype="multipart/form-data" class="space-y-8">
+            }' action="{{ route('orders.update', $order) }}" method="POST" enctype="multipart/form-data" class="space-y-8">
                 @csrf
                     @method('PUT')
                 
