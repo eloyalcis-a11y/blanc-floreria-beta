@@ -5,20 +5,31 @@
             <p class="text-gray-500 text-sm">Ingresa los datos del nuevo pedido.</p>
         </div>
 
+        @if($errors->any())
+            <div class="bg-red-50 text-red-700 p-4 rounded-lg mb-6 border border-red-200">
+                <p class="font-bold mb-2">Por favor corrige los siguientes errores:</p>
+                <ul class="list-disc list-inside text-sm">
+                    @foreach($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8">
             <form x-data="{ 
-                arrangementType: 'catalogo',
-                street: '',
-                neighborhood: '',
-                zip: '',
-                paymentMethod: 'Transferencia Bancaria',
-                searchQuery: '',
+                arrangementType: @json(old('arrangement_type', 'catalogo')),
+                street: @json(old('delivery_street', '')),
+                neighborhood: @json(old('delivery_neighborhood', '')),
+                zip: @json(old('delivery_zip', '')),
+                paymentMethod: @json(old('payment_method', 'Transferencia Bancaria')),
+                searchQuery: @json(old('material', '')),
                 searchResults: [],
                 isSearching: false,
                 selectedProduct: null,
-                selectedSku: '',
-                shopifyImageUrl: '',
-                deliveryTimeOption: '',
+                selectedSku: @json(old('product_code', '')),
+                shopifyImageUrl: @json(old('shopify_image_url', '')),
+                deliveryTimeOption: @json(old('delivery_time', '')),
                 async searchShopify() {
                     if (this.arrangementType !== 'catalogo') return;
                     if (this.searchQuery.length < 2) {
