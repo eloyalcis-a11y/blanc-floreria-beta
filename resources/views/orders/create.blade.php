@@ -1,3 +1,24 @@
+@php
+    $standardBlocks = [
+        '10:00 AM - 12:00 PM',
+        '12:00 PM - 02:00 PM',
+        '02:00 PM - 04:00 PM',
+        '04:00 PM - 06:00 PM',
+        '06:00 PM - 08:00 PM',
+        '08:00 PM - 10:00 PM',
+        'Horario Especial / Fuera de horario'
+    ];
+    // Tras un error de validacion el estado se reconstruye desde old(), no desde
+    // la BD. Si la persona elige "Horario Especial" y escribe su horario, el
+    // campo que se envia como delivery_time es el de texto libre, asi que
+    // old('delivery_time') trae ESE texto: no coincide con ninguna opcion del
+    // select y por eso quedaba en "Selecciona un bloque..." y se perdia lo escrito.
+    $deliveryTimeActual = old('delivery_time');
+    $isCustomTime = $deliveryTimeActual && !in_array($deliveryTimeActual, $standardBlocks);
+    $initialOption = $isCustomTime ? 'Horario Especial / Fuera de horario' : $deliveryTimeActual;
+    $customTimeValue = $isCustomTime ? $deliveryTimeActual : '';
+@endphp
+
 <x-app-layout>
     <div class="max-w-4xl mx-auto mt-8">
         <div class="mb-6">
@@ -29,7 +50,7 @@
                 selectedProduct: null,
                 selectedSku: @json(old('product_code', '')),
                 shopifyImageUrl: @json(old('shopify_image_url', '')),
-                deliveryTimeOption: @json(old('delivery_time', '')),
+                deliveryTimeOption: @json($initialOption ?? ''),
                 async searchShopify() {
                     if (this.arrangementType !== "catalogo") return;
                     if (this.searchQuery.length < 2) {
@@ -225,7 +246,7 @@
                             
                             <div x-show="deliveryTimeOption === 'Horario Especial / Fuera de horario'" x-collapse class="mt-3">
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Especifica el horario exacto *</label>
-                                <input type="text" :name="deliveryTimeOption === 'Horario Especial / Fuera de horario' ? 'delivery_time' : ''" :required="deliveryTimeOption === 'Horario Especial / Fuera de horario'" class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:ring-[#4A1525] focus:border-[#4A1525]" placeholder="Ej. 1:15 PM o Lo más pronto posible">
+                                <input type="text" :name="deliveryTimeOption === 'Horario Especial / Fuera de horario' ? 'delivery_time' : ''" :required="deliveryTimeOption === 'Horario Especial / Fuera de horario'" value="{{ $customTimeValue }}" class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:ring-[#4A1525] focus:border-[#4A1525]" placeholder="Ej. 1:15 PM o Lo más pronto posible">
                             </div>
 
                             <p class="text-xs text-gray-400 mt-1">Recuerda pedirlo con mínimo 2 horas de anticipación.</p>
