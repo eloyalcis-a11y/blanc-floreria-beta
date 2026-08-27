@@ -130,9 +130,9 @@
                     @forelse($orders as $order)
                         @php
                             $modelo = $order->product_code ?: $order->material;
-                            $pu = floatval($order->unit_price ?? 0);
+                            $subtotal = floatval($order->unit_price ?? 0);
                             $qty = intval($order->quantity ?? 1);
-                            $subtotal = $pu * $qty;
+                            $pu = $qty > 0 ? $subtotal / $qty : $subtotal;
                             $extra = floatval($order->extra_charge ?? 0) + floatval($order->shipping_cost ?? 0) - floatval($order->discount ?? 0);
                             $total = $subtotal + $extra;
                             $deliveryDate = $order->delivery_date ? \Carbon\Carbon::parse($order->delivery_date)->format('Y-m-d') : '';
