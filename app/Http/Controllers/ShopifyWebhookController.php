@@ -110,6 +110,13 @@ class ShopifyWebhookController extends Controller
         // 6.5. Enviar correo a la lista de distribución (solo si es nuevo)
         if ($order->wasRecentlyCreated) {
             try {
+                $staff = \App\Models\User::whereIn('role', ['admin', 'staff'])->get();
+                \Illuminate\Support\Facades\Notification::send($staff, new \App\Notifications\NewOrderNotification($order));
+            } catch (\Exception $e) {
+                Log::error('Error enviando notificación de sistema para pedido Shopify: ' . $e->getMessage());
+            }
+
+            try {
                 \Illuminate\Support\Facades\Mail::to([
                     'jaky.vazquez@alciscorp.com',
                     'andrea.orquidea@alciscorp.com',
