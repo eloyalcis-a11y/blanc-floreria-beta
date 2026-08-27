@@ -217,7 +217,7 @@
                             <input type="number" step="0.01" name="shipping_cost" value="{{ old('shipping_cost', $order->shipping_cost) }}" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-[#4A1525] focus:border-[#4A1525]" placeholder="0.00">
                         </div>
                         <div>
-                            <label class="block text-[11px] font-semibold text-gray-500 uppercase tracking-wider mb-1">Descuento Aplicado ($)</label>
+                            <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Descuento Aplicado (%)</label>
                             <input type="number" step="0.01" name="discount" value="{{ old('discount', $order->discount) }}" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-[#4A1525] focus:border-[#4A1525]" placeholder="0.00">
                         </div>
                         <div class="col-span-1 md:col-span-2 border-t border-gray-200 pt-4 mt-2">
@@ -229,7 +229,7 @@
                     <div class="mt-4 flex items-center justify-between">
                         <div class="text-sm">
                             <span class="text-gray-500 font-medium">Monto Total Calculado:</span>
-                            <span class="text-lg font-bold text-[#2C211A] ml-2">${{ number_format(($order->unit_price ?? 0) + ($order->extra_charge ?? 0) + ($order->shipping_cost ?? 0) - ($order->discount ?? 0), 2) }}</span>
+                            <span id="total-calculated" class="text-lg font-bold text-[#2C211A] ml-2">${{ number_format(($order->unit_price ?? 0) + ($order->extra_charge ?? 0) + ($order->shipping_cost ?? 0) - ($order->unit_price * ($order->discount ?? 0) / 100), 2) }}</span>
                         </div>
                         <button type="submit" class="bg-[#4A1525] hover:bg-[#340f1a] text-white px-4 py-2 rounded-lg text-sm font-medium transition-all shadow-sm">
                             Guardar Datos
@@ -337,6 +337,28 @@
                 </form>
                 
                 <script>
+                    const unitPriceInput = document.querySelector('input[name="unit_price"]');
+                    const extraChargeInput = document.querySelector('input[name="extra_charge"]');
+                    const shippingCostInput = document.querySelector('input[name="shipping_cost"]');
+                    const discountInput = document.querySelector('input[name="discount"]');
+                    const totalCalculatedDisplay = document.getElementById('total-calculated');
+
+                    function updateTotal() {
+                        const unitPrice = parseFloat(unitPriceInput.value) || 0;
+                        const extraCharge = parseFloat(extraChargeInput.value) || 0;
+                        const shippingCost = parseFloat(shippingCostInput.value) || 0;
+                        let discountPercent = parseFloat(discountInput.value) || 0;
+                        
+                        const subtotalAfterDiscount = unitPrice * (1 - (discountPercent / 100));
+                        const total = subtotalAfterDiscount + extraCharge + shippingCost;
+                        
+                        totalCalculatedDisplay.innerText = '$' + total.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                    }
+
+                    [unitPriceInput, extraChargeInput, shippingCostInput, discountInput].forEach(input => {
+                        input.addEventListener('input', updateTotal);
+                    });
+
                     document.getElementById('status-select').addEventListener('change', function() {
                         const container = document.getElementById('delivery-photo-container');
                         if (this.value === 'Entregado y Pagado') {

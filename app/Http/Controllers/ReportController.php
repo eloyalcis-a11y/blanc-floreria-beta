@@ -44,8 +44,8 @@ class ReportController extends Controller
         $paymentMethodTotals = [];
         
         foreach ($ordersForMetrics as $order) {
-            // Formula del total del pedido: unit_price + extra_charge + shipping_cost - discount
-            $totalOrder = ($order->unit_price ?? 0) + ($order->extra_charge ?? 0) + ($order->shipping_cost ?? 0) - ($order->discount ?? 0);
+            // Formula del total del pedido: unit_price * (1 - discount%) + extra_charge + shipping_cost
+            $totalOrder = (($order->unit_price ?? 0) * (1 - ($order->discount ?? 0) / 100)) + ($order->extra_charge ?? 0) + ($order->shipping_cost ?? 0);
             $totalIngresos += $totalOrder;
             $totalEnvios += ($order->shipping_cost ?? 0);
             
@@ -149,7 +149,7 @@ class ReportController extends Controller
                 $subtotal = floatval($order->unit_price ?? 0);
                 $qty = intval($order->quantity ?? 1);
                 $pu = $qty > 0 ? $subtotal / $qty : $subtotal;
-                $extra = floatval($order->extra_charge ?? 0) + floatval($order->shipping_cost ?? 0) - floatval($order->discount ?? 0);
+                $extra = floatval($order->extra_charge ?? 0) + floatval($order->shipping_cost ?? 0) - (floatval($order->unit_price ?? 0) * floatval($order->discount ?? 0) / 100);
                 $total = $subtotal + $extra;
                 $deliveryDate = $order->delivery_date ? \Carbon\Carbon::parse($order->delivery_date)->format('Y-m-d') : '';
 

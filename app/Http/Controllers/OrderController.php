@@ -205,7 +205,7 @@ class OrderController extends Controller
         $order->update($validated);
 
         // Actualizar total dinámicamente si es necesario, o lo calculamos al vuelo en reportes
-        $total = ($order->unit_price ?? 0) + ($order->extra_charge ?? 0) + ($order->shipping_cost ?? 0) - ($order->discount ?? 0);
+        $total = (($order->unit_price ?? 0) * (1 - ($order->discount ?? 0) / 100)) + ($order->extra_charge ?? 0) + ($order->shipping_cost ?? 0);
         $order->update(['total_price' => $total]);
 
         return redirect()->back()->with('success', 'Datos financieros actualizados.');

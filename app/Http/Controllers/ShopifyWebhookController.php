@@ -64,8 +64,13 @@ class ShopifyWebhookController extends Controller
         }
 
         // 5. Extraer Datos Financieros
-        $unitPrice = (float) ($payload['total_line_items_price'] ?? 0);
-        $discount = (float) ($payload['total_discounts'] ?? 0);
+        $subtotal = (float) ($payload['total_line_items_price'] ?? 0);
+        $unitPrice = $subtotal;
+        $discountAmount = (float) ($payload['total_discounts'] ?? 0);
+        // Compute discount as percentage. If subtotal is 0, discount percent is 0.
+        $discount = $subtotal > 0 ? round(($discountAmount / $subtotal) * 100, 2) : 0;
+        
+        // Extract shipping cost from shipping_lines
         $shippingCost = 0;
         if (!empty($payload['shipping_lines'])) {
             foreach ($payload['shipping_lines'] as $shipping) {
