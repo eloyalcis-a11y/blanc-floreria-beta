@@ -98,7 +98,7 @@ class ShopifyWebhookController extends Controller
                 'shipping_cost' => $shippingCost,
                 'extra_charge' => 0,
                 'total_price' => $totalPrice,
-                'delivery_date' => null, 
+                'delivery_date' => \Carbon\Carbon::parse($payload['created_at'] ?? now())->toDateString(), 
                 'image_url' => null,
                 'status' => $localStatus, // Dinámico según el pago de Shopify
                 'payment_method' => 'Shopify Payments',
