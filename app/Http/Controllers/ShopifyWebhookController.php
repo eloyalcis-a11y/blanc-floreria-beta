@@ -107,6 +107,12 @@ class ShopifyWebhookController extends Controller
             ]
         );
 
+        if (!$order->wasRecentlyCreated && $localStatus === 'Confirmado' && $order->status !== 'Confirmado') {
+            $order->status = 'Confirmado';
+            $order->save();
+        }
+
+
         // 6.5. Enviar correo a la lista de distribución (solo si es nuevo)
         if ($order->wasRecentlyCreated) {
             try {
