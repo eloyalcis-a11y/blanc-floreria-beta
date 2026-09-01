@@ -136,7 +136,9 @@ class ReportController extends Controller
                 'Costo SAP',
                 'P.U..3',
                 'SUBTOTAL',
-                '15%',
+                'DESCUENTO (%)',
+                'GASTO ENVÍO',
+                'ADICIONAL',
                 'MÉTODO DE PAGO',
                 'TOTAL',
                 '#TICKET',
@@ -163,8 +165,10 @@ class ReportController extends Controller
                     '', // Costo SAP (vacío manual)
                     $pu,
                     $subtotal,
-                    $extra,
-                    $order->payment_method ?: 'No Especificado',
+                    $order->discount ?? 0,
+                    $order->shipping_cost ?? 0,
+                    $order->extra_charge ?? 0,
+                    $order->payment_method,
                     $total,
                     $order->ticket_number ?? 'N/A',
                     $order->created_at->format('Y-m-d')

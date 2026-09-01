@@ -127,7 +127,9 @@
                         <th class="p-3 font-medium">COSTO SAP</th>
                         <th class="p-3 font-medium text-right">P.U.</th>
                         <th class="p-3 font-medium text-right">SUBTOTAL</th>
-                        <th class="p-3 font-medium text-right">15%</th>
+                        <th class="p-3 font-medium text-right">DESC. (%)</th>
+                        <th class="p-3 font-medium text-right">ENVÍO</th>
+                        <th class="p-3 font-medium text-right">ADIC.</th>
                         <th class="p-3 font-medium">MÉTODO PAGO</th>
                         <th class="p-3 font-medium text-right font-bold text-black">TOTAL</th>
                         <th class="p-3 font-medium">#TICKET</th>
@@ -156,7 +158,9 @@
                             <td class="p-3"></td>
                             <td class="p-3 text-right">MX$ {{ number_format($pu, 2) }}</td>
                             <td class="p-3 text-right text-gray-500">MX$ {{ number_format($subtotal, 2) }}</td>
-                            <td class="p-3 text-right text-gray-500">MX$ {{ number_format($extra, 2) }}</td>
+                            <td class="p-3 text-right text-gray-500">{{ $order->discount ?? 0 }}%</td>
+                            <td class="p-3 text-right text-gray-500">MX$ {{ number_format($order->shipping_cost ?? 0, 2) }}</td>
+                            <td class="p-3 text-right text-gray-500">MX$ {{ number_format($order->extra_charge ?? 0, 2) }}</td>
                             <td class="p-3"><span class="px-2 py-1 bg-gray-100 rounded text-[9px] font-bold uppercase">{{ $order->payment_method ?: 'N/E' }}</span></td>
                             <td class="p-3 text-right font-bold text-black">MX$ {{ number_format($total, 2) }}</td>
                             <td class="p-3 text-gray-500">{{ $order->ticket_number ?? 'N/A' }}</td>
