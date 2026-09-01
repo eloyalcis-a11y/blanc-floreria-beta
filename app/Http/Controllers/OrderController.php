@@ -63,6 +63,14 @@ class OrderController extends Controller
         $validated['user_id'] = auth()->id();
         
         $validated['status'] = 'En proceso';
+
+        // Evitar error 500 por emojis (si la base de datos no es utf8mb4)
+        if (isset($validated['dedication_message'])) {
+            $validated['dedication_message'] = preg_replace('/[\x{10000}-\x{10FFFF}]/u', '', $validated['dedication_message']);
+        }
+        if (isset($validated['notes'])) {
+            $validated['notes'] = preg_replace('/[\x{10000}-\x{10FFFF}]/u', '', $validated['notes']);
+        }
         
         if ($request->hasFile('payment_proof')) {
             $path = $request->file('payment_proof')->store('payment_proofs', 'public');
@@ -76,7 +84,12 @@ class OrderController extends Controller
             $validated['image_url'] = $request->input('shopify_image_url');
         }
         
-        $order = \App\Models\Order::create($validated);
+        try {
+            $order = \App\Models\Order::create($validated);
+        } catch (\Exception $e) {
+            \Log::error('Error creando pedido manual: ' . $e->getMessage());
+            return back()->withInput()->with('error', 'Ocurrió un error al guardar el pedido en la base de datos. Si usaste caracteres especiales, intenta quitarlos.');
+        }
 
         // Notificar a administradores, ventas y operaciones (App)
         $staff = User::whereIn('role', ['admin', 'ventas', 'operacion'])->get();
@@ -147,6 +160,14 @@ class OrderController extends Controller
 
         $validated = $request->validate($rules);
 
+        // Evitar error 500 por emojis (si la base de datos no es utf8mb4)
+        if (isset($validated['dedication_message'])) {
+            $validated['dedication_message'] = preg_replace('/[\x{10000}-\x{10FFFF}]/u', '', $validated['dedication_message']);
+        }
+        if (isset($validated['notes'])) {
+            $validated['notes'] = preg_replace('/[\x{10000}-\x{10FFFF}]/u', '', $validated['notes']);
+        }
+
         if ($request->hasFile('reference_image')) {
             $path = $request->file('reference_image')->store('reference_images', 'public');
             $validated['image_url'] = '/storage/' . $path;
@@ -154,9 +175,14 @@ class OrderController extends Controller
             $validated['image_url'] = $request->input('shopify_image_url');
         }
 
-        $order->update($validated);
+        try {
+            $order->update($validated);
+        } catch (\Exception $e) {
+            \Log::error('Error actualizando pedido manual: ' . $e->getMessage());
+            return back()->withInput()->with('error', 'Ocurrió un error al actualizar el pedido en la base de datos. Si usaste caracteres especiales, intenta quitarlos.');
+        }
 
-        return redirect()->route('orders.show', $order)->with('success', 'Pedido actualizado correctamente.');
+        return redirect()->route('dashboard')->with('success', 'Pedido actualizado exitosamente.');
     }
 
     public function toggleRoute(Request $request, \App\Models\Order $order)

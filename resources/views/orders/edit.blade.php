@@ -217,11 +217,11 @@
 
                         <div class="md:col-span-2">
                             <label class="block text-sm font-medium text-gray-700 mb-2">Notas / Especificaciones adicionales</label>
-                            <textarea name="notes" rows="2" class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:ring-[#4A1525] focus:border-[#4A1525]" placeholder="Ej. Rosas bien abiertas, sin papel coreano, etc.">{{ old('notes', $order->notes) }}</textarea>
+                            <textarea name="notes" rows="2" class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:ring-[#4A1525] focus:border-[#4A1525]" placeholder="Ej. Rosas bien abiertas, sin papel coreano, etc." style="-webkit-user-select: text; user-select: text;">{{ old('notes', $order->notes) }}</textarea>
                         </div>
                         <div class="md:col-span-2">
                             <label class="block text-sm font-medium text-gray-700 mb-2">Mensaje o Dedicatoria para la Tarjeta</label>
-                            <textarea name="dedication_message" rows="3" class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:ring-[#4A1525] focus:border-[#4A1525]">{{ old('dedication_message', $order->dedication_message) }}</textarea>
+                            <textarea name="dedication_message" rows="3" class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:ring-[#4A1525] focus:border-[#4A1525]" style="-webkit-user-select: text; user-select: text;">{{ old('dedication_message', $order->dedication_message) }}</textarea>
                         </div>
                     </div>
                 </div>
