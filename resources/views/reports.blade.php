@@ -18,10 +18,20 @@
             <!-- Botones Rápidos de Fecha -->
             <div class="w-full md:w-auto">
                 <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">Periodo</label>
-                <div class="flex bg-gray-100 rounded-lg p-1">
-                    <button type="submit" name="date_range" value="hoy" class="px-4 py-1.5 text-xs font-medium rounded-md transition-colors {{ $dateRange === 'hoy' ? 'bg-white shadow-sm text-[#4A1525]' : 'text-gray-500 hover:text-gray-700' }}">Hoy</button>
-                    <button type="submit" name="date_range" value="semana" class="px-4 py-1.5 text-xs font-medium rounded-md transition-colors {{ $dateRange === 'semana' ? 'bg-white shadow-sm text-[#4A1525]' : 'text-gray-500 hover:text-gray-700' }}">Semana</button>
-                    <button type="submit" name="date_range" value="mes" class="px-4 py-1.5 text-xs font-medium rounded-md transition-colors {{ $dateRange === 'mes' ? 'bg-white shadow-sm text-[#4A1525]' : 'text-gray-500 hover:text-gray-700' }}">Mes</button>
+                <div class="flex flex-wrap bg-gray-100 rounded-lg p-1" x-data="{ range: '{{ $dateRange }}' }">
+                    <button type="button" @click="range = 'hoy'; $nextTick(() => $el.closest('form').submit())" class="px-4 py-1.5 text-xs font-medium rounded-md transition-colors" :class="range === 'hoy' ? 'bg-white shadow-sm text-[#4A1525]' : 'text-gray-500 hover:text-gray-700'">Hoy</button>
+                    <button type="button" @click="range = 'semana'; $nextTick(() => $el.closest('form').submit())" class="px-4 py-1.5 text-xs font-medium rounded-md transition-colors" :class="range === 'semana' ? 'bg-white shadow-sm text-[#4A1525]' : 'text-gray-500 hover:text-gray-700'">Semana</button>
+                    <button type="button" @click="range = 'mes'; $nextTick(() => $el.closest('form').submit())" class="px-4 py-1.5 text-xs font-medium rounded-md transition-colors" :class="range === 'mes' ? 'bg-white shadow-sm text-[#4A1525]' : 'text-gray-500 hover:text-gray-700'">Mes</button>
+                    <button type="button" @click="range = 'custom'" class="px-4 py-1.5 text-xs font-medium rounded-md transition-colors" :class="range === 'custom' ? 'bg-white shadow-sm text-[#4A1525]' : 'text-gray-500 hover:text-gray-700'">Personalizado</button>
+                    
+                    <input type="hidden" name="date_range" x-model="range">
+                </div>
+                <!-- Custom Date Inputs -->
+                <div x-show="range === 'custom'" x-cloak class="mt-3 flex flex-wrap items-center gap-2">
+                    <input type="date" name="start_date" value="{{ request('start_date') }}" class="text-xs border-gray-200 rounded-md focus:ring-[#4A1525] focus:border-[#4A1525] py-1.5" required>
+                    <span class="text-xs text-gray-400">a</span>
+                    <input type="date" name="end_date" value="{{ request('end_date') }}" class="text-xs border-gray-200 rounded-md focus:ring-[#4A1525] focus:border-[#4A1525] py-1.5" required>
+                    <button type="submit" class="bg-[#4A1525] text-white px-3 py-1.5 rounded-md text-xs font-medium hover:bg-[#3d111e] transition-colors">Filtrar</button>
                 </div>
             </div>
 
@@ -47,8 +57,6 @@
                     <option value="Nómina" {{ request('payment_method') === 'Nómina' ? 'selected' : '' }}>Nómina</option>
                 </select>
             </div>
-            
-            <input type="hidden" name="date_range" value="{{ $dateRange }}">
         </form>
     </div>
 
