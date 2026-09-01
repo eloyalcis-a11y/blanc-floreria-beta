@@ -102,6 +102,7 @@ Route::middleware('auth')->group(function () {
     Route::patch('/orders/{order}/toggle-route', [\App\Http\Controllers\OrderController::class, 'toggleRoute'])->name('orders.toggle-route');
     Route::patch('/orders/{order}/status', [\App\Http\Controllers\OrderController::class, 'updateStatus'])->name('orders.update-status');
     Route::patch('/orders/{order}/financials', [\App\Http\Controllers\OrderController::class, 'updateFinancials'])->name('orders.update-financials');
+    Route::get('/orders/{order}/print', [\App\Http\Controllers\OrderController::class, 'print'])->name('orders.print');
     
     // Reportes
     Route::get('/reports/export', [\App\Http\Controllers\ReportController::class, 'export'])->name('reports.export');

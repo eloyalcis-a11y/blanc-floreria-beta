@@ -121,6 +121,11 @@ class OrderController extends Controller
         return view('orders.show', compact('order'));
     }
 
+    public function print(\App\Models\Order $order)
+    {
+        return view('orders.print', compact('order'));
+    }
+
     public function edit(\App\Models\Order $order)
     {
         return view('orders.edit', compact('order'));
