@@ -148,8 +148,14 @@ class ReportController extends Controller
             foreach ($orders as $order) {
                 // Modelo puede ser product_code o material si no hay código
                 $modelo = $order->product_code ?: $order->material;
-                $subtotal = floatval($order->unit_price ?? 0);
                 $qty = intval($order->quantity ?? 1);
+                
+                // Parche para pedidos antiguos de Shopify que contaron "Cliente Blanc" como cantidad
+                if ($order->source === 'Shopify' && $qty > 1 && str_contains(strtolower($modelo), 'cliente blanc')) {
+                    $qty -= 1;
+                }
+
+                $subtotal = floatval($order->unit_price ?? 0);
                 $pu = $qty > 0 ? $subtotal / $qty : $subtotal;
                 $extra = floatval($order->extra_charge ?? 0) + floatval($order->shipping_cost ?? 0) - (floatval($order->unit_price ?? 0) * floatval($order->discount ?? 0) / 100);
                 $total = $subtotal + $extra;
