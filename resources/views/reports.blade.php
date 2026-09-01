@@ -16,9 +16,9 @@
     <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 mb-6">
         <form method="GET" action="{{ route('reports.index') }}" class="flex flex-col md:flex-row gap-4 items-end">
             <!-- Botones Rápidos de Fecha -->
-            <div class="w-full md:w-auto">
+            <div class="w-full md:w-auto" x-data="{ range: '{{ $dateRange }}' }">
                 <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">Periodo</label>
-                <div class="flex flex-wrap bg-gray-100 rounded-lg p-1" x-data="{ range: '{{ $dateRange }}' }">
+                <div class="flex flex-wrap bg-gray-100 rounded-lg p-1">
                     <button type="button" @click="range = 'hoy'; $nextTick(() => $el.closest('form').submit())" class="px-4 py-1.5 text-xs font-medium rounded-md transition-colors" :class="range === 'hoy' ? 'bg-white shadow-sm text-[#4A1525]' : 'text-gray-500 hover:text-gray-700'">Hoy</button>
                     <button type="button" @click="range = 'semana'; $nextTick(() => $el.closest('form').submit())" class="px-4 py-1.5 text-xs font-medium rounded-md transition-colors" :class="range === 'semana' ? 'bg-white shadow-sm text-[#4A1525]' : 'text-gray-500 hover:text-gray-700'">Semana</button>
                     <button type="button" @click="range = 'mes'; $nextTick(() => $el.closest('form').submit())" class="px-4 py-1.5 text-xs font-medium rounded-md transition-colors" :class="range === 'mes' ? 'bg-white shadow-sm text-[#4A1525]' : 'text-gray-500 hover:text-gray-700'">Mes</button>
