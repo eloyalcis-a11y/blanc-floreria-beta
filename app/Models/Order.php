@@ -57,4 +57,34 @@ class Order extends Model
     {
         return $this->hasMany(OrderArrangement::class);
     }
+
+    public function getMaterialAttribute()
+    {
+        return $this->arrangements->pluck('material')->filter()->join(' + ');
+    }
+
+    public function getQuantityAttribute()
+    {
+        return $this->arrangements->sum('quantity');
+    }
+
+    public function getProductCodeAttribute()
+    {
+        return $this->arrangements->pluck('product_code')->filter()->join(', ');
+    }
+
+    public function getNotesAttribute()
+    {
+        return $this->arrangements->pluck('notes')->filter()->join(' | ');
+    }
+
+    public function getDedicationMessageAttribute()
+    {
+        return $this->arrangements->pluck('dedication_message')->filter()->join(' | ');
+    }
+
+    public function getArrangementTypeAttribute()
+    {
+        return $this->arrangements->pluck('arrangement_type')->filter()->unique()->join(', ');
+    }
 }

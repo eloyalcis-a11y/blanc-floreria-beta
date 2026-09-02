@@ -27,7 +27,10 @@ Route::get('/dashboard', function (\Illuminate\Http\Request $request) {
             $q->where('client_name', 'like', "%{$search}%")
               ->orWhere('company', 'like', "%{$search}%")
               ->orWhere('order_number', 'like', "%{$search}%")
-              ->orWhere('material', 'like', "%{$search}%");
+              ->orWhereHas('arrangements', function($qArr) use ($search) {
+                  $qArr->where('material', 'like', "%{$search}%")
+                       ->orWhere('product_code', 'like', "%{$search}%");
+              });
         });
     }
 

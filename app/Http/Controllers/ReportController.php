@@ -61,9 +61,9 @@ class ReportController extends Controller
         $ticketPromedio = $cantidadPedidos > 0 ? ($totalIngresos / $cantidadPedidos) : 0;
 
         // Top Venta / Modelo
-        $topModelo = clone $query;
-        $topVendido = $topModelo->selectRaw('product_code, count(*) as total')
+        $topVendido = \App\Models\OrderArrangement::selectRaw('product_code, count(*) as total')
             ->whereNotNull('product_code')
+            ->whereIn('order_id', (clone $query)->select('id'))
             ->groupBy('product_code')
             ->orderByDesc('total')
             ->first();
