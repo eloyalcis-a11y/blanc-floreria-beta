@@ -110,7 +110,7 @@
         <div class="header">
             <h1>Blanc Florería</h1>
             <p><strong>Detalle de Orden:</strong> {{ $order->order_number }}</p>
-            <p><strong>Fecha:</strong> {{ $order->created_at->format('d/m/Y H:i') }}</p>
+            <p><strong>Fecha:</strong> {{ $order->created_at->timezone('America/Mexico_City')->format('d/m/Y H:i') }}</p>
         </div>
 
         <div class="grid">
@@ -118,8 +118,7 @@
             <div>
                 <div class="section">
                     <div class="section-title">Información del Cliente</div>
-                    <div class="field"><span class="label">Cliente:</span> <span class="value">{{ $order->client_name }}</span></div>
-                    <div class="field"><span class="label">Teléfono:</span> <span class="value">{{ $order->client_phone ?? 'N/E' }}</span></div>
+
                     <div class="field"><span class="label">Quién recibe:</span> <span class="value">{{ $order->recipient_name ?? 'N/E' }}</span></div>
                     <div class="field"><span class="label">Quién envía:</span> <span class="value">{{ $order->sender_name ?? 'N/E' }}</span></div>
                 </div>
@@ -151,6 +150,15 @@
                     <div class="field"><span class="label">Modelo/Material:</span> <span class="value">{{ $order->material }}</span></div>
                     <div class="field"><span class="label">Cantidad:</span> <span class="value">{{ $order->quantity }}</span></div>
                     <div class="field"><span class="label">Tipo:</span> <span class="value" style="text-transform: capitalize;">{{ $order->arrangement_type }}</span></div>
+                    
+                    @if($order->image_url)
+                    <div class="field full-width" style="margin-top: 15px; margin-bottom: 15px;">
+                        <span class="label">Referencia del Arreglo:</span>
+                        <div style="margin-top: 5px;">
+                            <img src="{{ Str::startsWith($order->image_url, 'http') ? $order->image_url : asset($order->image_url) }}" alt="Referencia" style="max-width: 250px; max-height: 250px; border: 1px solid #ccc; border-radius: 8px;">
+                        </div>
+                    </div>
+                    @endif
                     
                     @if($order->notes)
                     <div class="field full-width" style="margin-top: 10px;">
