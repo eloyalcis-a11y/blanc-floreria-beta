@@ -134,7 +134,7 @@
                     </div>
                     <div>
                         <p class="text-[11px] text-[#757575] font-semibold mb-1 uppercase tracking-wider">Total del Pedido</p>
-                        <p class="text-[20px] text-[#2C211A] font-sans-custom font-medium">MX$ {{ number_format($order->total_price, 2) }}</p>
+                        <p class="text-[20px] text-[#2C211A] font-sans-custom font-medium">MX$ {{ number_format($order->total_price ?? 0, 2) }}</p>
                     </div>
                     <div>
                         <p class="text-[11px] text-[#757575] font-semibold mb-1 uppercase tracking-wider">Vendedor Responsable</p>
