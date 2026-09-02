@@ -44,6 +44,7 @@ class OrderController extends Controller
             'dedication_message' => 'nullable|string',
             'salesperson' => 'nullable|string|max:255',
             'reference_image' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'delivery_reference_image' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
             'shopify_image_url' => 'nullable|url',
         ];
 
@@ -82,6 +83,11 @@ class OrderController extends Controller
             $validated['image_url'] = '/storage/' . $path;
         } elseif ($request->filled('shopify_image_url')) {
             $validated['image_url'] = $request->input('shopify_image_url');
+        }
+
+        if ($request->hasFile('delivery_reference_image')) {
+            $path = $request->file('delivery_reference_image')->store('delivery_references', 'public');
+            $validated['delivery_reference_image_path'] = '/storage/' . $path;
         }
         
         try {
@@ -159,7 +165,9 @@ class OrderController extends Controller
             'client_email' => 'nullable|email|max:255',
             'dedication_message' => 'nullable|string',
             'salesperson' => 'nullable|string|max:255',
+            'salesperson' => 'nullable|string|max:255',
             'reference_image' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'delivery_reference_image' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
             'shopify_image_url' => 'nullable|url',
         ];
 
@@ -178,6 +186,11 @@ class OrderController extends Controller
             $validated['image_url'] = '/storage/' . $path;
         } elseif ($request->filled('shopify_image_url')) {
             $validated['image_url'] = $request->input('shopify_image_url');
+        }
+
+        if ($request->hasFile('delivery_reference_image')) {
+            $path = $request->file('delivery_reference_image')->store('delivery_references', 'public');
+            $validated['delivery_reference_image_path'] = '/storage/' . $path;
         }
 
         try {

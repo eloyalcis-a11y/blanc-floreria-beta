@@ -272,7 +272,15 @@
                         </div>
                         <div class="md:col-span-2">
                             <label class="block text-sm font-medium text-gray-700 mb-2">Referencias visuales o Link de Maps (Opcional)</label>
-                            <textarea name="delivery_references" rows="2" class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:ring-[#4A1525] focus:border-[#4A1525]" placeholder="Ej. Casa blanca con portón negro, frente al parque. O pega aquí el link de Maps.">{{ old('delivery_references', $order->delivery_references) }}</textarea>
+                            <textarea name="delivery_references" rows="2" class="w-full border border-gray-200 rounded-lg px-4 py-2 mb-3 focus:ring-[#4A1525] focus:border-[#4A1525]" placeholder="Ej. Casa blanca con portón negro, frente al parque. O pega aquí el link de Maps.">{{ old('delivery_references', $order->delivery_references) }}</textarea>
+                            
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Foto de la fachada (Opcional)</label>
+                            @if($order->delivery_reference_image_path)
+                                <div class="mb-3">
+                                    <img src="{{ $order->delivery_reference_image_path }}" alt="Referencia de domicilio" class="w-32 h-32 object-cover rounded-lg border border-gray-200">
+                                </div>
+                            @endif
+                            <input type="file" name="delivery_reference_image" accept=".jpg,.jpeg,.png,.pdf" class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:ring-[#4A1525] focus:border-[#4A1525] file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-gray-100 file:text-[#4A1525] hover:file:bg-gray-200">
                         </div>
                         <div class="md:col-span-2" x-show="street || neighborhood" x-collapse>
                             <div class="p-4 bg-gray-50 rounded-lg border border-gray-100 flex items-center justify-between">

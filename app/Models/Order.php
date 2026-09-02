@@ -41,6 +41,7 @@ class Order extends Model
         'delivery_neighborhood',
         'delivery_zip',
         'delivery_references',
+        'delivery_reference_image_path',
         'is_in_route',
         'delivery_photo_path',
         'source',

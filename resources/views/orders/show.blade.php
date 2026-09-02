@@ -177,6 +177,14 @@
                             @if($order->delivery_references)
                                 <p class="text-[13px] text-gray-500 italic mb-3">Ref: {{ $order->delivery_references }}</p>
                             @endif
+                            @if($order->delivery_reference_image_path)
+                                <div class="mb-4">
+                                    <p class="text-[11px] text-[#757575] font-semibold mb-2 uppercase tracking-wider">Foto de fachada</p>
+                                    <a href="{{ $order->delivery_reference_image_path }}" target="_blank">
+                                        <img src="{{ $order->delivery_reference_image_path }}" class="w-full max-w-[200px] h-32 object-cover rounded-lg border border-gray-200 shadow-sm hover:opacity-90 transition-opacity" alt="Fachada del domicilio">
+                                    </a>
+                                </div>
+                            @endif
                             
                             @php
                                 $mapsQuery = urlencode(trim($order->delivery_street . ' ' . $order->delivery_neighborhood . ' ' . $order->delivery_zip));

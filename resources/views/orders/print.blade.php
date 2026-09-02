@@ -133,6 +133,14 @@
                         <span class="label">Referencias:</span> 
                         <div class="value" style="margin-top: 5px;">{{ $order->delivery_references ?? 'N/E' }}</div>
                     </div>
+                    @if($order->delivery_reference_image_path)
+                    <div class="field full-width" style="margin-top: 10px;">
+                        <span class="label">Foto de fachada:</span> 
+                        <div style="margin-top: 5px;">
+                            <img src="{{ asset($order->delivery_reference_image_path) }}" alt="Fachada" style="max-width: 200px; max-height: 150px; border: 1px solid #ccc; border-radius: 4px;">
+                        </div>
+                    </div>
+                    @endif
                 </div>
             </div>
 
