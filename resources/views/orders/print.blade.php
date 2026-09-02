@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Orden {{ $order->order_number }}</title>
+    <title>Acuse de Pedido {{ $order->order_number }}</title>
     <style>
         @page {
             size: auto;
@@ -26,16 +26,19 @@
             text-align: center;
             margin-bottom: 30px;
             border-bottom: 2px solid #4A1525;
-            padding-bottom: 10px;
+            padding-bottom: 15px;
         }
         .header h1 {
             margin: 0;
             color: #4A1525;
-            font-size: 24px;
+            font-size: 28px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
         }
         .header p {
             margin: 5px 0 0;
             color: #666;
+            font-size: 16px;
         }
         .section {
             margin-bottom: 25px;
@@ -52,7 +55,7 @@
         .grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 15px;
+            gap: 20px;
         }
         .field {
             margin-bottom: 5px;
@@ -77,6 +80,21 @@
             font-style: italic;
             margin-top: 10px;
         }
+        .arrangement-block {
+            border: 1px solid #eee;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            background-color: #fafafa;
+            page-break-inside: avoid;
+        }
+        .arrangement-title {
+            font-weight: bold;
+            color: #4A1525;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
+        }
         .footer {
             margin-top: 40px;
             text-align: center;
@@ -92,6 +110,10 @@
             }
             .no-print {
                 display: none !important;
+            }
+            .container {
+                width: 100%;
+                max-width: none;
             }
         }
     </style>
@@ -109,22 +131,21 @@
     <div class="container">
         <div class="header">
             <h1>Blanc Florería</h1>
-            <p><strong>Detalle de Orden:</strong> {{ $order->order_number }}</p>
-            <p><strong>Fecha:</strong> {{ $order->created_at->timezone('America/Mexico_City')->format('d/m/Y H:i') }}</p>
+            <p><strong>Acuse de Pedido:</strong> {{ $order->order_number }}</p>
+            <p><strong>Fecha de Registro:</strong> {{ $order->created_at->timezone('America/Mexico_City')->format('d/m/Y h:i A') }}</p>
         </div>
 
         <div class="grid">
             <!-- Columna Izquierda -->
             <div>
                 <div class="section">
-                    <div class="section-title">Información del Cliente</div>
-
+                    <div class="section-title">Detalles de Entrega</div>
                     <div class="field"><span class="label">Quién recibe:</span> <span class="value">{{ $order->recipient_name ?? 'N/E' }}</span></div>
-                    <div class="field"><span class="label">Quién envía:</span> <span class="value">{{ $order->sender_name ?? 'N/E' }}</span></div>
+                    <div class="field"><span class="label">Quién envía:</span> <span class="value">{{ $order->sender_name ?? 'Anónimo' }}</span></div>
                 </div>
 
                 <div class="section">
-                    <div class="section-title">Logística y Entrega</div>
+                    <div class="section-title">Logística</div>
                     <div class="field"><span class="label">Fecha de Entrega:</span> <span class="value">{{ $order->delivery_date ? \Carbon\Carbon::parse($order->delivery_date)->format('d/m/Y') : 'N/E' }}</span></div>
                     <div class="field"><span class="label">Horario:</span> <span class="value">{{ $order->delivery_time ?? 'N/E' }}</span></div>
                     <div class="field"><span class="label">Dirección:</span> <span class="value">{{ $order->delivery_street }} {{ $order->delivery_neighborhood }} {{ $order->delivery_zip }}</span></div>
@@ -143,46 +164,50 @@
                 </div>
             </div>
 
-            <!-- Columna Derecha -->
+            <!-- Columna Derecha: Arreglos -->
             <div>
                 <div class="section">
-                    <div class="section-title">Detalles del Arreglo</div>
-                    <div class="field"><span class="label">Modelo/Material:</span> <span class="value">{{ $order->material }}</span></div>
-                    <div class="field"><span class="label">Cantidad:</span> <span class="value">{{ $order->quantity }}</span></div>
-                    <div class="field"><span class="label">Tipo:</span> <span class="value" style="text-transform: capitalize;">{{ $order->arrangement_type }}</span></div>
+                    <div class="section-title">Arreglos ({{ $order->arrangements->count() }})</div>
                     
-                    @if($order->image_url)
-                    <div class="field full-width" style="margin-top: 15px; margin-bottom: 15px;">
-                        <span class="label">Referencia del Arreglo:</span>
-                        <div style="margin-top: 5px;">
-                            <img src="{{ Str::startsWith($order->image_url, 'http') ? $order->image_url : asset($order->image_url) }}" alt="Referencia" style="max-width: 250px; max-height: 250px; border: 1px solid #ccc; border-radius: 8px;">
+                    @foreach($order->arrangements as $index => $arr)
+                    <div class="arrangement-block">
+                        <div class="arrangement-title">Arreglo #{{ $index + 1 }}</div>
+                        <div class="field"><span class="label" style="width:100px;">Descripción:</span> <span class="value">{{ $arr->material }}</span></div>
+                        <div class="field"><span class="label" style="width:100px;">Cantidad:</span> <span class="value">{{ $arr->quantity }}</span></div>
+                        <div class="field"><span class="label" style="width:100px;">Tipo:</span> <span class="value" style="text-transform: capitalize;">{{ $arr->arrangement_type }}</span></div>
+                        
+                        @if($arr->image_url)
+                        <div class="field full-width" style="margin-top: 10px; margin-bottom: 10px;">
+                            <span class="label">Referencia visual:</span>
+                            <div style="margin-top: 5px;">
+                                <img src="{{ Str::startsWith($arr->image_url, 'http') ? $arr->image_url : asset($arr->image_url) }}" alt="Referencia" style="max-width: 100%; max-height: 250px; border: 1px solid #ccc; border-radius: 8px; object-fit: contain;">
+                            </div>
                         </div>
-                    </div>
-                    @endif
-                    
-                    @if($order->notes)
-                    <div class="field full-width" style="margin-top: 10px;">
-                        <span class="label">Notas Especiales:</span>
-                        <div class="value" style="margin-top: 5px; color: #c0392b; font-weight: bold;">{{ $order->notes }}</div>
-                    </div>
-                    @endif
-                </div>
-                
-                <div class="section">
-                    <div class="section-title">Mensaje de la Tarjeta</div>
-                    @if($order->dedication_message)
-                        <div class="message-box">
-                            {!! nl2br(e($order->dedication_message)) !!}
+                        @endif
+                        
+                        @if($arr->notes)
+                        <div class="field full-width" style="margin-top: 5px;">
+                            <span class="label">Notas Especiales:</span>
+                            <div class="value" style="margin-top: 2px; color: #c0392b; font-weight: bold;">{{ $arr->notes }}</div>
                         </div>
-                    @else
-                        <p style="color: #999; font-style: italic;">Sin mensaje de dedicatoria.</p>
-                    @endif
+                        @endif
+                        
+                        @if($arr->dedication_message)
+                        <div class="field full-width" style="margin-top: 10px;">
+                            <span class="label">Mensaje en Tarjeta:</span>
+                            <div class="message-box">
+                                {!! nl2br(e($arr->dedication_message)) !!}
+                            </div>
+                        </div>
+                        @endif
+                    </div>
+                    @endforeach
                 </div>
             </div>
         </div>
 
         <div class="footer">
-            Generado automáticamente por el Sistema de Gestión de Blanc Florería - {{ date('d/m/Y H:i') }}
+            Generado automáticamente por el Sistema de Gestión de Blanc Florería - {{ \Carbon\Carbon::now()->timezone('America/Mexico_City')->format('d/m/Y h:i A') }}
         </div>
     </div>
 </body>

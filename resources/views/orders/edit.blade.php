@@ -24,6 +24,23 @@
     $isCustomTime = $deliveryTimeActual && !in_array($deliveryTimeActual, $standardBlocks);
     $initialOption = $isCustomTime ? 'Horario Especial / Fuera de horario' : $deliveryTimeActual;
     $customTimeValue = $isCustomTime ? $deliveryTimeActual : '';
+
+    $arrangementsData = old('arrangements', $order->arrangements->map(function($arr) {
+        return [
+            'id' => $arr->id,
+            'arrangement_type' => $arr->arrangement_type ?: 'catalogo',
+            'material' => $arr->material,
+            'quantity' => $arr->quantity,
+            'product_code' => $arr->product_code,
+            'shopify_image_url' => filter_var($arr->image_url, FILTER_VALIDATE_URL) ? $arr->image_url : '',
+            'notes' => $arr->notes,
+            'dedication_message' => $arr->dedication_message,
+            'searchQuery' => $arr->material,
+            'searchResults' => [],
+            'isSearching' => false,
+            'original_image_url' => $arr->image_url
+        ];
+    })->toArray());
 @endphp
 
         @if($errors->any())
@@ -39,41 +56,58 @@
 
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8">
             <form x-data='{ 
-                arrangementType: @json(old('arrangement_type', $order->arrangement_type ?: 'catalogo')),
                 street: @json(old('delivery_street', $order->delivery_street)),
                 neighborhood: @json(old('delivery_neighborhood', $order->delivery_neighborhood)),
                 zip: @json(old('delivery_zip', $order->delivery_zip)),
                 paymentMethod: @json(old('payment_method', $order->payment_method ?: 'Transferencia Bancaria')),
                 deliveryTimeOption: @json($initialOption),
-                searchQuery: @json(old('material', $order->material)),
-                searchResults: [],
-                isSearching: false,
-                selectedProduct: null,
-                selectedSku: @json(old('product_code', $order->product_code)),
-                {{-- Solo se precarga si image_url es una URL absoluta. Cuando la imagen se
-                     subio a mano, image_url es una ruta local (/storage/...) y al mandarla
-                     en este campo la regla 'nullable|url' la rechazaba: los pedidos con
-                     imagen propia no se podian editar. --}}
-                shopifyImageUrl: @json(old('shopify_image_url', filter_var($order->image_url, FILTER_VALIDATE_URL) ? $order->image_url : '')),
-                async searchShopify() {
-                    if (this.arrangementType !== "catalogo") return;
-                    if (this.searchQuery.length < 2) {
-                        this.searchResults = [];
+                
+                arrangements: @json($arrangementsData),
+                
+                addArrangement() {
+                    this.arrangements.push({
+                        id: null,
+                        arrangement_type: "catalogo",
+                        material: "",
+                        quantity: 1,
+                        product_code: "",
+                        shopify_image_url: "",
+                        notes: "",
+                        dedication_message: "",
+                        searchQuery: "",
+                        searchResults: [],
+                        isSearching: false,
+                        original_image_url: null
+                    });
+                },
+                
+                removeArrangement(index) {
+                    if (this.arrangements.length > 1) {
+                        this.arrangements.splice(index, 1);
+                    }
+                },
+
+                async searchShopify(index) {
+                    let arr = this.arrangements[index];
+                    if (arr.arrangement_type !== "catalogo") return;
+                    if (arr.searchQuery.length < 2) {
+                        arr.searchResults = [];
                         return;
                     }
-                    this.isSearching = true;
+                    arr.isSearching = true;
                     try {
-                        let res = await fetch("/api/shopify/products?q=" + encodeURIComponent(this.searchQuery));
-                        this.searchResults = await res.json();
+                        let res = await fetch("/api/shopify/products?q=" + encodeURIComponent(arr.searchQuery));
+                        arr.searchResults = await res.json();
                     } catch(e) { console.error(e); }
-                    this.isSearching = false;
+                    arr.isSearching = false;
                 },
-                selectProduct(product) {
-                    this.selectedProduct = product;
-                    this.searchQuery = product.title;
-                    this.selectedSku = product.sku || "";
-                    this.shopifyImageUrl = product.image || "";
-                    this.searchResults = [];
+                selectProduct(index, product) {
+                    let arr = this.arrangements[index];
+                    arr.searchQuery = product.title;
+                    arr.material = product.title;
+                    arr.product_code = product.sku || "";
+                    arr.shopify_image_url = product.image || "";
+                    arr.searchResults = [];
                 },
                 get mapsUrl() {
                     let q = `${this.street} ${this.neighborhood} ${this.zip}`.trim();
@@ -117,112 +151,133 @@
 
                 <!-- Sección 2: Detalles del Arreglo -->
                 <div>
-                    <h3 class="text-[14px] font-bold text-[#2C211A] uppercase tracking-wider mb-4 border-b border-gray-100 pb-2">2. Detalles del Arreglo</h3>
-                    
-                    <!-- Tipo de Arreglo (Selector) -->
-                    <div class="mb-6 flex gap-4">
-                        <label class="flex items-center gap-2 cursor-pointer p-3 border rounded-lg hover:bg-gray-50 transition-colors" :class="{ 'border-[#4A1525] bg-[#4A1525]/5': arrangementType === 'catalogo' }">
-                            <input type="radio" name="arrangement_type" value="catalogo" x-model="arrangementType" class="text-[#4A1525] focus:ring-[#4A1525]">
-                            <span class="text-sm font-medium text-gray-700">De Catálogo</span>
-                        </label>
-                        <label class="flex items-center gap-2 cursor-pointer p-3 border rounded-lg hover:bg-gray-50 transition-colors" :class="{ 'border-[#4A1525] bg-[#4A1525]/5': arrangementType === 'personalizado' }">
-                            <input type="radio" name="arrangement_type" value="personalizado" x-model="arrangementType" class="text-[#4A1525] focus:ring-[#4A1525]">
-                            <span class="text-sm font-medium text-gray-700">Diseño Personalizado</span>
-                        </label>
+                    <div class="mb-4 border-b border-gray-100 pb-2">
+                        <h3 class="text-[14px] font-bold text-[#2C211A] uppercase tracking-wider">2. Detalles del Arreglo</h3>
                     </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <!-- Siempre visible pero etiqueta cambia -->
-                        <div class="md:col-span-2 relative">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">
-                                <span x-text="arrangementType === 'catalogo' ? 'Buscar modelo en Shopify *' : 'Descripción detallada del arreglo personalizado *'"></span>
-                            </label>
+                    
+                    <template x-for="(arr, index) in arrangements" :key="index">
+                        <div class="mb-8 p-6 bg-gray-50 rounded-xl border border-gray-200 relative">
+                            <!-- Hidden ID input for updating existing arrangements -->
+                            <input type="hidden" :name="'arrangements['+index+'][id]'" :value="arr.id" x-if="arr.id">
                             
-                            <!-- Input de búsqueda / material -->
-                            <input type="text" name="material" value="{{ old('material', $order->material) }}" x-model="searchQuery" @input.debounce.500ms="searchShopify" required autocomplete="off" class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:ring-[#4A1525] focus:border-[#4A1525]" placeholder="Ej. Ramo de 50 Rosas Rojas">
-                            
-                            <!-- Cargando spinner -->
-                            <div x-show="isSearching" class="absolute right-3 top-10 text-gray-400">
-                                <svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                            <div class="flex justify-between items-center mb-4">
+                                <h4 class="font-bold text-gray-700" x-text="'Arreglo #' + (index + 1)"></h4>
+                                <button type="button" x-show="arrangements.length > 1" @click="removeArrangement(index)" class="text-red-500 hover:text-red-700 font-bold text-sm">Eliminar</button>
                             </div>
 
-                            <!-- Resultados Dropdown -->
-                            <div x-show="searchResults.length > 0" @click.away="searchResults = []" class="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto">
-                                <template x-for="product in searchResults" :key="product.id">
-                                    <div @click="selectProduct(product)" class="flex items-center gap-3 p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-50 last:border-0">
-                                        <template x-if="product.image">
-                                            <img :src="product.image" class="w-10 h-10 object-cover rounded-md border border-gray-100">
-                                        </template>
-                                        <template x-if="!product.image">
-                                            <div class="w-10 h-10 bg-gray-100 rounded-md border border-gray-200 flex items-center justify-center text-gray-400">
-                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                            <!-- Tipo de Arreglo (Selector) -->
+                            <div class="mb-6 flex gap-4">
+                                <label class="flex items-center gap-2 cursor-pointer p-3 border rounded-lg hover:bg-gray-50 transition-colors" :class="{ 'border-[#4A1525] bg-[#4A1525]/5': arr.arrangement_type === 'catalogo' }">
+                                    <input type="radio" :name="'arrangements['+index+'][arrangement_type]'" value="catalogo" x-model="arr.arrangement_type" class="text-[#4A1525] focus:ring-[#4A1525]">
+                                    <span class="text-sm font-medium text-gray-700">De Catálogo</span>
+                                </label>
+                                <label class="flex items-center gap-2 cursor-pointer p-3 border rounded-lg hover:bg-gray-50 transition-colors" :class="{ 'border-[#4A1525] bg-[#4A1525]/5': arr.arrangement_type === 'personalizado' }">
+                                    <input type="radio" :name="'arrangements['+index+'][arrangement_type]'" value="personalizado" x-model="arr.arrangement_type" class="text-[#4A1525] focus:ring-[#4A1525]">
+                                    <span class="text-sm font-medium text-gray-700">Diseño Personalizado</span>
+                                </label>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <!-- Siempre visible pero etiqueta cambia -->
+                                <div class="md:col-span-2 relative">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        <span x-text="arr.arrangement_type === 'catalogo' ? 'Buscar modelo en Shopify *' : 'Descripción detallada del arreglo personalizado *'"></span>
+                                    </label>
+                                    
+                                    <!-- Input de búsqueda / material -->
+                                    <input type="text" :name="'arrangements['+index+'][material]'" x-model="arr.searchQuery" @input.debounce.500ms="searchShopify(index)" required autocomplete="off" class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:ring-[#4A1525] focus:border-[#4A1525]" placeholder="Ej. Ramo de 50 Rosas Rojas">
+                                    
+                                    <!-- Cargando spinner -->
+                                    <div x-show="arr.isSearching" class="absolute right-3 top-10 text-gray-400">
+                                        <svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                                    </div>
+
+                                    <!-- Resultados Dropdown -->
+                                    <div x-show="arr.searchResults.length > 0" @click.away="arr.searchResults = []" class="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                                        <template x-for="product in arr.searchResults" :key="product.id">
+                                            <div @click="selectProduct(index, product)" class="flex items-center gap-3 p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-50 last:border-0">
+                                                <template x-if="product.image">
+                                                    <img :src="product.image" class="w-10 h-10 object-cover rounded-md border border-gray-100">
+                                                </template>
+                                                <template x-if="!product.image">
+                                                    <div class="w-10 h-10 bg-gray-100 rounded-md border border-gray-200 flex items-center justify-center text-gray-400">
+                                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                                    </div>
+                                                </template>
+                                                <div>
+                                                    <p class="text-sm font-medium text-gray-900" x-text="product.title"></p>
+                                                    <p class="text-xs text-gray-500" x-text="'SKU: ' + (product.sku || 'N/A')"></p>
+                                                </div>
                                             </div>
                                         </template>
-                                        <div>
-                                            <p class="text-sm font-medium text-gray-900" x-text="product.title"></p>
-                                            <p class="text-xs text-gray-500" x-text="'SKU: ' + (product.sku || 'N/A')"></p>
+                                    </div>
+                                    <input type="hidden" :name="'arrangements['+index+'][shopify_image_url]'" :value="arr.shopify_image_url">
+                                </div>
+                                
+                                <!-- Solo catálogo -->
+                                <div x-show="arr.arrangement_type === 'catalogo'" x-collapse>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Código del Modelo *</label>
+                                    <input type="text" :name="'arrangements['+index+'][product_code]'" x-model="arr.product_code" :required="arr.arrangement_type === 'catalogo'" class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:ring-[#4A1525] focus:border-[#4A1525] bg-gray-50" readonly>
+                                    <p class="text-xs text-green-600 mt-1 font-medium" x-show="arr.product_code">✓ Sincronizado con Shopify</p>
+                                </div>
+
+                                <!-- Siempre visible -->
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Cantidad (pzs) *</label>
+                                    <input type="number" :name="'arrangements['+index+'][quantity]'" min="1" x-model="arr.quantity" required class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:ring-[#4A1525] focus:border-[#4A1525]">
+                                </div>
+
+                                <!-- Imagen de Referencia -->
+                                <div class="md:col-span-2">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Imagen de Referencia *</label>
+                                    
+                                    <!-- Para Personalizado -->
+                                    <div x-show="arr.arrangement_type === 'personalizado'" x-collapse>
+                                        <template x-if="arr.original_image_url">
+                                            <p class="text-xs text-gray-500 mt-1">Ya cuenta con imagen. Sube otra solo si deseas reemplazarla.</p>
+                                        </template>
+                                        <input type="file" :name="'arrangements['+index+'][reference_image]'" accept=".jpg,.jpeg,.png,.pdf" class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:ring-[#4A1525] focus:border-[#4A1525] file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-gray-100 file:text-[#4A1525] hover:file:bg-gray-200">
+                                        <p class="text-xs text-gray-400 mt-1">Sube una imagen de inspiración o boceto del arreglo a armar.</p>
+                                    </div>
+
+                                    <!-- Para Catálogo -->
+                                    <div x-show="arr.arrangement_type === 'catalogo'" x-collapse>
+                                        <!-- Placeholder cuando no hay imagen -->
+                                        <div x-show="!arr.shopify_image_url" class="w-full border-2 border-dashed border-gray-200 rounded-lg p-6 flex flex-col items-center justify-center text-gray-400 bg-gray-50 transition-all">
+                                            <svg class="w-8 h-8 mb-2 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                            <span class="text-sm">La imagen se mostrará aquí automáticamente al seleccionar el modelo de Shopify</span>
+                                        </div>
+                                        <!-- Imagen seleccionada -->
+                                        <div x-show="arr.shopify_image_url" style="display: none;" class="flex gap-4 items-center bg-gray-50 p-4 rounded-lg border border-gray-200 transition-all">
+                                            <img :src="arr.shopify_image_url" class="w-24 h-24 object-cover rounded-md shadow-sm border border-gray-100 bg-white">
+                                            <div>
+                                                <p class="text-sm font-bold text-green-700 flex items-center gap-1.5">
+                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                                    Imagen Sincronizada con Éxito
+                                                </p>
+                                                <p class="text-xs text-gray-500 mt-1">Esta es la foto que usaremos como referencia principal.</p>
+                                            </div>
                                         </div>
                                     </div>
-                                </template>
-                            </div>
-                            <input type="hidden" name="shopify_image_url" :value="shopifyImageUrl">
-                        </div>
-                        
-                        <!-- Solo catálogo -->
-                        <div x-show="arrangementType === 'catalogo'" x-collapse>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Código del Modelo *</label>
-                            <input type="text" name="product_code" value="{{ old('product_code', $order->product_code) }}" x-model="selectedSku" :required="arrangementType === 'catalogo'" class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:ring-[#4A1525] focus:border-[#4A1525] bg-gray-50" readonly>
-                            <p class="text-xs text-green-600 mt-1 font-medium" x-show="selectedSku">✓ Sincronizado con Shopify</p>
-                        </div>
-
-                        <!-- Siempre visible -->
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Cantidad (pzs) *</label>
-                            <input type="number" name="quantity" min="1" value="1" required class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:ring-[#4A1525] focus:border-[#4A1525]">
-                        </div>
-
-                        <!-- Imagen de Referencia -->
-                        <div class="md:col-span-2">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Imagen de Referencia *</label>
-                            
-                            <!-- Para Personalizado -->
-                            <div x-show="arrangementType === 'personalizado'" x-collapse>
-                                @if($order->image_url)
-                                    <p class="text-xs text-gray-500 mt-1">Ya cuenta con imagen. Sube otra solo si deseas reemplazarla.</p>
-                                @endif
-                                <input type="file" name="reference_image" accept=".jpg,.jpeg,.png,.pdf" :required="arrangementType === 'personalizado' && !'{{ $order->image_url }}'" class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:ring-[#4A1525] focus:border-[#4A1525] file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-gray-100 file:text-[#4A1525] hover:file:bg-gray-200">
-                                <p class="text-xs text-gray-400 mt-1">Sube una imagen de inspiración o boceto del arreglo a armar.</p>
-                            </div>
-
-                            <!-- Para Catálogo -->
-                            <div x-show="arrangementType === 'catalogo'" x-collapse>
-                                <!-- Placeholder cuando no hay imagen -->
-                                <div x-show="!shopifyImageUrl" class="w-full border-2 border-dashed border-gray-200 rounded-lg p-6 flex flex-col items-center justify-center text-gray-400 bg-gray-50 transition-all">
-                                    <svg class="w-8 h-8 mb-2 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                                    <span class="text-sm">La imagen se mostrará aquí automáticamente al seleccionar el modelo de Shopify</span>
                                 </div>
-                                <!-- Imagen seleccionada -->
-                                <div x-show="shopifyImageUrl" style="display: none;" class="flex gap-4 items-center bg-gray-50 p-4 rounded-lg border border-gray-200 transition-all">
-                                    <img :src="shopifyImageUrl" class="w-24 h-24 object-cover rounded-md shadow-sm border border-gray-100 bg-white">
-                                    <div>
-                                        <p class="text-sm font-bold text-green-700 flex items-center gap-1.5">
-                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                                            Imagen Sincronizada con Éxito
-                                        </p>
-                                        <p class="text-xs text-gray-500 mt-1">Esta es la foto que usaremos como referencia principal.</p>
-                                    </div>
+
+                                <div class="md:col-span-2">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Notas / Especificaciones adicionales para este arreglo</label>
+                                    <textarea :name="'arrangements['+index+'][notes]'" x-model="arr.notes" rows="2" class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:ring-[#4A1525] focus:border-[#4A1525]" placeholder="Ej. Rosas bien abiertas, sin papel coreano, etc."></textarea>
+                                </div>
+                                <div class="md:col-span-2">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Mensaje o Dedicatoria para la Tarjeta de este arreglo</label>
+                                    <textarea :name="'arrangements['+index+'][dedication_message]'" x-model="arr.dedication_message" rows="3" class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:ring-[#4A1525] focus:border-[#4A1525]"></textarea>
                                 </div>
                             </div>
                         </div>
-
-                        <div class="md:col-span-2">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Notas / Especificaciones adicionales</label>
-                            <textarea name="notes" rows="2" class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:ring-[#4A1525] focus:border-[#4A1525]" placeholder="Ej. Rosas bien abiertas, sin papel coreano, etc." style="-webkit-user-select: text; user-select: text;">{{ old('notes', $order->notes) }}</textarea>
-                        </div>
-                        <div class="md:col-span-2">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Mensaje o Dedicatoria para la Tarjeta</label>
-                            <textarea name="dedication_message" rows="3" class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:ring-[#4A1525] focus:border-[#4A1525]" style="-webkit-user-select: text; user-select: text;">{{ old('dedication_message', $order->dedication_message) }}</textarea>
-                        </div>
+                    </template>
+                    
+                    <div class="mt-4 flex justify-center">
+                        <button type="button" @click="addArrangement()" class="px-4 py-2 border border-[#4A1525] text-[#4A1525] rounded-lg font-bold hover:bg-[#4A1525] hover:text-white transition-colors flex items-center gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                            Agregar otro arreglo al pedido
+                        </button>
                     </div>
                 </div>
 

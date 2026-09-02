@@ -18,18 +18,13 @@ class OrderController extends Controller
     public function store(Request $request)
     {
         $rules = [
-            'arrangement_type' => 'required|in:catalogo,personalizado',
             'client_name' => 'required|string|max:255',
             'recipient_name' => 'nullable|string|max:255',
             'company' => 'nullable|string|max:255',
-            'material' => 'required|string|max:255',
-            'quantity' => 'required|integer|min:1',
             'payment_method' => 'nullable|string',
             'payroll_rfc' => 'nullable|string|max:255',
             'payroll_area' => 'nullable|string|max:255',
             'accounts_receivable_entity' => 'nullable|string|max:255',
-            'product_code' => 'nullable|string|max:255',
-            'notes' => 'nullable|string',
             'sender_name' => 'nullable|string|max:255',
             'driver_name' => 'nullable|string|max:255',
             'shipping_cost' => 'nullable|numeric|min:0',
@@ -39,13 +34,20 @@ class OrderController extends Controller
             'delivery_neighborhood' => 'nullable|string|max:255',
             'delivery_zip' => 'nullable|string|max:20',
             'delivery_references' => 'nullable|string',
+            'delivery_reference_image' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
             'client_phone' => 'nullable|string|max:255',
             'client_email' => 'nullable|email|max:255',
-            'dedication_message' => 'nullable|string',
             'salesperson' => 'nullable|string|max:255',
-            'reference_image' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
-            'delivery_reference_image' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
-            'shopify_image_url' => 'nullable|url',
+            
+            'arrangements' => 'required|array|min:1',
+            'arrangements.*.arrangement_type' => 'required|in:catalogo,personalizado',
+            'arrangements.*.material' => 'required|string',
+            'arrangements.*.quantity' => 'required|integer|min:1',
+            'arrangements.*.product_code' => 'nullable|string',
+            'arrangements.*.notes' => 'nullable|string',
+            'arrangements.*.dedication_message' => 'nullable|string',
+            'arrangements.*.reference_image' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'arrangements.*.shopify_image_url' => 'nullable|url',
         ];
 
         // El comprobante no es obligatorio para ventas/staff, pueden agregarlo después
@@ -65,24 +67,11 @@ class OrderController extends Controller
         
         $validated['status'] = 'En proceso';
 
-        // Evitar error 500 por emojis (si la base de datos no es utf8mb4)
-        if (isset($validated['dedication_message'])) {
-            $validated['dedication_message'] = preg_replace('/[\x{10000}-\x{10FFFF}]/u', '', $validated['dedication_message']);
-        }
-        if (isset($validated['notes'])) {
-            $validated['notes'] = preg_replace('/[\x{10000}-\x{10FFFF}]/u', '', $validated['notes']);
-        }
+
         
         if ($request->hasFile('payment_proof')) {
             $path = $request->file('payment_proof')->store('payment_proofs', 'public');
             $validated['payment_proof_path'] = $path;
-        }
-
-        if ($request->hasFile('reference_image')) {
-            $path = $request->file('reference_image')->store('reference_images', 'public');
-            $validated['image_url'] = '/storage/' . $path;
-        } elseif ($request->filled('shopify_image_url')) {
-            $validated['image_url'] = $request->input('shopify_image_url');
         }
 
         if ($request->hasFile('delivery_reference_image')) {
@@ -92,6 +81,21 @@ class OrderController extends Controller
         
         try {
             $order = \App\Models\Order::create($validated);
+            
+            // Guardar los arreglos (items)
+            if (isset($validated['arrangements'])) {
+                foreach ($validated['arrangements'] as $index => $arrData) {
+                    // Manejar imagen de referencia
+                    if ($request->hasFile("arrangements.{$index}.reference_image")) {
+                        $path = $request->file("arrangements.{$index}.reference_image")->store('reference_images', 'public');
+                        $arrData['image_url'] = '/storage/' . $path;
+                    } elseif (!empty($arrData['shopify_image_url'])) {
+                        $arrData['image_url'] = $arrData['shopify_image_url'];
+                    }
+
+                    $order->arrangements()->create($arrData);
+                }
+            }
         } catch (\Exception $e) {
             \Log::error('Error creando pedido manual: ' . $e->getMessage());
             return back()->withInput()->with('error', 'Ocurrió un error al guardar el pedido en la base de datos. Si usaste caracteres especiales, intenta quitarlos.');
@@ -140,18 +144,13 @@ class OrderController extends Controller
     public function update(Request $request, \App\Models\Order $order)
     {
         $rules = [
-            'arrangement_type' => 'required|in:catalogo,personalizado',
             'client_name' => 'required|string|max:255',
             'recipient_name' => 'nullable|string|max:255',
             'company' => 'nullable|string|max:255',
-            'material' => 'required|string|max:255',
-            'quantity' => 'required|integer|min:1',
             'payment_method' => 'nullable|string',
             'payroll_rfc' => 'nullable|string|max:255',
             'payroll_area' => 'nullable|string|max:255',
             'accounts_receivable_entity' => 'nullable|string|max:255',
-            'product_code' => 'nullable|string|max:255',
-            'notes' => 'nullable|string',
             'sender_name' => 'nullable|string|max:255',
             'driver_name' => 'nullable|string|max:255',
             'shipping_cost' => 'nullable|numeric|min:0',
@@ -161,32 +160,26 @@ class OrderController extends Controller
             'delivery_neighborhood' => 'nullable|string|max:255',
             'delivery_zip' => 'nullable|string|max:20',
             'delivery_references' => 'nullable|string',
+            'delivery_reference_image' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
             'client_phone' => 'nullable|string|max:255',
             'client_email' => 'nullable|email|max:255',
-            'dedication_message' => 'nullable|string',
             'salesperson' => 'nullable|string|max:255',
-            'salesperson' => 'nullable|string|max:255',
-            'reference_image' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
-            'delivery_reference_image' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
-            'shopify_image_url' => 'nullable|url',
+            
+            'arrangements' => 'required|array|min:1',
+            'arrangements.*.id' => 'nullable|exists:order_arrangements,id',
+            'arrangements.*.arrangement_type' => 'required|in:catalogo,personalizado',
+            'arrangements.*.material' => 'required|string',
+            'arrangements.*.quantity' => 'required|integer|min:1',
+            'arrangements.*.product_code' => 'nullable|string',
+            'arrangements.*.notes' => 'nullable|string',
+            'arrangements.*.dedication_message' => 'nullable|string',
+            'arrangements.*.reference_image' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'arrangements.*.shopify_image_url' => 'nullable|url',
         ];
 
         $validated = $request->validate($rules);
 
-        // Evitar error 500 por emojis (si la base de datos no es utf8mb4)
-        if (isset($validated['dedication_message'])) {
-            $validated['dedication_message'] = preg_replace('/[\x{10000}-\x{10FFFF}]/u', '', $validated['dedication_message']);
-        }
-        if (isset($validated['notes'])) {
-            $validated['notes'] = preg_replace('/[\x{10000}-\x{10FFFF}]/u', '', $validated['notes']);
-        }
 
-        if ($request->hasFile('reference_image')) {
-            $path = $request->file('reference_image')->store('reference_images', 'public');
-            $validated['image_url'] = '/storage/' . $path;
-        } elseif ($request->filled('shopify_image_url')) {
-            $validated['image_url'] = $request->input('shopify_image_url');
-        }
 
         if ($request->hasFile('delivery_reference_image')) {
             $path = $request->file('delivery_reference_image')->store('delivery_references', 'public');
@@ -195,6 +188,31 @@ class OrderController extends Controller
 
         try {
             $order->update($validated);
+            
+            if (isset($validated['arrangements'])) {
+                $submittedIds = collect($validated['arrangements'])->pluck('id')->filter()->all();
+                
+                // Borrar arreglos que ya no esten
+                $order->arrangements()->whereNotIn('id', $submittedIds)->delete();
+                
+                foreach ($validated['arrangements'] as $index => $arrData) {
+                    if ($request->hasFile("arrangements.{$index}.reference_image")) {
+                        $path = $request->file("arrangements.{$index}.reference_image")->store('reference_images', 'public');
+                        $arrData['image_url'] = '/storage/' . $path;
+                    } elseif (!empty($arrData['shopify_image_url'])) {
+                        $arrData['image_url'] = $arrData['shopify_image_url'];
+                    }
+
+                    if (!empty($arrData['id'])) {
+                        $arrangement = $order->arrangements()->find($arrData['id']);
+                        if ($arrangement) {
+                            $arrangement->update($arrData);
+                        }
+                    } else {
+                        $order->arrangements()->create($arrData);
+                    }
+                }
+            }
         } catch (\Exception $e) {
             \Log::error('Error actualizando pedido manual: ' . $e->getMessage());
             return back()->withInput()->with('error', 'Ocurrió un error al actualizar el pedido en la base de datos. Si usaste caracteres especiales, intenta quitarlos.');

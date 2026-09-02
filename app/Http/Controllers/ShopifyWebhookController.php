@@ -91,15 +91,12 @@ class ShopifyWebhookController extends Controller
                 'user_id' => $this->usuarioParaPedidos(),
                 'client_name' => $clientName,
                 'company' => $company,
-                'material' => $material,
-                'quantity' => $quantity,
                 'unit_price' => $unitPrice,
                 'discount' => $discount,
                 'shipping_cost' => $shippingCost,
                 'extra_charge' => 0,
                 'total_price' => $totalPrice,
                 'delivery_date' => \Carbon\Carbon::parse($payload['created_at'] ?? now())->toDateString(), 
-                'image_url' => null,
                 'status' => $localStatus, // Dinámico según el pago de Shopify
                 'payment_method' => 'Shopify Payments',
                 'is_in_route' => false,
@@ -110,6 +107,14 @@ class ShopifyWebhookController extends Controller
         if (!$order->wasRecentlyCreated && $localStatus === 'Confirmado' && $order->status !== 'Confirmado') {
             $order->status = 'Confirmado';
             $order->save();
+        }
+
+        if ($order->wasRecentlyCreated) {
+            $order->arrangements()->create([
+                'arrangement_type' => 'catalogo',
+                'material' => $material,
+                'quantity' => $quantity,
+            ]);
         }
 
 

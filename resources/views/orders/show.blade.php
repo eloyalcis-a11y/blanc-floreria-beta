@@ -76,36 +76,41 @@
 
             <!-- Detalles del Arreglo -->
             <div class="bg-white rounded-[14px] p-6 shadow-[0_4px_16px_rgba(0,0,0,0.02)] border border-[#EBEBEB]">
-                <h3 class="text-[14px] font-bold text-[#2C211A] uppercase tracking-wider mb-6 border-b border-gray-100 pb-3">Detalles del Arreglo</h3>
+                <h3 class="text-[14px] font-bold text-[#2C211A] uppercase tracking-wider mb-6 border-b border-gray-100 pb-3">Detalles de los Arreglos ({{ $order->arrangements->count() }})</h3>
                 
-                <div class="grid grid-cols-2 gap-y-6 gap-x-4">
-                    <div class="col-span-2">
-                        <p class="text-[11px] text-[#757575] font-semibold mb-1 uppercase tracking-wider">Descripción del Arreglo</p>
-                        <p class="text-[16px] text-[#2C211A] font-medium">{{ $order->material }}</p>
+                @foreach($order->arrangements as $index => $arr)
+                    <div class="mb-8 last:mb-0 border-b border-gray-100 last:border-b-0 pb-6 last:pb-0">
+                        <h4 class="font-bold text-gray-700 mb-4 uppercase text-xs tracking-wider">Arreglo #{{ $index + 1 }} - {{ $arr->arrangement_type == 'catalogo' ? 'De Catálogo' : 'Personalizado' }}</h4>
+                        <div class="grid grid-cols-2 gap-y-6 gap-x-4">
+                            <div class="col-span-2">
+                                <p class="text-[11px] text-[#757575] font-semibold mb-1 uppercase tracking-wider">Descripción del Arreglo</p>
+                                <p class="text-[16px] text-[#2C211A] font-medium">{{ $arr->material }}</p>
+                            </div>
+                            <div>
+                                <p class="text-[11px] text-[#757575] font-semibold mb-1 uppercase tracking-wider">Código del Modelo</p>
+                                <p class="text-[15px] text-[#2C211A] font-medium">{{ $arr->product_code ?: 'N/A' }}</p>
+                            </div>
+                            <div>
+                                <p class="text-[11px] text-[#757575] font-semibold mb-1 uppercase tracking-wider">Cantidad</p>
+                                <p class="text-[18px] text-[#2C211A] font-sans-custom font-medium">{{ $arr->quantity }} <span class="text-sm font-normal text-gray-500">piezas</span></p>
+                            </div>
+                            
+                            @if($arr->notes)
+                            <div class="col-span-2 bg-amber-50/50 p-4 rounded-lg border border-amber-100">
+                                <p class="text-[11px] text-amber-800 font-semibold mb-1 uppercase tracking-wider">Notas / Especificaciones adicionales</p>
+                                <p class="text-[14px] text-amber-900">{{ $arr->notes }}</p>
+                            </div>
+                            @endif
+                            
+                            @if($arr->dedication_message)
+                            <div class="col-span-2 bg-pink-50/50 p-4 rounded-lg border border-pink-100">
+                                <p class="text-[11px] text-pink-800 font-semibold mb-1 uppercase tracking-wider">Dedicatoria para la Tarjeta</p>
+                                <p class="text-[14px] text-pink-900 italic font-serif">"{{ $arr->dedication_message }}"</p>
+                            </div>
+                            @endif
+                        </div>
                     </div>
-                    <div>
-                        <p class="text-[11px] text-[#757575] font-semibold mb-1 uppercase tracking-wider">Código del Modelo</p>
-                        <p class="text-[15px] text-[#2C211A] font-medium">{{ $order->product_code ?: 'N/A' }}</p>
-                    </div>
-                    <div>
-                        <p class="text-[11px] text-[#757575] font-semibold mb-1 uppercase tracking-wider">Cantidad</p>
-                        <p class="text-[18px] text-[#2C211A] font-sans-custom font-medium">{{ $order->quantity }} <span class="text-sm font-normal text-gray-500">piezas</span></p>
-                    </div>
-                    
-                    @if($order->notes)
-                    <div class="col-span-2 bg-amber-50/50 p-4 rounded-lg border border-amber-100">
-                        <p class="text-[11px] text-amber-800 font-semibold mb-1 uppercase tracking-wider">Notas / Especificaciones adicionales</p>
-                        <p class="text-[14px] text-amber-900">{{ $order->notes }}</p>
-                    </div>
-                    @endif
-                    
-                    @if($order->dedication_message)
-                    <div class="col-span-2 bg-pink-50/50 p-4 rounded-lg border border-pink-100">
-                        <p class="text-[11px] text-pink-800 font-semibold mb-1 uppercase tracking-wider">Dedicatoria para la Tarjeta</p>
-                        <p class="text-[14px] text-pink-900 italic font-serif">"{{ $order->dedication_message }}"</p>
-                    </div>
-                    @endif
-                </div>
+                @endforeach
             </div>
 
             <!-- Resumen Financiero y Logístico -->
@@ -250,33 +255,37 @@
         <!-- Sidebar Actions & Files -->
         <div class="space-y-4">
             <!-- Referencia del arreglo -->
-            @if($order->image_url)
+            @if($order->arrangements->whereNotNull('image_url')->count() > 0)
             <div class="bg-white rounded-[14px] overflow-hidden shadow-[0_4px_16px_rgba(0,0,0,0.02)] border border-[#EBEBEB]">
                 <div class="p-4 border-b border-gray-100 bg-gray-50">
                     <h3 class="text-[12px] font-bold text-[#2C211A] uppercase tracking-wider flex items-center gap-2">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                        Referencia
+                        Referencias Visuales
                     </h3>
                 </div>
                 
-                @php
-                    $isPdf = Str::endsWith(strtolower($order->image_url), '.pdf');
-                @endphp
-                
-                <div class="p-2">
-                    <a href="{{ $order->image_url }}" target="_blank" class="block rounded-lg overflow-hidden border border-gray-100 relative group">
-                        <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                            <span class="text-white text-xs font-semibold bg-[#4A1525]/80 px-3 py-1.5 rounded-full backdrop-blur-sm">Ampliar Imagen</span>
+                <div class="p-4 space-y-4">
+                    @foreach($order->arrangements->whereNotNull('image_url') as $index => $arr)
+                        @php
+                            $isPdf = Str::endsWith(strtolower($arr->image_url), '.pdf');
+                        @endphp
+                        <div>
+                            <p class="text-xs font-bold text-gray-500 mb-2">Arreglo #{{ $order->arrangements->search($arr) + 1 }}</p>
+                            <a href="{{ $arr->image_url }}" target="_blank" class="block rounded-lg overflow-hidden border border-gray-100 relative group">
+                                <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                    <span class="text-white text-xs font-semibold bg-[#4A1525]/80 px-3 py-1.5 rounded-full backdrop-blur-sm">Ampliar Imagen</span>
+                                </div>
+                                @if($isPdf)
+                                    <div class="bg-gray-50 h-32 flex flex-col items-center justify-center text-center">
+                                        <span class="text-3xl mb-2">📄</span>
+                                        <span class="text-[11px] font-medium text-gray-700 px-4">Documento PDF</span>
+                                    </div>
+                                @else
+                                    <img src="{{ $arr->image_url }}" alt="Referencia" class="object-cover w-full h-48">
+                                @endif
+                            </a>
                         </div>
-                        @if($isPdf)
-                            <div class="bg-gray-50 h-32 flex flex-col items-center justify-center text-center">
-                                <span class="text-3xl mb-2">📄</span>
-                                <span class="text-[11px] font-medium text-gray-700 px-4">Documento PDF</span>
-                            </div>
-                        @else
-                            <img src="{{ $order->image_url }}" alt="Referencia" class="object-cover w-full h-48">
-                        @endif
-                    </a>
+                    @endforeach
                 </div>
             </div>
             @endif

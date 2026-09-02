@@ -27,10 +27,10 @@
                     <input type="hidden" name="date_range" x-model="range">
                 </div>
                 <!-- Custom Date Inputs -->
-                <div x-show="range === 'custom'" x-cloak class="mt-3 flex flex-wrap items-center gap-2">
-                    <input type="date" name="start_date" value="{{ request('start_date') }}" class="text-xs border-gray-200 rounded-md focus:ring-[#4A1525] focus:border-[#4A1525] py-1.5" required>
+                <div x-show="range === 'custom'" class="mt-3 flex flex-wrap items-center gap-2">
+                    <input type="date" name="start_date" value="{{ request('start_date') }}" onclick="this.showPicker()" class="text-xs border-gray-200 rounded-md focus:ring-[#4A1525] focus:border-[#4A1525] py-1.5" required>
                     <span class="text-xs text-gray-400">a</span>
-                    <input type="date" name="end_date" value="{{ request('end_date') }}" class="text-xs border-gray-200 rounded-md focus:ring-[#4A1525] focus:border-[#4A1525] py-1.5" required>
+                    <input type="date" name="end_date" value="{{ request('end_date') }}" onclick="this.showPicker()" class="text-xs border-gray-200 rounded-md focus:ring-[#4A1525] focus:border-[#4A1525] py-1.5" required>
                     <button type="submit" class="bg-[#4A1525] text-white px-3 py-1.5 rounded-md text-xs font-medium hover:bg-[#3d111e] transition-colors">Filtrar</button>
                 </div>
             </div>
