@@ -16,14 +16,14 @@ class ReportController extends Controller
         // 1. Filtrado de Fechas
         $dateRange = $request->get('date_range', 'mes'); // por defecto este mes
         if ($dateRange === 'hoy') {
-            $query->whereDate('created_at', now()->toDateString());
+            $query->whereDate('delivery_date', now()->toDateString());
         } elseif ($dateRange === 'semana') {
-            $query->whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()]);
+            $query->whereBetween('delivery_date', [now()->startOfWeek(), now()->endOfWeek()]);
         } elseif ($dateRange === 'mes') {
-            $query->whereMonth('created_at', now()->month)
-                  ->whereYear('created_at', now()->year);
+            $query->whereMonth('delivery_date', now()->month)
+                  ->whereYear('delivery_date', now()->year);
         } elseif ($dateRange === 'custom' && $request->has('start_date') && $request->has('end_date')) {
-            $query->whereBetween('created_at', [$request->start_date . ' 00:00:00', $request->end_date . ' 23:59:59']);
+            $query->whereBetween('delivery_date', [$request->start_date . ' 00:00:00', $request->end_date . ' 23:59:59']);
         }
 
         // 2. Filtros Adicionales (Origen, Estado)
@@ -69,7 +69,7 @@ class ReportController extends Controller
             ->first();
 
         // 4. Listado para la tabla de previsualización
-        $orders = $query->orderBy('created_at', 'desc')->paginate(15);
+        $orders = $query->orderBy('delivery_date', 'desc')->paginate(15);
 
         return view('reports', compact(
             'orders',
@@ -90,14 +90,14 @@ class ReportController extends Controller
         // Aplicar los mismos filtros que en el index
         $dateRange = $request->get('date_range', 'mes');
         if ($dateRange === 'hoy') {
-            $query->whereDate('created_at', now()->toDateString());
+            $query->whereDate('delivery_date', now()->toDateString());
         } elseif ($dateRange === 'semana') {
-            $query->whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()]);
+            $query->whereBetween('delivery_date', [now()->startOfWeek(), now()->endOfWeek()]);
         } elseif ($dateRange === 'mes') {
-            $query->whereMonth('created_at', now()->month)
-                  ->whereYear('created_at', now()->year);
+            $query->whereMonth('delivery_date', now()->month)
+                  ->whereYear('delivery_date', now()->year);
         } elseif ($dateRange === 'custom' && $request->has('start_date') && $request->has('end_date')) {
-            $query->whereBetween('created_at', [$request->start_date . ' 00:00:00', $request->end_date . ' 23:59:59']);
+            $query->whereBetween('delivery_date', [$request->start_date . ' 00:00:00', $request->end_date . ' 23:59:59']);
         }
 
         // Aplicar filtros similares a los del dashboard si se reciben
@@ -108,7 +108,7 @@ class ReportController extends Controller
             $query->where('source', $request->source);
         }
 
-        $orders = $query->orderBy('created_at', 'desc')->get();
+        $orders = $query->orderBy('delivery_date', 'desc')->get();
 
         $headers = [
             "Content-type"        => "text/csv",
