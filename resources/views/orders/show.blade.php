@@ -5,7 +5,7 @@
                 <a href="{{ route('dashboard') }}" class="text-gray-400 hover:text-[#4A1525] transition-colors">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
                 </a>
-                <h2 class="text-[32px] font-serif-custom font-normal text-[#2C211A] leading-tight">Pedido #{{ str_pad($order->id, 4, '0', STR_PAD_LEFT) }}</h2>
+                <h2 class="text-[32px] font-serif-custom font-normal text-[#2C211A] leading-tight">Pedido {{ $order->order_number }}</h2>
                 @if($order->source === 'Shopify')
                     <span class="px-2 py-1 bg-green-100 text-green-800 text-[10px] rounded uppercase font-bold">Origen: Shopify</span>
                 @elseif($order->source === 'Nori')

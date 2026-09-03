@@ -208,7 +208,7 @@
                                 @elseif($order->source === 'Nori')
                                     <span class="px-1.5 py-0.5 bg-blue-100 text-blue-800 text-[9px] rounded uppercase font-bold mr-1 block md:inline-block mb-1 md:mb-0">Nori</span>
                                 @endif
-                                #{{ str_pad($order->id, 4, '0', STR_PAD_LEFT) }}
+                                {{ $order->order_number }}
                             </td>
                             <td class="py-5 px-2 text-[13px] font-medium text-[#2C211A]">{{ $order->client_name }}</td>
                             <td class="py-5 px-2 text-[13px] text-[#757575] font-medium">{{ $order->company ?: 'N/A' }}</td>
@@ -276,7 +276,7 @@
                             $sourceIcon = $order->source === 'Shopify' ? '<span class="px-1.5 py-0.5 bg-green-100 text-green-800 text-[9px] rounded uppercase font-bold mr-1">Shopify</span>' : ($order->source === 'Nori' ? '<span class="px-1.5 py-0.5 bg-blue-100 text-blue-800 text-[9px] rounded uppercase font-bold mr-1">Nori</span>' : '');
                         @endphp
                         <div class="flex items-center gap-2">
-                            <a href="{{ route('orders.show', $order) }}" class="text-[#2C211A] font-semibold text-[13px] hover:text-[#4A1525]">{!! $sourceIcon !!}#{{ str_pad($order->id, 4, '0', STR_PAD_LEFT) }}</a>
+                            <a href="{{ route('orders.show', $order) }}" class="text-[#2C211A] font-semibold text-[13px] hover:text-[#4A1525]">{!! $sourceIcon !!}{{ $order->order_number }}</a>
                             <span class="w-1 h-1 rounded-lg bg-gray-300"></span>
                             <span class="px-3 py-1 text-[11px] rounded-lg font-bold tracking-wide {{ $mobileClass }}">{{ $order->status }}</span>
                         </div>

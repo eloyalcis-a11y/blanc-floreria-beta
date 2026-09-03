@@ -1,7 +1,7 @@
 <x-mail::message>
 # ¡Hola {{ $order->client_name }}!
 
-Te informamos que tu pedido **#{{ str_pad($order->id, 4, '0', STR_PAD_LEFT) }}** ha sido entregado exitosamente.
+Te informamos que tu pedido **{{ $order->order_number }}** ha sido entregado exitosamente.
 
 Agradecemos tu preferencia y esperamos que el arreglo haya sido de tu agrado.
 
