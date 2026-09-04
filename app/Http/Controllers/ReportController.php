@@ -16,14 +16,41 @@ class ReportController extends Controller
         // 1. Filtrado de Fechas
         $dateRange = $request->get('date_range', 'mes'); // por defecto este mes
         if ($dateRange === 'hoy') {
-            $query->whereDate('delivery_date', now()->toDateString());
+            $query->where(function($q) {
+                $q->where(function($q2) {
+                    $q2->whereNotNull('delivery_date')->whereDate('delivery_date', now()->toDateString());
+                })->orWhere(function($q2) {
+                    $q2->whereNull('delivery_date')->whereDate('created_at', now()->toDateString());
+                });
+            });
         } elseif ($dateRange === 'semana') {
-            $query->whereBetween('delivery_date', [now()->startOfWeek(), now()->endOfWeek()]);
+            $query->where(function($q) {
+                $q->where(function($q2) {
+                    $q2->whereNotNull('delivery_date')->whereBetween('delivery_date', [now()->startOfWeek(), now()->endOfWeek()]);
+                })->orWhere(function($q2) {
+                    $q2->whereNull('delivery_date')->whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()]);
+                });
+            });
         } elseif ($dateRange === 'mes') {
-            $query->whereMonth('delivery_date', now()->month)
-                  ->whereYear('delivery_date', now()->year);
+            $query->where(function($q) {
+                $q->where(function($q2) {
+                    $q2->whereNotNull('delivery_date')
+                       ->whereMonth('delivery_date', now()->month)
+                       ->whereYear('delivery_date', now()->year);
+                })->orWhere(function($q2) {
+                    $q2->whereNull('delivery_date')
+                       ->whereMonth('created_at', now()->month)
+                       ->whereYear('created_at', now()->year);
+                });
+            });
         } elseif ($dateRange === 'custom' && $request->has('start_date') && $request->has('end_date')) {
-            $query->whereBetween('delivery_date', [$request->start_date . ' 00:00:00', $request->end_date . ' 23:59:59']);
+            $query->where(function($q) use ($request) {
+                $q->where(function($q2) use ($request) {
+                    $q2->whereNotNull('delivery_date')->whereBetween('delivery_date', [$request->start_date . ' 00:00:00', $request->end_date . ' 23:59:59']);
+                })->orWhere(function($q2) use ($request) {
+                    $q2->whereNull('delivery_date')->whereBetween('created_at', [$request->start_date . ' 00:00:00', $request->end_date . ' 23:59:59']);
+                });
+            });
         }
 
         // 2. Filtros Adicionales (Origen, Estado)
@@ -69,7 +96,7 @@ class ReportController extends Controller
             ->first();
 
         // 4. Listado para la tabla de previsualización
-        $orders = $query->orderBy('delivery_date', 'desc')->paginate(15);
+        $orders = $query->orderByRaw('COALESCE(delivery_date, created_at) desc')->paginate(15);
 
         return view('reports', compact(
             'orders',
@@ -90,14 +117,41 @@ class ReportController extends Controller
         // Aplicar los mismos filtros que en el index
         $dateRange = $request->get('date_range', 'mes');
         if ($dateRange === 'hoy') {
-            $query->whereDate('delivery_date', now()->toDateString());
+            $query->where(function($q) {
+                $q->where(function($q2) {
+                    $q2->whereNotNull('delivery_date')->whereDate('delivery_date', now()->toDateString());
+                })->orWhere(function($q2) {
+                    $q2->whereNull('delivery_date')->whereDate('created_at', now()->toDateString());
+                });
+            });
         } elseif ($dateRange === 'semana') {
-            $query->whereBetween('delivery_date', [now()->startOfWeek(), now()->endOfWeek()]);
+            $query->where(function($q) {
+                $q->where(function($q2) {
+                    $q2->whereNotNull('delivery_date')->whereBetween('delivery_date', [now()->startOfWeek(), now()->endOfWeek()]);
+                })->orWhere(function($q2) {
+                    $q2->whereNull('delivery_date')->whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()]);
+                });
+            });
         } elseif ($dateRange === 'mes') {
-            $query->whereMonth('delivery_date', now()->month)
-                  ->whereYear('delivery_date', now()->year);
+            $query->where(function($q) {
+                $q->where(function($q2) {
+                    $q2->whereNotNull('delivery_date')
+                       ->whereMonth('delivery_date', now()->month)
+                       ->whereYear('delivery_date', now()->year);
+                })->orWhere(function($q2) {
+                    $q2->whereNull('delivery_date')
+                       ->whereMonth('created_at', now()->month)
+                       ->whereYear('created_at', now()->year);
+                });
+            });
         } elseif ($dateRange === 'custom' && $request->has('start_date') && $request->has('end_date')) {
-            $query->whereBetween('delivery_date', [$request->start_date . ' 00:00:00', $request->end_date . ' 23:59:59']);
+            $query->where(function($q) use ($request) {
+                $q->where(function($q2) use ($request) {
+                    $q2->whereNotNull('delivery_date')->whereBetween('delivery_date', [$request->start_date . ' 00:00:00', $request->end_date . ' 23:59:59']);
+                })->orWhere(function($q2) use ($request) {
+                    $q2->whereNull('delivery_date')->whereBetween('created_at', [$request->start_date . ' 00:00:00', $request->end_date . ' 23:59:59']);
+                });
+            });
         }
 
         // Aplicar filtros similares a los del dashboard si se reciben
@@ -108,7 +162,7 @@ class ReportController extends Controller
             $query->where('source', $request->source);
         }
 
-        $orders = $query->orderBy('delivery_date', 'desc')->get();
+        $orders = $query->orderByRaw('COALESCE(delivery_date, created_at) desc')->get();
 
         $headers = [
             "Content-type"        => "text/csv",
