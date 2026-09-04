@@ -235,8 +235,8 @@
                     <tr class="text-[10px] text-[#757575] font-semibold uppercase tracking-widest border-b border-[#EBEBEB]">
                         <th class="py-4 px-2">Pedido</th>
                         <th class="py-4 px-2">Cliente</th>
-                        <th class="py-4 px-2">Empresa</th>
-                        <th class="py-4 px-2">Material</th>
+                        <th class="py-4 px-2">Fecha de Entrega</th>
+                        <th class="py-4 px-2">Horario</th>
                         <th class="py-4 px-2">Cantidad</th>
                         <th class="py-4 px-2">Precio Volumen</th>
                         <th class="py-4 px-2 text-center">Estatus</th>
@@ -255,8 +255,8 @@
                                 {{ $order->order_number }}
                             </td>
                             <td class="py-5 px-2 text-[13px] font-medium text-[#2C211A]">{{ $order->client_name }}</td>
-                            <td class="py-5 px-2 text-[13px] text-[#757575] font-medium">{{ $order->company ?: 'N/A' }}</td>
-                            <td class="py-5 px-2 text-[13px] text-[#757575] font-medium">{{ $order->material ?: 'Varios' }}</td>
+                            <td class="py-5 px-2 text-[13px] text-[#757575] font-medium">{{ $order->delivery_date ? \Carbon\Carbon::parse($order->delivery_date)->format('d \d\e M Y') : 'Sin fecha' }}</td>
+                            <td class="py-5 px-2 text-[13px] text-[#757575] font-medium">{{ $order->delivery_time ?: 'No especificado' }}</td>
                             <td class="py-5 px-2 text-[13px] text-[#757575] font-medium">{{ $order->quantity }} pzs</td>
                             <td class="py-5 px-2 text-[13px] font-semibold text-[#2C211A]">MX$ {{ number_format($order->total_price, 0) }}</td>
                             <td class="py-5 px-2 text-center">
@@ -326,12 +326,12 @@
                         </div>
                     </div>
                     <p class="text-[12px] text-[#757575] mb-1">Cliente: <span class="text-[#2C211A] font-medium">{{ $order->client_name }}</span></p>
-                    <p class="text-[12px] text-[#757575] mb-4">Empresa: <span class="text-[#2C211A] font-medium">{{ $order->company ?: 'N/A' }}</span></p>
+                    <p class="text-[12px] text-[#757575] mb-4">Fecha: <span class="text-[#2C211A] font-medium">{{ $order->delivery_date ? \Carbon\Carbon::parse($order->delivery_date)->format('d \d\e M Y') : 'Sin fecha' }}</span></p>
                     
                     <div class="flex justify-between items-end pt-3 border-t border-gray-100 mb-4">
                         <div>
-                            <p class="text-[11px] text-[#2C211A] font-semibold mb-1">Material:</p>
-                            <p class="text-[12px] text-[#757575] font-medium">{{ $order->material ?: 'Varios' }}</p>
+                            <p class="text-[11px] text-[#2C211A] font-semibold mb-1">Horario:</p>
+                            <p class="text-[12px] text-[#757575] font-medium">{{ $order->delivery_time ?: 'No especificado' }}</p>
                         </div>
                         <div class="text-right">
                             <p class="text-[11px] text-[#2C211A] font-semibold mb-1">Cantidad:</p>
