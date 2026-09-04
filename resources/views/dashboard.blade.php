@@ -92,6 +92,46 @@
         </a>
     </div>
 
+    <!-- Entregas para Hoy -->
+    @if(isset($todayOrders) && $todayOrders->count() > 0)
+    <div class="mb-8">
+        <h3 class="text-[20px] font-serif-custom text-[#2C211A] mb-4 flex items-center gap-2">
+            <svg class="w-5 h-5 text-red-600 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            Entregas para Hoy
+        </h3>
+        <div class="bg-white rounded-2xl shadow-sm border border-red-100 overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-red-50 border-b border-red-100 text-[11px] font-bold text-red-700 uppercase tracking-wider">
+                            <th class="px-5 py-4">Pedido</th>
+                            <th class="px-5 py-4">Destinatario</th>
+                            <th class="px-5 py-4">Día de Entrega</th>
+                            <th class="px-5 py-4">Hora Estimada</th>
+                            <th class="px-5 py-4 text-center">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100 bg-white text-[13px] text-[#2C211A] font-medium">
+                        @foreach($todayOrders as $todayOrder)
+                            <tr class="hover:bg-gray-50 transition-colors group cursor-pointer" onclick="window.location='{{ route('orders.show', $todayOrder) }}'">
+                                <td class="px-5 py-4 font-bold text-[#4A1525]">{{ $todayOrder->order_number }}</td>
+                                <td class="px-5 py-4">{{ $todayOrder->client_name }}</td>
+                                <td class="px-5 py-4 font-semibold text-red-600">HOY</td>
+                                <td class="px-5 py-4">{{ $todayOrder->delivery_time ?: 'No especificado' }}</td>
+                                <td class="px-5 py-4 text-center">
+                                    <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-50 text-amber-700 rounded-md text-xs font-bold border border-amber-200 uppercase tracking-wide">
+                                        {{ $todayOrder->status }}
+                                    </span>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    @endif
+
     <!-- Próximos a Entregar -->
     @if(isset($upcomingOrders) && $upcomingOrders->count() > 0)
     <div class="mb-8">
@@ -166,6 +206,10 @@
         </div>
         <div class="px-5 pb-4 md:px-0 md:pb-5 border-b border-gray-100 md:border-none flex gap-2 overflow-x-auto scrollbar-hide">
             <span class="text-[11px] font-semibold text-gray-500 uppercase tracking-wider py-1.5 mr-2">Filtros Rápidos:</span>
+            <a href="{{ route('dashboard', ['filter' => 'hoy']) }}" class="px-3 py-1.5 {{ request('filter') == 'hoy' ? 'bg-[#4A1525] text-white' : 'bg-red-50 text-red-700 hover:bg-red-100' }} rounded-full text-[11px] font-medium whitespace-nowrap transition-colors flex items-center gap-1.5">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                Entregas Hoy
+            </a>
             <a href="{{ route('dashboard', ['filter' => 'proximas']) }}" class="px-3 py-1.5 {{ request('filter') == 'proximas' ? 'bg-[#4A1525] text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200' }} rounded-full text-[11px] font-medium whitespace-nowrap transition-colors flex items-center gap-1.5">
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                 Próximas Entregas

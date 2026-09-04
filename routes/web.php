@@ -36,7 +36,12 @@ Route::get('/dashboard', function (\Illuminate\Http\Request $request) {
 
     // Filtros Rápidos Logísticos
     if ($request->filled('filter')) {
-        if ($request->filter === 'proximas') {
+        if ($request->filter === 'hoy') {
+            $query->whereNotNull('delivery_date')
+                  ->where('status', '!=', 'Cerrado (Pagado)')
+                  ->whereDate('delivery_date', now()->toDateString())
+                  ->orderBy('delivery_date', 'asc');
+        } elseif ($request->filter === 'proximas') {
             $query->whereNotNull('delivery_date')
                   ->where('status', '!=', 'Cerrado (Pagado)')
                   ->orderBy('delivery_date', 'asc');
@@ -70,11 +75,19 @@ Route::get('/dashboard', function (\Illuminate\Http\Request $request) {
     $enProduccionCount = (clone $baseQuery)->whereIn('status', ['En proceso', 'En ruta'])->count();
     $entregadosCount = (clone $baseQuery)->where('status', 'Cerrado (Pagado)')->count();
 
-    // Próximos a entregar (hoy y próximos días) excluyendo entregados
+    // Entregas de Hoy
+    $todayOrders = (clone $baseQuery)
+        ->where('status', '!=', 'Cerrado (Pagado)')
+        ->whereNotNull('delivery_date')
+        ->whereDate('delivery_date', now()->toDateString())
+        ->orderBy('delivery_date', 'asc')
+        ->get();
+
+    // Próximos a entregar (mañana y pasado mañana)
     $upcomingOrders = (clone $baseQuery)
         ->where('status', '!=', 'Cerrado (Pagado)')
         ->whereNotNull('delivery_date')
-        ->whereDate('delivery_date', '>=', now()->toDateString())
+        ->whereDate('delivery_date', '>', now()->toDateString())
         ->whereDate('delivery_date', '<=', now()->addDays(2)->toDateString())
         ->orderBy('delivery_date', 'asc')
         ->get();
@@ -88,7 +101,7 @@ Route::get('/dashboard', function (\Illuminate\Http\Request $request) {
         return $reminder->days_left >= 0 && $reminder->days_left <= 3;
     })->sortBy('days_left')->values();
 
-    return view('dashboard', compact('orders', 'allOrdersCount', 'pendientesCount', 'cotizadosCount', 'enProduccionCount', 'entregadosCount', 'upcomingOrders', 'upcomingReminders'));
+    return view('dashboard', compact('orders', 'allOrdersCount', 'pendientesCount', 'cotizadosCount', 'enProduccionCount', 'entregadosCount', 'todayOrders', 'upcomingOrders', 'upcomingReminders'));
 })->middleware('auth')->name('dashboard');
 
 Route::get('/tracking/{order_number}', [\App\Http\Controllers\TrackingController::class, 'show'])->name('tracking.show');
