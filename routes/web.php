@@ -41,7 +41,10 @@ Route::get('/dashboard', function (\Illuminate\Http\Request $request) {
                   ->where('status', '!=', 'Cerrado (Pagado)')
                   ->orderBy('delivery_date', 'asc');
         } elseif ($request->filter === 'en_ruta') {
-            $query->where('is_in_route', true)
+            $query->where(function($q) {
+                      $q->where('is_in_route', true)
+                        ->orWhere('status', 'En ruta');
+                  })
                   ->where('status', '!=', 'Cerrado (Pagado)');
         } elseif ($request->filter === 'pendientes_pago') {
             $query->where('status', 'En proceso');
