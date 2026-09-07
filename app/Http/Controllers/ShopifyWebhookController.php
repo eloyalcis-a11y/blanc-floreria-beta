@@ -79,6 +79,35 @@ class ShopifyWebhookController extends Controller
         }
         $totalPrice = (float) ($payload['total_price'] ?? 0);
 
+        // 5.5. Extraer Fecha y Hora de Entrega de note_attributes
+        $deliveryDate = \Carbon\Carbon::parse($payload['created_at'] ?? now())->toDateString();
+        $deliveryTime = null;
+
+        if (!empty($payload['note_attributes']) && is_array($payload['note_attributes'])) {
+            foreach ($payload['note_attributes'] as $attr) {
+                $name = strtolower(trim($attr['name'] ?? ''));
+                $value = trim($attr['value'] ?? '');
+                
+                if (empty($value)) continue;
+
+                // Buscar fecha de entrega
+                if (str_contains($name, 'fecha') || str_contains($name, 'date') || str_contains($name, 'día') || str_contains($name, 'dia')) {
+                    try {
+                        // Manejar formatos comunes de fecha (DD/MM/YYYY, YYYY-MM-DD, etc)
+                        $parsed = \Carbon\Carbon::parse(str_replace('/', '-', $value));
+                        if ($parsed->isValid()) {
+                            $deliveryDate = $parsed->toDateString();
+                        }
+                    } catch (\Exception $e) { }
+                }
+
+                // Buscar horario de entrega
+                if (str_contains($name, 'hora') || str_contains($name, 'time')) {
+                    $deliveryTime = $value;
+                }
+            }
+        }
+
         // 6. Crear el pedido en nuestra base de datos local (Usamos firstOrCreate para evitar errores de duplicados si Shopify reintenta)
         $orderNumber = $payload['name'] ?? ('#' . ($payload['order_number'] ?? $payload['id']));
         
@@ -96,7 +125,8 @@ class ShopifyWebhookController extends Controller
                 'shipping_cost' => $shippingCost,
                 'extra_charge' => 0,
                 'total_price' => $totalPrice,
-                'delivery_date' => \Carbon\Carbon::parse($payload['created_at'] ?? now())->toDateString(), 
+                'delivery_date' => $deliveryDate,
+                'delivery_time' => $deliveryTime,
                 'status' => $localStatus, // Dinámico según el pago de Shopify
                 'payment_method' => 'Shopify Payments',
                 'is_in_route' => false,
