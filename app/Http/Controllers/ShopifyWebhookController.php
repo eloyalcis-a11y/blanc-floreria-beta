@@ -12,7 +12,14 @@ class ShopifyWebhookController extends Controller
     {
         // El webhook viene en formato JSON
         $payload = $request->all();
-        Log::info('Shopify Webhook Recibido: Order Create', ['order_id' => $payload['id'] ?? null]);
+        Log::info('Shopify Webhook Recibido: Order Create', [
+            'order_id' => $payload['id'] ?? null,
+            'note_attributes' => $payload['note_attributes'] ?? [],
+            'note' => $payload['note'] ?? '',
+            'line_items_properties' => array_map(function($item) {
+                return $item['properties'] ?? [];
+            }, $payload['line_items'] ?? [])
+        ]);
 
         // Evitar procesar si no trae ID
         if (empty($payload['id'])) {
@@ -104,6 +111,31 @@ class ShopifyWebhookController extends Controller
                 // Buscar horario de entrega
                 if (str_contains($name, 'hora') || str_contains($name, 'time')) {
                     $deliveryTime = $value;
+                }
+            }
+        }
+
+        // Buscar también en line_item properties si no se encontró o para sobrescribir
+        if (!empty($payload['line_items']) && is_array($payload['line_items'])) {
+            foreach ($payload['line_items'] as $item) {
+                if (!empty($item['properties']) && is_array($item['properties'])) {
+                    foreach ($item['properties'] as $prop) {
+                        $name = strtolower(trim($prop['name'] ?? ''));
+                        $value = trim($prop['value'] ?? '');
+                        if (empty($value)) continue;
+
+                        if (str_contains($name, 'fecha') || str_contains($name, 'date') || str_contains($name, 'día') || str_contains($name, 'dia')) {
+                            try {
+                                $parsed = \Carbon\Carbon::parse(str_replace('/', '-', $value));
+                                if ($parsed->isValid()) {
+                                    $deliveryDate = $parsed->toDateString();
+                                }
+                            } catch (\Exception $e) { }
+                        }
+                        if (str_contains($name, 'hora') || str_contains($name, 'time')) {
+                            $deliveryTime = $value;
+                        }
+                    }
                 }
             }
         }
