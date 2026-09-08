@@ -20,7 +20,7 @@ class ReportController extends Controller
                 $q->where(function($q2) {
                     $q2->whereNotNull('delivery_date')->whereDate('delivery_date', now()->toDateString());
                 })->orWhere(function($q2) {
-                    $q2->whereNull('delivery_date')->whereDate('created_at', now()->toDateString());
+                    $q2->whereNull('delivery_date')->whereDate('updated_at', now()->toDateString());
                 });
             });
         } elseif ($dateRange === 'semana') {
@@ -28,7 +28,7 @@ class ReportController extends Controller
                 $q->where(function($q2) {
                     $q2->whereNotNull('delivery_date')->whereBetween('delivery_date', [now()->startOfWeek(), now()->endOfWeek()]);
                 })->orWhere(function($q2) {
-                    $q2->whereNull('delivery_date')->whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()]);
+                    $q2->whereNull('delivery_date')->whereBetween('updated_at', [now()->startOfWeek(), now()->endOfWeek()]);
                 });
             });
         } elseif ($dateRange === 'mes') {
@@ -39,8 +39,8 @@ class ReportController extends Controller
                        ->whereYear('delivery_date', now()->year);
                 })->orWhere(function($q2) {
                     $q2->whereNull('delivery_date')
-                       ->whereMonth('created_at', now()->month)
-                       ->whereYear('created_at', now()->year);
+                       ->whereMonth('updated_at', now()->month)
+                       ->whereYear('updated_at', now()->year);
                 });
             });
         } elseif ($dateRange === 'custom' && $request->has('start_date') && $request->has('end_date')) {
@@ -48,7 +48,7 @@ class ReportController extends Controller
                 $q->where(function($q2) use ($request) {
                     $q2->whereNotNull('delivery_date')->whereBetween('delivery_date', [$request->start_date . ' 00:00:00', $request->end_date . ' 23:59:59']);
                 })->orWhere(function($q2) use ($request) {
-                    $q2->whereNull('delivery_date')->whereBetween('created_at', [$request->start_date . ' 00:00:00', $request->end_date . ' 23:59:59']);
+                    $q2->whereNull('delivery_date')->whereBetween('updated_at', [$request->start_date . ' 00:00:00', $request->end_date . ' 23:59:59']);
                 });
             });
         }
@@ -96,7 +96,7 @@ class ReportController extends Controller
             ->first();
 
         // 4. Listado para la tabla de previsualización
-        $orders = $query->orderByRaw('COALESCE(delivery_date, created_at) desc')->paginate(15);
+        $orders = $query->orderByRaw('COALESCE(delivery_date, updated_at) desc')->paginate(15);
 
         return view('reports', compact(
             'orders',
@@ -121,7 +121,7 @@ class ReportController extends Controller
                 $q->where(function($q2) {
                     $q2->whereNotNull('delivery_date')->whereDate('delivery_date', now()->toDateString());
                 })->orWhere(function($q2) {
-                    $q2->whereNull('delivery_date')->whereDate('created_at', now()->toDateString());
+                    $q2->whereNull('delivery_date')->whereDate('updated_at', now()->toDateString());
                 });
             });
         } elseif ($dateRange === 'semana') {
@@ -129,7 +129,7 @@ class ReportController extends Controller
                 $q->where(function($q2) {
                     $q2->whereNotNull('delivery_date')->whereBetween('delivery_date', [now()->startOfWeek(), now()->endOfWeek()]);
                 })->orWhere(function($q2) {
-                    $q2->whereNull('delivery_date')->whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()]);
+                    $q2->whereNull('delivery_date')->whereBetween('updated_at', [now()->startOfWeek(), now()->endOfWeek()]);
                 });
             });
         } elseif ($dateRange === 'mes') {
@@ -140,8 +140,8 @@ class ReportController extends Controller
                        ->whereYear('delivery_date', now()->year);
                 })->orWhere(function($q2) {
                     $q2->whereNull('delivery_date')
-                       ->whereMonth('created_at', now()->month)
-                       ->whereYear('created_at', now()->year);
+                       ->whereMonth('updated_at', now()->month)
+                       ->whereYear('updated_at', now()->year);
                 });
             });
         } elseif ($dateRange === 'custom' && $request->has('start_date') && $request->has('end_date')) {
@@ -149,7 +149,7 @@ class ReportController extends Controller
                 $q->where(function($q2) use ($request) {
                     $q2->whereNotNull('delivery_date')->whereBetween('delivery_date', [$request->start_date . ' 00:00:00', $request->end_date . ' 23:59:59']);
                 })->orWhere(function($q2) use ($request) {
-                    $q2->whereNull('delivery_date')->whereBetween('created_at', [$request->start_date . ' 00:00:00', $request->end_date . ' 23:59:59']);
+                    $q2->whereNull('delivery_date')->whereBetween('updated_at', [$request->start_date . ' 00:00:00', $request->end_date . ' 23:59:59']);
                 });
             });
         }
@@ -162,7 +162,7 @@ class ReportController extends Controller
             $query->where('source', $request->source);
         }
 
-        $orders = $query->orderByRaw('COALESCE(delivery_date, created_at) desc')->get();
+        $orders = $query->orderByRaw('COALESCE(delivery_date, updated_at) desc')->get();
 
         $headers = [
             "Content-type"        => "text/csv",
