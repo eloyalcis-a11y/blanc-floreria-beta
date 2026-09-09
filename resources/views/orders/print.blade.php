@@ -52,11 +52,6 @@
             margin-bottom: 10px;
             text-transform: uppercase;
         }
-        .grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
         .field {
             margin-bottom: 5px;
         }
@@ -135,75 +130,70 @@
             <p><strong>Fecha de Registro:</strong> {{ $order->created_at->timezone('America/Mexico_City')->format('d/m/Y h:i A') }}</p>
         </div>
 
-        <div class="grid">
-            <!-- Columna Izquierda -->
-            <div>
-                <div class="section">
-                    <div class="section-title">Detalles de Entrega</div>
-                    <div class="field"><span class="label">Quién recibe:</span> <span class="value">{{ $order->recipient_name ?? 'N/E' }}</span></div>
-                    <div class="field"><span class="label">Quién envía:</span> <span class="value">{{ $order->sender_name ?? 'Anónimo' }}</span></div>
-                </div>
+        <!-- SECCIÓN 1: CLIENTE Y LOGÍSTICA -->
+        <div class="section">
+            <div class="section-title">Detalles de Entrega</div>
+            <div class="field"><span class="label">Quién recibe:</span> <span class="value">{{ $order->recipient_name ?? 'N/E' }}</span></div>
+            <div class="field"><span class="label">Quién envía:</span> <span class="value">{{ $order->sender_name ?? 'Anónimo' }}</span></div>
+        </div>
 
-                <div class="section">
-                    <div class="section-title">Logística</div>
-                    <div class="field"><span class="label">Fecha de Entrega:</span> <span class="value">{{ $order->delivery_date ? \Carbon\Carbon::parse($order->delivery_date)->format('d/m/Y') : 'N/E' }}</span></div>
-                    <div class="field"><span class="label">Horario:</span> <span class="value">{{ $order->delivery_time ?? 'N/E' }}</span></div>
-                    <div class="field"><span class="label">Dirección:</span> <span class="value">{{ $order->delivery_street }} {{ $order->delivery_neighborhood }} {{ $order->delivery_zip }}</span></div>
-                    <div class="field full-width">
-                        <span class="label">Referencias:</span> 
-                        <div class="value" style="margin-top: 5px;">{{ $order->delivery_references ?? 'N/E' }}</div>
-                    </div>
-                    @if($order->delivery_reference_image_path)
-                    <div class="field full-width" style="margin-top: 10px;">
-                        <span class="label">Foto de fachada:</span> 
-                        <div style="margin-top: 5px;">
-                            <img src="{{ asset($order->delivery_reference_image_path) }}" alt="Fachada" style="max-width: 200px; max-height: 150px; border: 1px solid #ccc; border-radius: 4px;">
-                        </div>
-                    </div>
-                    @endif
+        <div class="section">
+            <div class="section-title">Logística</div>
+            <div class="field"><span class="label">Fecha de Entrega:</span> <span class="value">{{ $order->delivery_date ? \Carbon\Carbon::parse($order->delivery_date)->format('d/m/Y') : 'N/E' }}</span></div>
+            <div class="field"><span class="label">Horario:</span> <span class="value">{{ $order->delivery_time ?? 'N/E' }}</span></div>
+            <div class="field"><span class="label">Dirección:</span> <span class="value">{{ $order->delivery_street }} {{ $order->delivery_neighborhood }} {{ $order->delivery_zip }}</span></div>
+            <div class="field full-width">
+                <span class="label">Referencias:</span> 
+                <div class="value" style="margin-top: 5px;">{{ $order->delivery_references ?? 'N/E' }}</div>
+            </div>
+            @if($order->delivery_reference_image_path)
+            <div class="field full-width" style="margin-top: 10px;">
+                <span class="label">Foto de fachada:</span> 
+                <div style="margin-top: 5px;">
+                    <img src="{{ asset($order->delivery_reference_image_path) }}" alt="Fachada" style="max-width: 200px; max-height: 150px; border: 1px solid #ccc; border-radius: 4px;">
                 </div>
             </div>
+            @endif
+        </div>
 
-            <!-- Columna Derecha: Arreglos -->
-            <div>
-                <div class="section">
-                    <div class="section-title">Arreglos ({{ $order->arrangements->count() }})</div>
-                    
-                    @foreach($order->arrangements as $index => $arr)
-                    <div class="arrangement-block">
-                        <div class="arrangement-title">Arreglo #{{ $index + 1 }}</div>
-                        <div class="field"><span class="label" style="width:100px;">Descripción:</span> <span class="value">{{ $arr->material }}</span></div>
-                        <div class="field"><span class="label" style="width:100px;">Cantidad:</span> <span class="value">{{ $arr->quantity }}</span></div>
-                        <div class="field"><span class="label" style="width:100px;">Tipo:</span> <span class="value" style="text-transform: capitalize;">{{ $arr->arrangement_type }}</span></div>
-                        
-                        @if($arr->image_url)
-                        <div class="field full-width" style="margin-top: 10px; margin-bottom: 10px;">
-                            <span class="label">Referencia visual:</span>
-                            <div style="margin-top: 5px;">
-                                <img src="{{ Str::startsWith($arr->image_url, 'http') ? $arr->image_url : asset($arr->image_url) }}" alt="Referencia" style="max-width: 100%; max-height: 250px; border: 1px solid #ccc; border-radius: 8px; object-fit: contain;">
-                            </div>
-                        </div>
-                        @endif
-                        
-                        @if($arr->notes)
-                        <div class="field full-width" style="margin-top: 5px;">
-                            <span class="label">Notas Especiales:</span>
-                            <div class="value" style="margin-top: 2px; color: #c0392b; font-weight: bold;">{{ $arr->notes }}</div>
-                        </div>
-                        @endif
-                        
-                        @if($arr->dedication_message)
-                        <div class="field full-width" style="margin-top: 10px;">
-                            <span class="label">Mensaje en Tarjeta:</span>
-                            <div class="message-box">
-                                {!! nl2br(e($arr->dedication_message)) !!}
-                            </div>
-                        </div>
-                        @endif
+        <!-- SECCIÓN 2: ARREGLOS -->
+        <div class="section" style="margin-top: 30px;">
+            <div class="section-title">Arreglos ({{ $order->arrangements->count() }})</div>
+            
+            @foreach($order->arrangements as $index => $arr)
+            <div class="arrangement-block">
+                <div class="arrangement-title">Arreglo #{{ $index + 1 }}</div>
+                <div class="field"><span class="label" style="width:100px;">Modelo:</span> <span class="value">{{ $arr->product_code ?? 'N/E' }}</span></div>
+                <div class="field"><span class="label" style="width:100px;">Descripción:</span> <span class="value">{{ $arr->material }}</span></div>
+                <div class="field"><span class="label" style="width:100px;">Cantidad:</span> <span class="value">{{ $arr->quantity }}</span></div>
+                <div class="field"><span class="label" style="width:100px;">Tipo:</span> <span class="value" style="text-transform: capitalize;">{{ $arr->arrangement_type }}</span></div>
+                
+                @if($arr->image_url)
+                <div class="field full-width" style="margin-top: 10px; margin-bottom: 10px;">
+                    <span class="label">Referencia visual:</span>
+                    <div style="margin-top: 5px;">
+                        <img src="{{ Str::startsWith($arr->image_url, 'http') ? $arr->image_url : asset($arr->image_url) }}" alt="Referencia" style="max-width: 100%; max-height: 250px; border: 1px solid #ccc; border-radius: 8px; object-fit: contain;">
                     </div>
-                    @endforeach
                 </div>
+                @endif
+                
+                @if($arr->notes)
+                <div class="field full-width" style="margin-top: 5px;">
+                    <span class="label">Notas Especiales:</span>
+                    <div class="value" style="margin-top: 2px; color: #c0392b; font-weight: bold;">{{ $arr->notes }}</div>
+                </div>
+                @endif
+                
+                @if($arr->dedication_message)
+                <div class="field full-width" style="margin-top: 10px;">
+                    <span class="label">Mensaje en Tarjeta:</span>
+                    <div class="message-box">
+                        {!! nl2br(e($arr->dedication_message)) !!}
+                    </div>
+                </div>
+                @endif
             </div>
+            @endforeach
         </div>
 
         <div class="footer">
