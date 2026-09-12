@@ -80,8 +80,15 @@ Route::get('/dashboard', function (\Illuminate\Http\Request $request) {
         ->where('status', '!=', 'Cerrado (Pagado)')
         ->whereNotNull('delivery_date')
         ->whereDate('delivery_date', now()->toDateString())
-        ->orderBy('delivery_date', 'asc')
-        ->get();
+        ->get()
+        ->sortBy(function ($order) {
+            if (preg_match('/(\d{1,2}:\d{2}\s*[aApP][mM])/', $order->delivery_time, $matches)) {
+                try {
+                    return \Carbon\Carbon::parse($matches[1])->format('H:i');
+                } catch (\Exception $e) {}
+            }
+            return '23:59';
+        })->values();
 
     // Próximos a entregar (mañana y pasado mañana)
     $upcomingOrders = (clone $baseQuery)
@@ -89,8 +96,16 @@ Route::get('/dashboard', function (\Illuminate\Http\Request $request) {
         ->whereNotNull('delivery_date')
         ->whereDate('delivery_date', '>', now()->toDateString())
         ->whereDate('delivery_date', '<=', now()->addDays(2)->toDateString())
-        ->orderBy('delivery_date', 'asc')
-        ->get();
+        ->get()
+        ->sortBy(function ($order) {
+            $timePart = '23:59';
+            if (preg_match('/(\d{1,2}:\d{2}\s*[aApP][mM])/', $order->delivery_time, $matches)) {
+                try {
+                    $timePart = \Carbon\Carbon::parse($matches[1])->format('H:i');
+                } catch (\Exception $e) {}
+            }
+            return $order->delivery_date . ' ' . $timePart;
+        })->values();
 
     // Obtener recordatorios próximos (3 días)
     $upcomingReminders = \App\Models\Reminder::all()->map(function ($reminder) {
