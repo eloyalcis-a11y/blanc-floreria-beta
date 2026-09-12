@@ -139,7 +139,14 @@
                 <tbody class="text-[12px] text-gray-700 divide-y divide-gray-50">
                     @forelse($orders as $order)
                         @php
-                            $modelo = $order->product_code ?: $order->material;
+                            $modelosArr = $order->arrangements->pluck('product_code')->filter(function($code) {
+                                return !empty(trim($code)) && trim(strtoupper($code)) !== 'N/A';
+                            })->unique()->toArray();
+                            
+                            $modelo = !empty($modelosArr) ? implode(', ', $modelosArr) : $order->material;
+                            if (empty(trim($modelo))) {
+                                $modelo = 'Personalizado';
+                            }
                             $qty = intval($order->quantity ?? 1);
                             
                             // Parche para pedidos antiguos de Shopify que contaron "Cliente Blanc" como cantidad

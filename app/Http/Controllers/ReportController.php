@@ -200,8 +200,15 @@ class ReportController extends Controller
             ]);
 
             foreach ($orders as $order) {
-                // Modelo puede ser product_code o material si no hay código
-                $modelo = $order->product_code ?: $order->material;
+                // Modelo extraído de los arreglos
+                $modelosArr = $order->arrangements->pluck('product_code')->filter(function($code) {
+                    return !empty(trim($code)) && trim(strtoupper($code)) !== 'N/A';
+                })->unique()->toArray();
+                
+                $modelo = !empty($modelosArr) ? implode(', ', $modelosArr) : $order->material;
+                if (empty(trim($modelo))) {
+                    $modelo = 'Personalizado';
+                }
                 $qty = intval($order->quantity ?? 1);
                 
                 // Parche para pedidos antiguos de Shopify que contaron "Cliente Blanc" como cantidad
