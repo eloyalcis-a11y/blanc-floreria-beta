@@ -28,6 +28,7 @@ class OrderController extends Controller
             'sender_name' => 'nullable|string|max:255',
             'driver_name' => 'nullable|string|max:255',
             'shipping_cost' => 'nullable|numeric|min:0',
+            'unit_price' => 'nullable|numeric|min:0',
             'delivery_date' => 'nullable|date',
             'delivery_time' => 'nullable|string|max:255',
             'delivery_street' => 'nullable|string|max:255',
@@ -66,6 +67,7 @@ class OrderController extends Controller
         $validated['user_id'] = auth()->id();
         
         $validated['status'] = 'En proceso';
+        $validated['total_price'] = (float)($validated['unit_price'] ?? 0) + (float)($validated['shipping_cost'] ?? 0);
 
 
         
@@ -154,6 +156,7 @@ class OrderController extends Controller
             'sender_name' => 'nullable|string|max:255',
             'driver_name' => 'nullable|string|max:255',
             'shipping_cost' => 'nullable|numeric|min:0',
+            'unit_price' => 'nullable|numeric|min:0',
             'delivery_date' => 'nullable|date',
             'delivery_time' => 'nullable|string|max:255',
             'delivery_street' => 'nullable|string|max:255',
@@ -184,6 +187,11 @@ class OrderController extends Controller
         if ($request->hasFile('delivery_reference_image')) {
             $path = $request->file('delivery_reference_image')->store('delivery_references', 'public');
             $validated['delivery_reference_image_path'] = '/storage/' . $path;
+        }
+        
+        if (isset($validated['unit_price']) || isset($validated['shipping_cost'])) {
+            $currentTotal = $order->total_price; // o calcular de nuevo
+            $validated['total_price'] = (float)($validated['unit_price'] ?? $order->unit_price ?? 0) + (float)($validated['shipping_cost'] ?? $order->shipping_cost ?? 0);
         }
 
         try {
