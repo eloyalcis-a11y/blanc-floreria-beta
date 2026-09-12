@@ -43,32 +43,20 @@ class ShopifyWebhookController extends Controller
         // 2. Extraer Empresa
         $company = $payload['billing_address']['company'] ?? '';
 
-        // 3. Extraer Material (Resumen de productos)
-        $material = 'Varios';
-        if (!empty($payload['line_items']) && isset($payload['line_items'][0]['title'])) {
-            $material = $payload['line_items'][0]['title'];
-            if (count($payload['line_items']) > 1) {
-                $material .= ' (+' . (count($payload['line_items']) - 1) . ' items)';
-            }
-        }
-
-        // 4. Extraer Cantidad Total
+        // Ya no calculamos la cantidad total y material resumido aquí.
+        // Lo haremos al crear los arreglos individuales más abajo, 
+        // pero necesitamos los totales para otros propósitos si hiciera falta.
+        // La cantidad total (opcional, para referencia, aunque la BD no lo exige en Order sino en Arrangement)
         $quantity = 0;
         if (!empty($payload['line_items'])) {
             foreach ($payload['line_items'] as $item) {
-                // Ignorar el producto "Cliente Blanc"
-                $title = strtolower($item['title'] ?? '');
-                if (str_contains($title, 'cliente blanc')) {
+                if (str_contains(strtolower($item['title'] ?? ''), 'cliente blanc')) {
                     continue;
                 }
                 $quantity += (int) ($item['quantity'] ?? 0);
             }
         }
-        
-        // Si por alguna razón la cantidad quedó en 0, la forzamos a 1
-        if ($quantity <= 0) {
-            $quantity = 1;
-        }
+        if ($quantity <= 0) $quantity = 1;
 
         // 5. Extraer Datos Financieros
         $subtotal = (float) ($payload['total_line_items_price'] ?? 0);
@@ -171,12 +159,30 @@ class ShopifyWebhookController extends Controller
             $order->save();
         }
 
-        if ($order->wasRecentlyCreated) {
-            $order->arrangements()->create([
-                'arrangement_type' => 'catalogo',
-                'material' => $material,
-                'quantity' => $quantity,
-            ]);
+        if ($order->wasRecentlyCreated && !empty($payload['line_items'])) {
+            foreach ($payload['line_items'] as $item) {
+                $title = $item['title'] ?? 'Artículo Shopify';
+                // Ignorar el producto dummy "Cliente Blanc"
+                if (str_contains(strtolower($title), 'cliente blanc')) {
+                    continue;
+                }
+                
+                $order->arrangements()->create([
+                    'arrangement_type' => 'catalogo',
+                    'material' => $title,
+                    'product_code' => $item['sku'] ?? null,
+                    'quantity' => (int) ($item['quantity'] ?? 1),
+                ]);
+            }
+            
+            // Si por alguna razón todos los items fueron ignorados y quedó sin arreglos, agregamos uno genérico
+            if ($order->arrangements()->count() === 0) {
+                $order->arrangements()->create([
+                    'arrangement_type' => 'catalogo',
+                    'material' => 'Pedido sin artículos detallados',
+                    'quantity' => 1,
+                ]);
+            }
         }
 
 
