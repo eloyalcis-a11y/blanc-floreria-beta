@@ -106,6 +106,7 @@
                         <tr class="bg-red-50 border-b border-red-100 text-[11px] font-bold text-red-700 uppercase tracking-wider">
                             <th class="px-5 py-4">Pedido</th>
                             <th class="px-5 py-4">Destinatario</th>
+                            <th class="px-5 py-4">Modelo</th>
                             <th class="px-5 py-4">Día de Entrega</th>
                             <th class="px-5 py-4">Hora Estimada</th>
                             <th class="px-5 py-4 text-center">Acciones</th>
@@ -116,6 +117,16 @@
                             <tr class="hover:bg-gray-50 transition-colors group cursor-pointer" onclick="window.location='{{ route('orders.show', $todayOrder) }}'">
                                 <td class="px-5 py-4 font-bold text-[#4A1525]">{{ $todayOrder->order_number }}</td>
                                 <td class="px-5 py-4">{{ $todayOrder->client_name }}</td>
+                                <td class="px-5 py-4">
+                                    @php
+                                        $modelos = $todayOrder->arrangements->pluck('product_code')->filter(function($code) {
+                                            return !empty(trim($code)) && trim(strtoupper($code)) !== 'N/A';
+                                        })->unique()->implode(', ');
+                                    @endphp
+                                    <span class="text-[11px] font-bold px-2 py-1 {{ $modelos ? 'bg-purple-50 text-purple-700 border border-purple-200' : 'bg-gray-100 text-gray-600 border border-gray-200' }} rounded uppercase">
+                                        {{ $modelos ?: 'Personalizado' }}
+                                    </span>
+                                </td>
                                 <td class="px-5 py-4 font-semibold text-red-600">HOY</td>
                                 <td class="px-5 py-4">{{ $todayOrder->delivery_time ?: 'No especificado' }}</td>
                                 <td class="px-5 py-4 text-center">
@@ -146,6 +157,7 @@
                         <tr class="bg-gray-50 border-b border-gray-100 text-[11px] font-bold text-[#757575] uppercase tracking-wider">
                             <th class="px-5 py-4">Pedido</th>
                             <th class="px-5 py-4">Destinatario</th>
+                            <th class="px-5 py-4">Modelo</th>
                             <th class="px-5 py-4">Día de Entrega</th>
                             <th class="px-5 py-4">Hora Estimada</th>
                             <th class="px-5 py-4 text-center">Acciones</th>
@@ -156,6 +168,16 @@
                             <tr class="hover:bg-gray-50 transition-colors group cursor-pointer" onclick="window.location='{{ route('orders.show', $upOrder) }}'">
                                 <td class="px-5 py-4 font-bold text-[#4A1525]">{{ $upOrder->order_number }}</td>
                                 <td class="px-5 py-4">{{ $upOrder->client_name }}</td>
+                                <td class="px-5 py-4">
+                                    @php
+                                        $upModelos = $upOrder->arrangements->pluck('product_code')->filter(function($code) {
+                                            return !empty(trim($code)) && trim(strtoupper($code)) !== 'N/A';
+                                        })->unique()->implode(', ');
+                                    @endphp
+                                    <span class="text-[11px] font-bold px-2 py-1 {{ $upModelos ? 'bg-purple-50 text-purple-700 border border-purple-200' : 'bg-gray-100 text-gray-600 border border-gray-200' }} rounded uppercase">
+                                        {{ $upModelos ?: 'Personalizado' }}
+                                    </span>
+                                </td>
                                 <td class="px-5 py-4 font-semibold text-amber-700">
                                     {{ \Carbon\Carbon::parse($upOrder->delivery_date)->isToday() ? 'HOY' : (\Carbon\Carbon::parse($upOrder->delivery_date)->isTomorrow() ? 'Mañana' : \Carbon\Carbon::parse($upOrder->delivery_date)->format('d \d\e M')) }}
                                 </td>
