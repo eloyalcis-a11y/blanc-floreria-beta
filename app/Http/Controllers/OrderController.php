@@ -242,7 +242,7 @@ class OrderController extends Controller
     public function updateStatus(Request $request, \App\Models\Order $order)
     {
         $validated = $request->validate([
-            'status' => 'required|string|in:En proceso,En ruta,Entregado,Cerrado (Pagado)',
+            'status' => 'required|string|in:En proceso,En ruta,Entregado,Cerrado (Pagado),Cancelado',
             'delivery_photo' => 'nullable|file|mimes:jpg,jpeg,png|max:5120',
         ]);
 

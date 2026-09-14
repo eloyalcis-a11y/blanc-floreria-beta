@@ -234,7 +234,11 @@
                                     <!-- Para Personalizado -->
                                     <div x-show="arr.arrangement_type === 'personalizado'" x-collapse>
                                         <template x-if="arr.original_image_url">
-                                            <p class="text-xs text-gray-500 mt-1">Ya cuenta con imagen. Sube otra solo si deseas reemplazarla.</p>
+                                            <div class="mb-3">
+                                                <p class="text-xs text-green-600 font-bold mb-1">Imagen actual:</p>
+                                                <img :src="arr.original_image_url" class="w-24 h-24 object-cover rounded-md shadow-sm border border-gray-100 bg-white">
+                                                <p class="text-xs text-gray-500 mt-1">Sube otra solo si deseas reemplazarla.</p>
+                                            </div>
                                         </template>
                                         <input type="file" :name="'arrangements['+index+'][reference_image]'" accept=".jpg,.jpeg,.png,.pdf" class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:ring-[#4A1525] focus:border-[#4A1525] file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-gray-100 file:text-[#4A1525] hover:file:bg-gray-200">
                                         <p class="text-xs text-gray-400 mt-1">Sube una imagen de inspiración o boceto del arreglo a armar.</p>
@@ -287,7 +291,7 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Fecha de Entrega</label>
-                            <input type="date" name="delivery_date" value="{{ old('delivery_date', $order->delivery_date) }}" class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:ring-[#4A1525] focus:border-[#4A1525]">
+                            <input type="date" name="delivery_date" value="{{ old('delivery_date', $order->delivery_date ? (is_string($order->delivery_date) ? \Carbon\Carbon::parse($order->delivery_date)->format('Y-m-d') : $order->delivery_date->format('Y-m-d')) : '') }}" class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:ring-[#4A1525] focus:border-[#4A1525]">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Bloque de Entrega</label>

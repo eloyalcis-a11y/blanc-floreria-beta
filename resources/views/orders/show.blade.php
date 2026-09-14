@@ -391,14 +391,19 @@
                 </a>
 
                 <!-- Botón para copiar enlace al cliente -->
-                <button onclick="navigator.clipboard.writeText('{{ route('tracking.show', $order->order_number) }}').then(() => { alert('¡Enlace de seguimiento copiado al portapapeles!'); })" class="w-full bg-[#E5F5E5] hover:bg-[#D1EBD1] text-[#2E7D32] border border-[#A5D6A7] py-2.5 rounded-lg text-[13px] font-medium transition-all flex justify-center items-center gap-2">
+                <button onclick="navigator.clipboard.writeText('{{ route('tracking.show', $order->order_number) }}').then(() => { alert('¡Enlace de seguimiento copiado al portapapeles!'); })" class="w-full mb-3 bg-[#E5F5E5] hover:bg-[#D1EBD1] text-[#2E7D32] border border-[#A5D6A7] py-2.5 rounded-lg text-[13px] font-medium transition-all flex justify-center items-center gap-2">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
                     Copiar Enlace para WhatsApp
                 </button>
-                <button class="w-full bg-white hover:bg-red-50 text-red-600 border border-red-100 hover:border-red-200 py-2.5 rounded-lg text-[13px] font-medium transition-all flex justify-center items-center gap-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                    Cancelar Pedido
-                </button>
+                <form action="{{ route('orders.update-status', $order) }}" method="POST" class="w-full mb-3" onsubmit="return confirm('¿Estás seguro de que deseas cancelar este pedido?');">
+                    @csrf
+                    @method('PATCH')
+                    <input type="hidden" name="status" value="Cancelado">
+                    <button type="submit" class="w-full bg-white hover:bg-red-50 text-red-600 border border-red-100 hover:border-red-200 py-2.5 rounded-lg text-[13px] font-medium transition-all flex justify-center items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                        Cancelar Pedido
+                    </button>
+                </form>
             </div>
         </div>
     </div>
