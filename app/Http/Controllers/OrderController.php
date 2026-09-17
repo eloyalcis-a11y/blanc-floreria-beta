@@ -231,9 +231,21 @@ class OrderController extends Controller
 
     public function toggleRoute(Request $request, \App\Models\Order $order)
     {
+        $newIsInRoute = !$order->is_in_route;
+        $status = $order->status;
+
+        if ($newIsInRoute) {
+            $status = 'En ruta';
+        } else {
+            if ($status === 'En ruta') {
+                $status = 'En proceso';
+            }
+        }
+
         $order->update([
-            'is_in_route' => !$order->is_in_route,
-            'driver_name' => $request->driver_name ?? $order->driver_name
+            'is_in_route' => $newIsInRoute,
+            'driver_name' => $request->driver_name ?? $order->driver_name,
+            'status' => $status
         ]);
         
         return redirect()->back()->with('success', 'Estado de ruta actualizado.');
