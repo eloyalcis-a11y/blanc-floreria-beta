@@ -24,24 +24,24 @@
         }
         .header {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 15px;
             border-bottom: 2px solid #4A1525;
-            padding-bottom: 15px;
+            padding-bottom: 10px;
         }
         .header h1 {
             margin: 0;
             color: #4A1525;
-            font-size: 28px;
+            font-size: 24px;
             text-transform: uppercase;
             letter-spacing: 2px;
         }
         .header p {
-            margin: 5px 0 0;
+            margin: 3px 0 0;
             color: #666;
-            font-size: 16px;
+            font-size: 14px;
         }
         .section {
-            margin-bottom: 25px;
+            margin-bottom: 15px;
         }
         .section-title {
             font-weight: bold;
@@ -69,17 +69,17 @@
         }
         .message-box {
             border: 1px dashed #ccc;
-            padding: 15px;
+            padding: 10px;
             background-color: #f9f9f9;
             border-radius: 5px;
             font-style: italic;
-            margin-top: 10px;
+            margin-top: 5px;
         }
         .arrangement-block {
             border: 1px solid #eee;
             border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 15px;
+            padding: 10px;
+            margin-bottom: 10px;
             background-color: #fafafa;
             page-break-inside: avoid;
         }
@@ -180,35 +180,38 @@
             @foreach($order->arrangements as $index => $arr)
             <div class="arrangement-block">
                 <div class="arrangement-title">Arreglo #{{ $index + 1 }}</div>
-                <div class="field"><span class="label" style="width:100px;">Modelo:</span> <span class="value">{{ $arr->product_code ?? 'N/E' }}</span></div>
-                <div class="field"><span class="label" style="width:100px;">Descripción:</span> <span class="value">{{ $arr->material }}</span></div>
-                <div class="field"><span class="label" style="width:100px;">Cantidad:</span> <span class="value">{{ $arr->quantity }}</span></div>
-                <div class="field"><span class="label" style="width:100px;">Tipo:</span> <span class="value" style="text-transform: capitalize;">{{ $arr->arrangement_type }}</span></div>
                 
-                @if($arr->image_url)
-                <div class="field full-width" style="margin-top: 10px; margin-bottom: 10px;">
-                    <span class="label">Referencia visual:</span>
-                    <div style="margin-top: 5px;">
-                        <img src="{{ Str::startsWith($arr->image_url, 'http') ? $arr->image_url : asset($arr->image_url) }}" alt="Referencia" style="max-width: 100%; max-height: 250px; border: 1px solid #ccc; border-radius: 8px; object-fit: contain;">
+                <div style="display: flex; gap: 15px;">
+                    <div style="flex: 1;">
+                        <div class="field"><span class="label" style="width:80px;">Modelo:</span> <span class="value">{{ $arr->product_code ?? 'N/E' }}</span></div>
+                        <div class="field"><span class="label" style="width:80px;">Desc.:</span> <span class="value">{{ $arr->material }}</span></div>
+                        <div class="field"><span class="label" style="width:80px;">Cantidad:</span> <span class="value">{{ $arr->quantity }}</span></div>
+                        <div class="field"><span class="label" style="width:80px;">Tipo:</span> <span class="value" style="text-transform: capitalize;">{{ $arr->arrangement_type }}</span></div>
+                        
+                        @if($arr->notes)
+                        <div class="field full-width" style="margin-top: 5px;">
+                            <span class="label">Notas Especiales:</span>
+                            <div class="value" style="margin-top: 2px; color: #c0392b; font-weight: bold;">{{ $arr->notes }}</div>
+                        </div>
+                        @endif
+                        
+                        @if($arr->dedication_message)
+                        <div class="field full-width" style="margin-top: 5px;">
+                            <span class="label">Mensaje en Tarjeta:</span>
+                            <div class="message-box">
+                                {!! nl2br(e($arr->dedication_message)) !!}
+                            </div>
+                        </div>
+                        @endif
                     </div>
-                </div>
-                @endif
-                
-                @if($arr->notes)
-                <div class="field full-width" style="margin-top: 5px;">
-                    <span class="label">Notas Especiales:</span>
-                    <div class="value" style="margin-top: 2px; color: #c0392b; font-weight: bold;">{{ $arr->notes }}</div>
-                </div>
-                @endif
-                
-                @if($arr->dedication_message)
-                <div class="field full-width" style="margin-top: 10px;">
-                    <span class="label">Mensaje en Tarjeta:</span>
-                    <div class="message-box">
-                        {!! nl2br(e($arr->dedication_message)) !!}
+                    
+                    @if($arr->image_url)
+                    <div style="width: 140px; flex-shrink: 0; text-align: center;">
+                        <span class="label" style="display:block; text-align:left; font-size: 11px; margin-bottom: 3px; width:auto;">Referencia:</span>
+                        <img src="{{ Str::startsWith($arr->image_url, 'http') ? $arr->image_url : asset($arr->image_url) }}" alt="Referencia" style="max-width: 100%; max-height: 140px; border: 1px solid #ccc; border-radius: 8px; object-fit: contain; background: #fff;">
                     </div>
+                    @endif
                 </div>
-                @endif
             </div>
             @endforeach
             </div>
