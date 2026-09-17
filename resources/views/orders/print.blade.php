@@ -150,6 +150,7 @@
                     <div class="section-title">Detalles de Entrega</div>
                     <div class="field"><span class="label">Quién recibe:</span> <span class="value">{{ $order->recipient_name ?? 'N/E' }}</span></div>
                     <div class="field"><span class="label">Quién envía:</span> <span class="value">{{ $order->sender_name ?? 'Anónimo' }}</span></div>
+                    <div class="field"><span class="label">Teléfono:</span> <span class="value">{{ $order->client_phone ?? 'N/E' }}</span></div>
                 </div>
 
                 <div class="section">
