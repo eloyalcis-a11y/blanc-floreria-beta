@@ -131,7 +131,11 @@
                                 <td class="px-5 py-4">{{ $todayOrder->delivery_time ?: 'No especificado' }}</td>
                                 <td class="px-5 py-4 text-center">
                                     <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-50 text-amber-700 rounded-md text-xs font-bold border border-amber-200 uppercase tracking-wide">
-                                        {{ $todayOrder->status }}
+                                        @if($todayOrder->status === 'En ruta' && $todayOrder->driver_name)
+                                            En ruta: <span class="lowercase capitalize">{{ $todayOrder->driver_name }}</span>
+                                        @else
+                                            {{ $todayOrder->status }}
+                                        @endif
                                     </span>
                                 </td>
                             </tr>
@@ -184,7 +188,11 @@
                                 <td class="px-5 py-4">{{ $upOrder->delivery_time ?: 'No especificado' }}</td>
                                 <td class="px-5 py-4 text-center">
                                     <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-50 text-amber-700 rounded-md text-xs font-bold border border-amber-200 uppercase tracking-wide">
-                                        {{ $upOrder->status }}
+                                        @if($upOrder->status === 'En ruta' && $upOrder->driver_name)
+                                            En ruta: <span class="lowercase capitalize">{{ $upOrder->driver_name }}</span>
+                                        @else
+                                            {{ $upOrder->status }}
+                                        @endif
                                     </span>
                                 </td>
                             </tr>
