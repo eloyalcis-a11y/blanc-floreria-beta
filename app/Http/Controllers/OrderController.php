@@ -244,9 +244,13 @@ class OrderController extends Controller
         $validated = $request->validate([
             'status' => 'required|string|in:En proceso,En ruta,Entregado,Cerrado (Pagado),Cancelado',
             'delivery_photo' => 'nullable|file|mimes:jpg,jpeg,png|max:5120',
+            'driver_name' => 'nullable|string|max:255',
         ]);
 
         $updates = ['status' => $validated['status']];
+        if (array_key_exists('driver_name', $validated)) {
+            $updates['driver_name'] = $validated['driver_name'];
+        }
 
         if ($validated['status'] === 'Entregado y Pagado' && $request->hasFile('delivery_photo')) {
             $path = $request->file('delivery_photo')->store('delivery_photos', 'public');

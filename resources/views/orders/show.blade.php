@@ -321,7 +321,7 @@
                         </button>
                     @else
                         <div class="mb-2">
-                            <input type="text" name="driver_name" value="{{ $order->driver_name }}" placeholder="Nombre del chofer (opcional)" class="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-[12px] focus:ring-[#4A1525] focus:border-[#4A1525]">
+                            <input type="text" name="driver_name" value="{{ $order->driver_name }}" oninput="document.getElementById('hidden_driver_name').value = this.value" placeholder="Nombre del chofer (opcional)" class="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-[12px] focus:ring-[#4A1525] focus:border-[#4A1525]">
                         </div>
                         <button type="submit" class="w-full bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200 py-2.5 rounded-lg text-[13px] font-medium transition-all flex justify-center items-center gap-2">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
@@ -333,6 +333,7 @@
                 <form action="{{ route('orders.update-status', $order) }}" method="POST" enctype="multipart/form-data" class="mb-3">
                     @csrf
                     @method('PATCH')
+                    <input type="hidden" name="driver_name" id="hidden_driver_name" value="{{ $order->driver_name }}">
                     <div class="flex flex-col gap-2">
                         <div class="flex gap-2">
                             <select name="status" id="status-select" class="w-full border border-gray-200 rounded-lg px-2 py-2 text-[12px] focus:ring-[#4A1525] focus:border-[#4A1525] font-medium text-gray-700">
