@@ -99,6 +99,19 @@
             padding-top: 10px;
         }
         
+        .columns-wrapper {
+            display: flex;
+            gap: 40px;
+        }
+        .column-left {
+            flex: 0 0 45%;
+            /* Evitar que se encoja demasiado */
+            min-width: 300px;
+        }
+        .column-right {
+            flex: 1;
+        }
+        
         @media print {
             body {
                 padding: 0;
@@ -130,35 +143,39 @@
             <p><strong>Fecha de Registro:</strong> {{ $order->created_at->timezone('America/Mexico_City')->format('d/m/Y h:i A') }}</p>
         </div>
 
-        <!-- SECCIÓN 1: CLIENTE Y LOGÍSTICA -->
-        <div class="section">
-            <div class="section-title">Detalles de Entrega</div>
-            <div class="field"><span class="label">Quién recibe:</span> <span class="value">{{ $order->recipient_name ?? 'N/E' }}</span></div>
-            <div class="field"><span class="label">Quién envía:</span> <span class="value">{{ $order->sender_name ?? 'Anónimo' }}</span></div>
-        </div>
+        <div class="columns-wrapper">
+            <div class="column-left">
+                <!-- SECCIÓN 1: CLIENTE Y LOGÍSTICA -->
+                <div class="section">
+                    <div class="section-title">Detalles de Entrega</div>
+                    <div class="field"><span class="label">Quién recibe:</span> <span class="value">{{ $order->recipient_name ?? 'N/E' }}</span></div>
+                    <div class="field"><span class="label">Quién envía:</span> <span class="value">{{ $order->sender_name ?? 'Anónimo' }}</span></div>
+                </div>
 
-        <div class="section">
-            <div class="section-title">Logística</div>
-            <div class="field"><span class="label">Fecha de Entrega:</span> <span class="value">{{ $order->delivery_date ? \Carbon\Carbon::parse($order->delivery_date)->format('d/m/Y') : 'N/E' }}</span></div>
-            <div class="field"><span class="label">Horario:</span> <span class="value">{{ $order->delivery_time ?? 'N/E' }}</span></div>
-            <div class="field"><span class="label">Dirección:</span> <span class="value">{{ $order->delivery_street }} {{ $order->delivery_neighborhood }} {{ $order->delivery_zip }}</span></div>
-            <div class="field full-width">
-                <span class="label">Referencias:</span> 
-                <div class="value" style="margin-top: 5px;">{{ $order->delivery_references ?? 'N/E' }}</div>
-            </div>
-            @if($order->delivery_reference_image_path)
-            <div class="field full-width" style="margin-top: 10px;">
-                <span class="label">Foto de fachada:</span> 
-                <div style="margin-top: 5px;">
-                    <img src="{{ asset($order->delivery_reference_image_path) }}" alt="Fachada" style="max-width: 200px; max-height: 150px; border: 1px solid #ccc; border-radius: 4px;">
+                <div class="section">
+                    <div class="section-title">Logística</div>
+                    <div class="field"><span class="label">Fecha de Entrega:</span> <span class="value">{{ $order->delivery_date ? \Carbon\Carbon::parse($order->delivery_date)->format('d/m/Y') : 'N/E' }}</span></div>
+                    <div class="field"><span class="label">Horario:</span> <span class="value">{{ $order->delivery_time ?? 'N/E' }}</span></div>
+                    <div class="field"><span class="label">Dirección:</span> <span class="value">{{ $order->delivery_street }} {{ $order->delivery_neighborhood }} {{ $order->delivery_zip }}</span></div>
+                    <div class="field full-width">
+                        <span class="label">Referencias:</span> 
+                        <div class="value" style="margin-top: 5px;">{{ $order->delivery_references ?? 'N/E' }}</div>
+                    </div>
+                    @if($order->delivery_reference_image_path)
+                    <div class="field full-width" style="margin-top: 10px;">
+                        <span class="label">Foto de fachada:</span> 
+                        <div style="margin-top: 5px;">
+                            <img src="{{ asset($order->delivery_reference_image_path) }}" alt="Fachada" style="max-width: 200px; max-height: 150px; border: 1px solid #ccc; border-radius: 4px;">
+                        </div>
+                    </div>
+                    @endif
                 </div>
             </div>
-            @endif
-        </div>
 
-        <!-- SECCIÓN 2: ARREGLOS -->
-        <div class="section" style="margin-top: 30px;">
-            <div class="section-title">Arreglos ({{ $order->arrangements->count() }})</div>
+            <div class="column-right">
+                <!-- SECCIÓN 2: ARREGLOS -->
+                <div class="section">
+                    <div class="section-title">Arreglos ({{ $order->arrangements->count() }})</div>
             
             @foreach($order->arrangements as $index => $arr)
             <div class="arrangement-block">
@@ -194,6 +211,7 @@
                 @endif
             </div>
             @endforeach
+            </div>
         </div>
 
         <div class="footer">
