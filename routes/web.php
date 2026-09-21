@@ -21,18 +21,22 @@ Route::get('/dashboard', function (\Illuminate\Http\Request $request) {
     }
     
     // Buscador General (case insensitive in most databases, but let's be sure it searches all fields)
-    if ($request->filled('search')) {
-        $search = trim($request->search);
-        $query->where(function($q) use ($search) {
-            $q->where('client_name', 'like', "%{$search}%")
-              ->orWhere('company', 'like', "%{$search}%")
-              ->orWhere('order_number', 'like', "%{$search}%")
-              ->orWhereHas('arrangements', function($qArr) use ($search) {
-                  $qArr->where('material', 'like', "%{$search}%")
-                       ->orWhere('product_code', 'like', "%{$search}%");
-              });
-        });
-    }
+    $applySearch = function($qBuilder) use ($request) {
+        if ($request->filled('search')) {
+            $search = trim($request->search);
+            $qBuilder->where(function($q) use ($search) {
+                $q->where('client_name', 'like', "%{$search}%")
+                  ->orWhere('company', 'like', "%{$search}%")
+                  ->orWhere('order_number', 'like', "%{$search}%")
+                  ->orWhereHas('arrangements', function($qArr) use ($search) {
+                      $qArr->where('material', 'like', "%{$search}%")
+                           ->orWhere('product_code', 'like', "%{$search}%");
+                  });
+            });
+        }
+    };
+
+    $applySearch($query);
 
     // Filtros Rápidos Logísticos
     if ($request->filled('filter')) {
@@ -68,6 +72,7 @@ Route::get('/dashboard', function (\Illuminate\Http\Request $request) {
     if (auth()->user()->role === 'cliente') {
         $baseQuery->where('user_id', auth()->id());
     }
+    $applySearch($baseQuery);
 
     $allOrdersCount = (clone $baseQuery)->count();
     $pendientesCount = (clone $baseQuery)->where('status', 'En proceso')->count();

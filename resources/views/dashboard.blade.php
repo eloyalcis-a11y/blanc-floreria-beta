@@ -4,10 +4,24 @@
             <h2 class="text-[32px] font-serif-custom font-normal text-[#2C211A] mb-1 leading-tight">Control de Pedidos</h2>
             <p class="text-[#757575] text-[13px] font-sans-custom">Gestión de pedidos de arreglos florales — Octubre 2024</p>
         </div>
-        <div>
-            <a href="{{ route('reports.export', request()->all()) }}" class="bg-white hover:bg-gray-50 px-4 py-2.5 rounded-lg text-[13px] font-medium transition-all shadow-sm flex items-center justify-center gap-2" style="color: #2E7D32; border: 1px solid #A5D6A7;">
+        <div class="flex flex-col md:flex-row items-stretch md:items-center gap-3 w-full md:w-auto">
+            <form method="GET" action="{{ route('dashboard') }}" class="flex-1 md:w-[320px]">
+                <div class="relative">
+                    <input type="text" name="search" value="{{ request('search') }}" placeholder="Buscar pedido, cliente o empresa..." class="pl-10 pr-4 py-2 border border-[#EBEBEB] rounded-lg text-[13px] text-gray-500 w-full focus:ring-[#4A1525] focus:border-[#4A1525] bg-white shadow-sm">
+                    <svg class="w-4 h-4 text-gray-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    @if(request('status'))
+                        <input type="hidden" name="status" value="{{ request('status') }}">
+                    @endif
+                    @if(request('filter'))
+                        <input type="hidden" name="filter" value="{{ request('filter') }}">
+                    @endif
+                    <button type="submit" class="hidden"></button>
+                </div>
+            </form>
+            <a href="{{ route('reports.export', request()->all()) }}" class="bg-white hover:bg-gray-50 px-4 py-2.5 rounded-lg text-[13px] font-medium transition-all shadow-sm flex items-center justify-center gap-2" style="color: #2E7D32; border: 1px solid #A5D6A7; min-width: max-content;">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                Descargar Reporte Excel
+                <span class="hidden md:inline">Descargar Reporte Excel</span>
+                <span class="md:hidden">Excel</span>
             </a>
         </div>
     </div>
@@ -208,16 +222,13 @@
     <div class="bg-white md:bg-transparent rounded-2xl md:rounded-none shadow-sm md:shadow-none border border-gray-100 md:border-none overflow-hidden mb-20 md:mb-0">
         <div class="p-5 md:p-0 border-b border-gray-100 md:border-none flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
             <h3 class="text-[22px] font-serif-custom text-[#2C211A]">Pedidos Recientes</h3>
-            <form method="GET" action="{{ route('dashboard') }}" class="flex flex-col md:flex-row gap-3 w-full justify-between" id="filter-form">
-                <div class="flex gap-2 w-full md:w-auto">
-                    <div class="relative flex-1 md:w-[280px]">
-                        <input type="text" name="search" value="{{ request('search') }}" placeholder="Buscar pedido, cliente o empresa..." class="pl-10 pr-4 py-2 border border-[#EBEBEB] rounded-md text-[13px] text-gray-500 w-full focus:ring-[#4A1525] focus:border-[#4A1525] bg-transparent">
-                        <svg class="w-4 h-4 text-gray-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                    </div>
-                    <button type="submit" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-2 rounded-md text-[13px] font-medium transition-colors border border-[#EBEBEB]">
-                        Buscar
-                    </button>
-                </div>
+            <form method="GET" action="{{ route('dashboard') }}" class="flex flex-col md:flex-row gap-3 w-full md:w-auto justify-end" id="filter-form">
+                @if(request('search'))
+                    <input type="hidden" name="search" value="{{ request('search') }}">
+                @endif
+                @if(request('filter'))
+                    <input type="hidden" name="filter" value="{{ request('filter') }}">
+                @endif
                 <div class="flex gap-2 justify-between w-full md:w-auto mt-2 md:mt-0">
                     <select name="status" onchange="document.getElementById('filter-form').submit()" class="border border-[#EBEBEB] rounded-md text-[13px] text-[#2C211A] font-medium py-2 pl-3 pr-8 focus:ring-[#4A1525] focus:border-[#4A1525] bg-transparent">
                         <option value="Todos" {{ request('status') == 'Todos' ? 'selected' : '' }}>Estado: Todos</option>
