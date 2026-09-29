@@ -43,6 +43,13 @@
     })->toArray());
 @endphp
 
+        @if(session('error'))
+            <div class="bg-red-50 text-red-700 p-4 rounded-lg mb-6 border border-red-200">
+                <p class="font-bold mb-1">No se pudo guardar el pedido</p>
+                <p class="text-sm">{{ session('error') }}</p>
+            </div>
+        @endif
+
         @if($errors->any())
             <div class="bg-red-50 text-red-700 p-4 rounded-lg mb-6 border border-red-200">
                 <p class="font-bold mb-2">Por favor corrige los siguientes errores:</p>
