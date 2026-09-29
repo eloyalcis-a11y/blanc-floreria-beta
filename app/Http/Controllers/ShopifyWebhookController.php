@@ -40,6 +40,27 @@ class ShopifyWebhookController extends Controller
             $clientName = $payload['billing_address']['name'];
         }
 
+        // Extraer Teléfono y Correo
+        $clientPhone = $payload['customer']['phone'] ?? $payload['billing_address']['phone'] ?? $payload['shipping_address']['phone'] ?? null;
+        $clientEmail = $payload['customer']['email'] ?? $payload['contact_email'] ?? $payload['email'] ?? null;
+        
+        // Extraer Destinatario y Dirección de Envío
+        $recipientName = null;
+        $deliveryStreet = null;
+        $deliveryNeighborhood = null;
+        $deliveryZip = null;
+        
+        if (isset($payload['shipping_address'])) {
+            $recipientName = $payload['shipping_address']['name'] ?? null;
+            $deliveryStreet = trim(($payload['shipping_address']['address1'] ?? '') . ' ' . ($payload['shipping_address']['address2'] ?? ''));
+            $deliveryNeighborhood = $payload['shipping_address']['city'] ?? null;
+            $deliveryZip = $payload['shipping_address']['zip'] ?? null;
+        }
+
+        $senderName = $clientName; // Por defecto
+        $globalDedicationMessage = null;
+        $deliveryReferences = null;
+
         // 2. Extraer Empresa
         $company = $payload['billing_address']['company'] ?? '';
 
@@ -85,6 +106,16 @@ class ShopifyWebhookController extends Controller
                 
                 if (empty($value)) continue;
 
+                if ($name === 'de' || $name === 'from' || str_contains($name, 'envia') || str_contains($name, 'envía')) {
+                    $senderName = $value;
+                } elseif ($name === 'para' || $name === 'to' || str_contains($name, 'recibe') || str_contains($name, 'destinatario')) {
+                    $recipientName = $value;
+                } elseif (str_contains($name, 'mensaje') || str_contains($name, 'message') || str_contains($name, 'dedicatoria')) {
+                    $globalDedicationMessage = $value;
+                } elseif (str_contains($name, 'referencia') || str_contains($name, 'reference') || str_contains($name, 'indicaciones')) {
+                    $deliveryReferences = $value;
+                }
+
                 // Buscar fecha de entrega
                 if (str_contains($name, 'fecha') || str_contains($name, 'date') || str_contains($name, 'día') || str_contains($name, 'dia')) {
                     try {
@@ -111,6 +142,16 @@ class ShopifyWebhookController extends Controller
                         $name = strtolower(trim($prop['name'] ?? ''));
                         $value = trim($prop['value'] ?? '');
                         if (empty($value)) continue;
+                        
+                        if ($name === 'de' || $name === 'from' || str_contains($name, 'envia') || str_contains($name, 'envía')) {
+                            $senderName = $value;
+                        } elseif ($name === 'para' || $name === 'to' || str_contains($name, 'recibe') || str_contains($name, 'destinatario')) {
+                            $recipientName = $value;
+                        } elseif (str_contains($name, 'mensaje') || str_contains($name, 'message') || str_contains($name, 'dedicatoria')) {
+                            $globalDedicationMessage = $value;
+                        } elseif (str_contains($name, 'referencia') || str_contains($name, 'reference') || str_contains($name, 'indicaciones')) {
+                            $deliveryReferences = $value;
+                        }
 
                         if (str_contains($name, 'fecha') || str_contains($name, 'date') || str_contains($name, 'día') || str_contains($name, 'dia')) {
                             try {
@@ -139,6 +180,10 @@ class ShopifyWebhookController extends Controller
                 // 500, por lo que Shopify marcaba la entrega como fallida.
                 'user_id' => $this->usuarioParaPedidos(),
                 'client_name' => $clientName,
+                'client_phone' => $clientPhone,
+                'client_email' => $clientEmail,
+                'recipient_name' => $recipientName,
+                'sender_name' => $senderName,
                 'company' => $company,
                 'unit_price' => $unitPrice,
                 'discount' => $discount,
@@ -147,6 +192,10 @@ class ShopifyWebhookController extends Controller
                 'total_price' => $totalPrice,
                 'delivery_date' => $deliveryDate,
                 'delivery_time' => $deliveryTime,
+                'delivery_street' => $deliveryStreet,
+                'delivery_neighborhood' => $deliveryNeighborhood,
+                'delivery_zip' => $deliveryZip,
+                'delivery_references' => $deliveryReferences,
                 'status' => $localStatus, // Dinámico según el pago de Shopify
                 'payment_method' => 'Shopify Payments',
                 'is_in_route' => false,
@@ -167,11 +216,29 @@ class ShopifyWebhookController extends Controller
                     continue;
                 }
                 
+                $itemDedication = null;
+                $itemNotes = null;
+                if (!empty($item['properties']) && is_array($item['properties'])) {
+                    foreach ($item['properties'] as $prop) {
+                        $name = strtolower(trim($prop['name'] ?? ''));
+                        $value = trim($prop['value'] ?? '');
+                        if (empty($value)) continue;
+                        
+                        if (str_contains($name, 'mensaje') || str_contains($name, 'message') || str_contains($name, 'dedicatoria')) {
+                            $itemDedication = $value;
+                        } elseif (str_contains($name, 'notas') || str_contains($name, 'notes') || str_contains($name, 'comentarios')) {
+                            $itemNotes = $value;
+                        }
+                    }
+                }
+
                 $order->arrangements()->create([
                     'arrangement_type' => 'catalogo',
                     'material' => $title,
                     'product_code' => $item['sku'] ?? null,
                     'quantity' => (int) ($item['quantity'] ?? 1),
+                    'dedication_message' => $itemDedication ?? $globalDedicationMessage,
+                    'notes' => $itemNotes,
                 ]);
             }
             

@@ -157,7 +157,7 @@
                     <div class="section-title">Logística</div>
                     <div class="field"><span class="label">Fecha de Entrega:</span> <span class="value">{{ $order->delivery_date ? \Carbon\Carbon::parse($order->delivery_date)->format('d/m/Y') : 'N/E' }}</span></div>
                     <div class="field"><span class="label">Horario:</span> <span class="value">{{ $order->delivery_time ?? 'N/E' }}</span></div>
-                    <div class="field"><span class="label">Dirección:</span> <span class="value">{{ $order->delivery_street }} {{ $order->delivery_neighborhood }} {{ $order->delivery_zip }}</span></div>
+                    <div class="field"><span class="label">Dirección:</span> <span class="value">{{ trim($order->delivery_street . ' ' . $order->delivery_neighborhood . ' ' . $order->delivery_zip) ?: 'N/E' }}</span></div>
                     <div class="field full-width">
                         <span class="label">Referencias:</span> 
                         <div class="value" style="margin-top: 5px;">{{ $order->delivery_references ?? 'N/E' }}</div>
