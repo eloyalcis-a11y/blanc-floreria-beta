@@ -58,7 +58,7 @@ class ShopifyWebhookController extends Controller
         }
 
         $senderName = $clientName; // Por defecto
-        $globalDedicationMessage = null;
+        $globalDedicationMessage = $payload['note'] ?? null;
         $deliveryReferences = null;
 
         // 2. Extraer Empresa
