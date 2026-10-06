@@ -43,12 +43,31 @@ class ReportController extends Controller
                        ->whereYear('updated_at', now()->year);
                 });
             });
+        } elseif ($dateRange === 'mes_pasado') {
+            $query->where(function($q) {
+                $q->where(function($q2) {
+                    $q2->whereNotNull('delivery_date')
+                       ->whereMonth('delivery_date', now()->subMonth()->month)
+                       ->whereYear('delivery_date', now()->subMonth()->year);
+                })->orWhere(function($q2) {
+                    $q2->whereNull('delivery_date')
+                       ->whereMonth('updated_at', now()->subMonth()->month)
+                       ->whereYear('updated_at', now()->subMonth()->year);
+                });
+            });
         } elseif ($dateRange === 'custom' && $request->has('start_date') && $request->has('end_date')) {
-            $query->where(function($q) use ($request) {
-                $q->where(function($q2) use ($request) {
-                    $q2->whereNotNull('delivery_date')->whereBetween('delivery_date', [$request->start_date . ' 00:00:00', $request->end_date . ' 23:59:59']);
-                })->orWhere(function($q2) use ($request) {
-                    $q2->whereNull('delivery_date')->whereBetween('updated_at', [$request->start_date . ' 00:00:00', $request->end_date . ' 23:59:59']);
+            $start = $request->start_date;
+            $end = $request->end_date;
+            if ($start > $end) {
+                $temp = $start;
+                $start = $end;
+                $end = $temp;
+            }
+            $query->where(function($q) use ($start, $end) {
+                $q->where(function($q2) use ($start, $end) {
+                    $q2->whereNotNull('delivery_date')->whereBetween('delivery_date', [$start . ' 00:00:00', $end . ' 23:59:59']);
+                })->orWhere(function($q2) use ($start, $end) {
+                    $q2->whereNull('delivery_date')->whereBetween('updated_at', [$start . ' 00:00:00', $end . ' 23:59:59']);
                 });
             });
         }
@@ -144,12 +163,31 @@ class ReportController extends Controller
                        ->whereYear('updated_at', now()->year);
                 });
             });
+        } elseif ($dateRange === 'mes_pasado') {
+            $query->where(function($q) {
+                $q->where(function($q2) {
+                    $q2->whereNotNull('delivery_date')
+                       ->whereMonth('delivery_date', now()->subMonth()->month)
+                       ->whereYear('delivery_date', now()->subMonth()->year);
+                })->orWhere(function($q2) {
+                    $q2->whereNull('delivery_date')
+                       ->whereMonth('updated_at', now()->subMonth()->month)
+                       ->whereYear('updated_at', now()->subMonth()->year);
+                });
+            });
         } elseif ($dateRange === 'custom' && $request->has('start_date') && $request->has('end_date')) {
-            $query->where(function($q) use ($request) {
-                $q->where(function($q2) use ($request) {
-                    $q2->whereNotNull('delivery_date')->whereBetween('delivery_date', [$request->start_date . ' 00:00:00', $request->end_date . ' 23:59:59']);
-                })->orWhere(function($q2) use ($request) {
-                    $q2->whereNull('delivery_date')->whereBetween('updated_at', [$request->start_date . ' 00:00:00', $request->end_date . ' 23:59:59']);
+            $start = $request->start_date;
+            $end = $request->end_date;
+            if ($start > $end) {
+                $temp = $start;
+                $start = $end;
+                $end = $temp;
+            }
+            $query->where(function($q) use ($start, $end) {
+                $q->where(function($q2) use ($start, $end) {
+                    $q2->whereNotNull('delivery_date')->whereBetween('delivery_date', [$start . ' 00:00:00', $end . ' 23:59:59']);
+                })->orWhere(function($q2) use ($start, $end) {
+                    $q2->whereNull('delivery_date')->whereBetween('updated_at', [$start . ' 00:00:00', $end . ' 23:59:59']);
                 });
             });
         }

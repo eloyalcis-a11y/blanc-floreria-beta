@@ -21,7 +21,8 @@
                 <div class="flex flex-wrap bg-gray-100 rounded-lg p-1">
                     <button type="button" @click="range = 'hoy'; $nextTick(() => $el.closest('form').submit())" class="px-4 py-1.5 text-xs font-medium rounded-md transition-colors" :class="range === 'hoy' ? 'bg-white shadow-sm text-[#4A1525]' : 'text-gray-500 hover:text-gray-700'">Hoy</button>
                     <button type="button" @click="range = 'semana'; $nextTick(() => $el.closest('form').submit())" class="px-4 py-1.5 text-xs font-medium rounded-md transition-colors" :class="range === 'semana' ? 'bg-white shadow-sm text-[#4A1525]' : 'text-gray-500 hover:text-gray-700'">Semana</button>
-                    <button type="button" @click="range = 'mes'; $nextTick(() => $el.closest('form').submit())" class="px-4 py-1.5 text-xs font-medium rounded-md transition-colors" :class="range === 'mes' ? 'bg-white shadow-sm text-[#4A1525]' : 'text-gray-500 hover:text-gray-700'">Mes</button>
+                    <button type="button" @click="range = 'mes'; $nextTick(() => $el.closest('form').submit())" class="px-4 py-1.5 text-xs font-medium rounded-md transition-colors" :class="range === 'mes' ? 'bg-white shadow-sm text-[#4A1525]' : 'text-gray-500 hover:text-gray-700'">Este Mes</button>
+                    <button type="button" @click="range = 'mes_pasado'; $nextTick(() => $el.closest('form').submit())" class="px-4 py-1.5 text-xs font-medium rounded-md transition-colors" :class="range === 'mes_pasado' ? 'bg-white shadow-sm text-[#4A1525]' : 'text-gray-500 hover:text-gray-700'">Mes Pasado</button>
                     <button type="button" @click="range = 'custom'" class="px-4 py-1.5 text-xs font-medium rounded-md transition-colors" :class="range === 'custom' ? 'bg-white shadow-sm text-[#4A1525]' : 'text-gray-500 hover:text-gray-700'">Personalizado</button>
                     
                     <input type="hidden" name="date_range" x-model="range">
