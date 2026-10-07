@@ -54,7 +54,13 @@ class OrderController extends Controller
         // El comprobante no es obligatorio para ventas/staff, pueden agregarlo después
         $rules['payment_proof'] = 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120';
 
-        $validated = $request->validate($rules);
+        $messages = [
+            'arrangements.*.reference_image.uploaded' => 'La imagen de referencia que intentas subir es demasiado pesada para el servidor. Por favor reduce su tamaño (menos de 5MB).',
+            'delivery_reference_image.uploaded' => 'La foto de fachada que intentas subir es demasiado pesada. Por favor reduce su tamaño.',
+            'payment_proof.uploaded' => 'El comprobante de pago que intentas subir es demasiado pesado. Por favor reduce su tamaño.',
+        ];
+
+        $validated = $request->validate($rules, $messages);
 
         // Generar folio secuencial (PD-0001, PD-0002...)
         $lastOrder = \App\Models\Order::where('order_number', 'like', 'PD-%')->orderBy('id', 'desc')->first();
@@ -180,7 +186,13 @@ class OrderController extends Controller
             'arrangements.*.shopify_image_url' => 'nullable|url',
         ];
 
-        $validated = $request->validate($rules);
+        $messages = [
+            'arrangements.*.reference_image.uploaded' => 'La imagen de referencia que intentas subir es demasiado pesada para el servidor. Por favor reduce su tamaño (menos de 5MB).',
+            'delivery_reference_image.uploaded' => 'La foto de fachada que intentas subir es demasiado pesada. Por favor reduce su tamaño.',
+            'payment_proof.uploaded' => 'El comprobante de pago que intentas subir es demasiado pesado. Por favor reduce su tamaño.',
+        ];
+
+        $validated = $request->validate($rules, $messages);
 
 
 
