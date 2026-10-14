@@ -11,7 +11,7 @@ class ReportController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Order::query()->where('status', 'Cerrado (Pagado)');
+        $query = Order::query();
 
         // 1. Filtrado de Fechas
         $dateRange = $request->get('date_range', 'mes'); // por defecto este mes
@@ -55,6 +55,8 @@ class ReportController extends Controller
                        ->whereYear('updated_at', now()->subMonth()->year);
                 });
             });
+        } elseif ($dateRange === 'todos') {
+            // Sin filtro de fechas: todo el histórico
         } elseif ($dateRange === 'custom' && $request->has('start_date') && $request->has('end_date')) {
             $start = $request->start_date;
             $end = $request->end_date;
@@ -72,7 +74,10 @@ class ReportController extends Controller
             });
         }
 
-        // 2. Filtros Adicionales (Origen, Estado)
+        // 2. Filtros Adicionales (Origen, Estatus, Método de pago)
+        if ($request->filled('status') && $request->status !== 'Todos') {
+            $query->where('status', $request->status);
+        }
         if ($request->filled('source') && $request->source !== 'Todos') {
             $query->where('source', $request->source);
         }
@@ -90,6 +95,11 @@ class ReportController extends Controller
         $paymentMethodTotals = [];
         
         foreach ($ordersForMetrics as $order) {
+            // Si el pedido está cancelado no sumamos a los ingresos totales
+            if ($order->status === 'Cancelado') {
+                continue;
+            }
+
             // Formula del total del pedido: unit_price * (1 - discount%) + extra_charge + shipping_cost
             $totalOrder = (($order->unit_price ?? 0) * (1 - ($order->discount ?? 0) / 100)) + ($order->extra_charge ?? 0) + ($order->shipping_cost ?? 0);
             $totalIngresos += $totalOrder;
@@ -115,7 +125,7 @@ class ReportController extends Controller
             ->first();
 
         // 4. Listado para la tabla de previsualización
-        $orders = $query->orderByRaw('COALESCE(delivery_date, updated_at) desc')->paginate(15);
+        $orders = $query->with('arrangements')->orderByRaw('COALESCE(delivery_date, updated_at) desc')->paginate(15);
 
         return view('reports', compact(
             'orders',
@@ -131,7 +141,7 @@ class ReportController extends Controller
 
     public function export(Request $request)
     {
-        $query = Order::query()->where('status', 'Cerrado (Pagado)');
+        $query = Order::query()->with('arrangements');
 
         // Aplicar los mismos filtros que en el index
         $dateRange = $request->get('date_range', 'mes');
@@ -175,6 +185,8 @@ class ReportController extends Controller
                        ->whereYear('updated_at', now()->subMonth()->year);
                 });
             });
+        } elseif ($dateRange === 'todos') {
+            // Sin filtro de fechas: todo el histórico
         } elseif ($dateRange === 'custom' && $request->has('start_date') && $request->has('end_date')) {
             $start = $request->start_date;
             $end = $request->end_date;
@@ -193,6 +205,9 @@ class ReportController extends Controller
         }
 
         // Aplicar filtros similares a los del dashboard si se reciben
+        if ($request->filled('status') && $request->status !== 'Todos') {
+            $query->where('status', $request->status);
+        }
         if ($request->filled('payment_method') && $request->payment_method !== 'Todos') {
             $query->where('payment_method', $request->payment_method);
         }
@@ -217,9 +232,10 @@ class ReportController extends Controller
             // Agregar UTF-8 BOM para que Excel lo lea bien (acentos, ñ, etc.)
             fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
 
-            // Encabezados exactos del Excel OCASIONES 2026 REPORTE
+            // Encabezados con columna ESTATUS para filtrado en Excel
             fputcsv($file, [
                 '#NOTA',
+                'ESTATUS',
                 'MODELO',
                 'NOMBRE COMPLETO DEL SOLICITANTE2',
                 'FECHA DE ENTREGA',
@@ -235,7 +251,7 @@ class ReportController extends Controller
                 'TOTAL',
                 '#TICKET',
                 'FECHA DE CORTE'
-            ]);
+            ], ',', '"', "\\");
 
             foreach ($orders as $order) {
                 // Modelo extraído de los arreglos
@@ -262,6 +278,7 @@ class ReportController extends Controller
 
                 fputcsv($file, [
                     $order->order_number,
+                    $order->status ?: 'Sin Estatus',
                     $modelo,
                     $order->client_name,
                     $deliveryDate,
@@ -277,7 +294,7 @@ class ReportController extends Controller
                     $total,
                     $order->ticket_number ?? 'N/A',
                     $order->created_at->format('Y-m-d')
-                ]);
+                ], ',', '"', "\\");
             }
 
             fclose($file);

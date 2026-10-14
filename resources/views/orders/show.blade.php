@@ -386,9 +386,34 @@
                         }
                     });
                 </script>
+                <!-- Estado del Acuse -->
+                <div class="mb-3 p-3 rounded-lg border {{ $order->acuse_printed ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-amber-50 border-amber-200 text-amber-800' }} flex items-center justify-between text-xs font-medium">
+                    <div class="flex items-center gap-2">
+                        @if($order->acuse_printed)
+                            <svg class="w-4 h-4 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                            <span><strong>Acuse impreso</strong></span>
+                        @else
+                            <svg class="w-4 h-4 text-amber-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                            <span><strong>Acuse pendiente de imprimir</strong></span>
+                        @endif
+                    </div>
+                    <form action="{{ route('orders.toggle-acuse-printed', $order) }}" method="POST">
+                        @csrf
+                        @method('PATCH')
+                        <button type="submit" class="text-[11px] font-semibold underline hover:no-underline {{ $order->acuse_printed ? 'text-emerald-800' : 'text-amber-800' }}">
+                            {{ $order->acuse_printed ? 'Marcar pendiente' : 'Marcar impreso' }}
+                        </button>
+                    </form>
+                </div>
+
                 <a href="{{ route('orders.print', $order->id) }}" target="_blank" class="w-full mb-3 bg-white hover:bg-gray-50 text-gray-700 border border-gray-200 py-2.5 rounded-lg text-[13px] font-medium transition-all flex justify-center items-center gap-2">
                     <svg class="w-4 h-4 text-[#4A1525]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
-                    Imprimir Orden
+                    <span>Imprimir Orden / Acuse</span>
+                    @if($order->acuse_printed)
+                        <span class="inline-flex items-center text-emerald-600 font-bold ml-1 text-xs" title="Acuse ya impreso">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                        </span>
+                    @endif
                 </a>
 
                 <!-- Botón para copiar enlace al cliente -->

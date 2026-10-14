@@ -141,7 +141,27 @@ class OrderController extends Controller
 
     public function print(\App\Models\Order $order)
     {
+        if (!$order->acuse_printed) {
+            $order->update(['acuse_printed' => true]);
+        }
         return view('orders.print', compact('order'));
+    }
+
+    public function toggleAcusePrinted(Request $request, \App\Models\Order $order)
+    {
+        $order->update([
+            'acuse_printed' => !$order->acuse_printed
+        ]);
+
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'acuse_printed' => $order->acuse_printed,
+                'message' => $order->acuse_printed ? 'Acuse marcado como impreso.' : 'Acuse marcado como pendiente.'
+            ]);
+        }
+
+        return redirect()->back()->with('success', $order->acuse_printed ? 'Acuse marcado como impreso.' : 'Acuse marcado como pendiente.');
     }
 
     public function edit(\App\Models\Order $order)

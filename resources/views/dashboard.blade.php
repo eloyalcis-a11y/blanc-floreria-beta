@@ -129,7 +129,23 @@
                     <tbody class="divide-y divide-gray-100 bg-white text-[13px] text-[#2C211A] font-medium">
                         @foreach($todayOrders as $todayOrder)
                             <tr class="hover:bg-gray-50 transition-colors group cursor-pointer" onclick="window.location='{{ route('orders.show', $todayOrder) }}'">
-                                <td class="px-5 py-4 font-bold text-[#4A1525]">{{ $todayOrder->order_number }}</td>
+                                <td class="px-5 py-4 font-bold text-[#4A1525]">
+                                    <div class="flex items-center gap-2">
+                                        <span>{{ $todayOrder->order_number }}</span>
+                                        <button type="button" 
+                                                onclick="toggleAcuse(event, '{{ route('orders.toggle-acuse-printed', $todayOrder) }}', this)" 
+                                                class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold transition-all border {{ $todayOrder->acuse_printed ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100' : 'bg-gray-100 text-gray-500 border-gray-200 hover:bg-gray-200' }}"
+                                                title="{{ $todayOrder->acuse_printed ? 'Acuse impreso (clic para alternar)' : 'Acuse pendiente de imprimir (clic para alternar)' }}">
+                                            @if($todayOrder->acuse_printed)
+                                                <svg class="w-3 h-3 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                                                <span>Acuse</span>
+                                            @else
+                                                <svg class="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                                                <span>Sin acuse</span>
+                                            @endif
+                                        </button>
+                                    </div>
+                                </td>
                                 <td class="px-5 py-4">{{ $todayOrder->client_name }}</td>
                                 <td class="px-5 py-4">
                                     @php
@@ -184,7 +200,23 @@
                     <tbody class="divide-y divide-gray-100 bg-white text-[13px] text-[#2C211A] font-medium">
                         @foreach($upcomingOrders as $upOrder)
                             <tr class="hover:bg-gray-50 transition-colors group cursor-pointer" onclick="window.location='{{ route('orders.show', $upOrder) }}'">
-                                <td class="px-5 py-4 font-bold text-[#4A1525]">{{ $upOrder->order_number }}</td>
+                                <td class="px-5 py-4 font-bold text-[#4A1525]">
+                                    <div class="flex items-center gap-2">
+                                        <span>{{ $upOrder->order_number }}</span>
+                                        <button type="button" 
+                                                onclick="toggleAcuse(event, '{{ route('orders.toggle-acuse-printed', $upOrder) }}', this)" 
+                                                class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold transition-all border {{ $upOrder->acuse_printed ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100' : 'bg-gray-100 text-gray-500 border-gray-200 hover:bg-gray-200' }}"
+                                                title="{{ $upOrder->acuse_printed ? 'Acuse impreso (clic para alternar)' : 'Acuse pendiente de imprimir (clic para alternar)' }}">
+                                            @if($upOrder->acuse_printed)
+                                                <svg class="w-3 h-3 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                                                <span>Acuse</span>
+                                            @else
+                                                <svg class="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                                                <span>Sin acuse</span>
+                                            @endif
+                                        </button>
+                                    </div>
+                                </td>
                                 <td class="px-5 py-4">{{ $upOrder->client_name }}</td>
                                 <td class="px-5 py-4">
                                     @php
@@ -288,12 +320,26 @@
                     @foreach($orders as $order)
                         <tr class="hover:bg-white/50 transition-colors">
                             <td class="py-5 px-2 text-[13px] font-medium text-[#2C211A]">
-                                @if($order->source === 'Shopify')
-                                    <span class="px-1.5 py-0.5 bg-green-100 text-green-800 text-[9px] rounded uppercase font-bold mr-1 block md:inline-block mb-1 md:mb-0">Shopify</span>
-                                @elseif($order->source === 'Nori')
-                                    <span class="px-1.5 py-0.5 bg-blue-100 text-blue-800 text-[9px] rounded uppercase font-bold mr-1 block md:inline-block mb-1 md:mb-0">Nori</span>
-                                @endif
-                                {{ $order->order_number }}
+                                <div class="flex items-center gap-1.5 flex-wrap">
+                                    @if($order->source === 'Shopify')
+                                        <span class="px-1.5 py-0.5 bg-green-100 text-green-800 text-[9px] rounded uppercase font-bold mr-1 block md:inline-block mb-1 md:mb-0">Shopify</span>
+                                    @elseif($order->source === 'Nori')
+                                        <span class="px-1.5 py-0.5 bg-blue-100 text-blue-800 text-[9px] rounded uppercase font-bold mr-1 block md:inline-block mb-1 md:mb-0">Nori</span>
+                                    @endif
+                                    <span>{{ $order->order_number }}</span>
+                                    <button type="button" 
+                                            onclick="toggleAcuse(event, '{{ route('orders.toggle-acuse-printed', $order) }}', this)" 
+                                            class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold transition-all border {{ $order->acuse_printed ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100' : 'bg-gray-100 text-gray-500 border-gray-200 hover:bg-gray-200' }}"
+                                            title="{{ $order->acuse_printed ? 'Acuse impreso (clic para alternar)' : 'Acuse pendiente de imprimir (clic para alternar)' }}">
+                                        @if($order->acuse_printed)
+                                            <svg class="w-3 h-3 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                                            <span>Acuse</span>
+                                        @else
+                                            <svg class="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                                            <span>Sin acuse</span>
+                                        @endif
+                                    </button>
+                                </div>
                             </td>
                             <td class="py-5 px-2 text-[13px] font-medium text-[#2C211A]">{{ $order->client_name }}</td>
                             <td class="py-5 px-2 text-[13px] text-[#757575] font-medium">{{ $order->delivery_date ? \Carbon\Carbon::parse($order->delivery_date)->format('d \d\e M Y') : 'Sin fecha' }}</td>
@@ -360,10 +406,22 @@
                             
                             $sourceIcon = $order->source === 'Shopify' ? '<span class="px-1.5 py-0.5 bg-green-100 text-green-800 text-[9px] rounded uppercase font-bold mr-1">Shopify</span>' : ($order->source === 'Nori' ? '<span class="px-1.5 py-0.5 bg-blue-100 text-blue-800 text-[9px] rounded uppercase font-bold mr-1">Nori</span>' : '');
                         @endphp
-                        <div class="flex items-center gap-2">
+                        <div class="flex items-center gap-2 flex-wrap">
                             <a href="{{ route('orders.show', $order) }}" class="text-[#2C211A] font-semibold text-[13px] hover:text-[#4A1525]">{!! $sourceIcon !!}{{ $order->order_number }}</a>
                             <span class="w-1 h-1 rounded-lg bg-gray-300"></span>
                             <span class="px-3 py-1 text-[11px] rounded-lg font-bold tracking-wide {{ $mobileClass }}">{{ $order->status }}</span>
+                            <button type="button" 
+                                    onclick="toggleAcuse(event, '{{ route('orders.toggle-acuse-printed', $order) }}', this)" 
+                                    class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold transition-all border {{ $order->acuse_printed ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-gray-100 text-gray-500 border-gray-200' }}"
+                                    title="{{ $order->acuse_printed ? 'Acuse impreso (clic para alternar)' : 'Acuse pendiente de imprimir (clic para alternar)' }}">
+                                @if($order->acuse_printed)
+                                    <svg class="w-3 h-3 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                                    <span>Acuse</span>
+                                @else
+                                    <svg class="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                                    <span>Sin acuse</span>
+                                @endif
+                            </button>
                         </div>
                     </div>
                     <p class="text-[12px] text-[#757575] mb-1">Cliente: <span class="text-[#2C211A] font-medium">{{ $order->client_name }}</span></p>
@@ -398,4 +456,44 @@
             {{ $orders->links() }}
         </div>
     </div>
+
+    <script>
+        function toggleAcuse(event, url, btn) {
+            event.stopPropagation();
+            event.preventDefault();
+            
+            btn.disabled = true;
+            btn.style.opacity = '0.5';
+
+            fetch(url, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
+                btn.disabled = false;
+                btn.style.opacity = '1';
+                if (data.success) {
+                    if (data.acuse_printed) {
+                        btn.className = "inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold transition-all border bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100";
+                        btn.title = "Acuse impreso (clic para alternar)";
+                        btn.innerHTML = `<svg class="w-3 h-3 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg><span>Acuse</span>`;
+                    } else {
+                        btn.className = "inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold transition-all border bg-gray-100 text-gray-500 border-gray-200 hover:bg-gray-200";
+                        btn.title = "Acuse pendiente de imprimir (clic para alternar)";
+                        btn.innerHTML = `<svg class="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg><span>Sin acuse</span>`;
+                    }
+                }
+            })
+            .catch(err => {
+                btn.disabled = false;
+                btn.style.opacity = '1';
+                console.error('Error toggling acuse:', err);
+            });
+        }
+    </script>
 </x-app-layout>

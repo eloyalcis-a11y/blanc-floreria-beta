@@ -41,11 +41,13 @@ class Order extends Model
         'extra_charge',
         'discount',
         'ticket_number',
+        'acuse_printed',
     ];
 
     protected $casts = [
         'delivery_date' => 'date',
         'is_in_route' => 'boolean',
+        'acuse_printed' => 'boolean',
     ];
 
     public function user()
