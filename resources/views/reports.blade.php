@@ -2,7 +2,7 @@
     <div class="mb-8 md:pt-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
             <h2 class="text-[32px] font-serif-custom font-normal text-[#2C211A] mb-1 leading-tight">Reportes y Finanzas</h2>
-            <p class="text-[#757575] text-[13px] font-sans-custom">Métricas de ingresos (Solo contabiliza pedidos entregados y pagados)</p>
+            <p class="text-[#757575] text-[13px] font-sans-custom">Listado completo de pedidos y métricas comerciales</p>
         </div>
         <div class="flex gap-3">
             <a href="{{ route('reports.export', request()->query()) }}" class="px-5 py-2.5 rounded-lg text-[13px] font-medium transition-all shadow-sm hover:shadow-md flex items-center gap-2" style="background-color: #2E7D32; color: white;">
@@ -21,7 +21,9 @@
                 <div class="flex flex-wrap bg-gray-100 rounded-lg p-1">
                     <button type="button" @click="range = 'hoy'; $nextTick(() => $el.closest('form').submit())" class="px-4 py-1.5 text-xs font-medium rounded-md transition-colors" :class="range === 'hoy' ? 'bg-white shadow-sm text-[#4A1525]' : 'text-gray-500 hover:text-gray-700'">Hoy</button>
                     <button type="button" @click="range = 'semana'; $nextTick(() => $el.closest('form').submit())" class="px-4 py-1.5 text-xs font-medium rounded-md transition-colors" :class="range === 'semana' ? 'bg-white shadow-sm text-[#4A1525]' : 'text-gray-500 hover:text-gray-700'">Semana</button>
-                    <button type="button" @click="range = 'mes'; $nextTick(() => $el.closest('form').submit())" class="px-4 py-1.5 text-xs font-medium rounded-md transition-colors" :class="range === 'mes' ? 'bg-white shadow-sm text-[#4A1525]' : 'text-gray-500 hover:text-gray-700'">Mes</button>
+                    <button type="button" @click="range = 'mes'; $nextTick(() => $el.closest('form').submit())" class="px-4 py-1.5 text-xs font-medium rounded-md transition-colors" :class="range === 'mes' ? 'bg-white shadow-sm text-[#4A1525]' : 'text-gray-500 hover:text-gray-700'">Este Mes</button>
+                    <button type="button" @click="range = 'mes_pasado'; $nextTick(() => $el.closest('form').submit())" class="px-4 py-1.5 text-xs font-medium rounded-md transition-colors" :class="range === 'mes_pasado' ? 'bg-white shadow-sm text-[#4A1525]' : 'text-gray-500 hover:text-gray-700'">Mes Pasado</button>
+                    <button type="button" @click="range = 'todos'; $nextTick(() => $el.closest('form').submit())" class="px-4 py-1.5 text-xs font-medium rounded-md transition-colors" :class="range === 'todos' ? 'bg-white shadow-sm text-[#4A1525]' : 'text-gray-500 hover:text-gray-700'">Todo el Histórico</button>
                     <button type="button" @click="range = 'custom'" class="px-4 py-1.5 text-xs font-medium rounded-md transition-colors" :class="range === 'custom' ? 'bg-white shadow-sm text-[#4A1525]' : 'text-gray-500 hover:text-gray-700'">Personalizado</button>
                     
                     <input type="hidden" name="date_range" x-model="range">
@@ -35,7 +37,19 @@
                 </div>
             </div>
 
-            <div class="w-full md:w-48">
+            <div class="w-full md:w-44">
+                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">Estatus</label>
+                <select name="status" class="w-full border-gray-200 rounded-lg text-sm text-gray-700 focus:ring-[#4A1525] focus:border-[#4A1525] py-2" onchange="this.form.submit()">
+                    <option value="Todos" {{ request('status', 'Todos') === 'Todos' ? 'selected' : '' }}>Todos los estatus</option>
+                    <option value="Cerrado (Pagado)" {{ request('status') === 'Cerrado (Pagado)' ? 'selected' : '' }}>Cerrado (Pagado)</option>
+                    <option value="En proceso" {{ request('status') === 'En proceso' ? 'selected' : '' }}>En proceso</option>
+                    <option value="En ruta" {{ request('status') === 'En ruta' ? 'selected' : '' }}>En ruta</option>
+                    <option value="Entregado" {{ request('status') === 'Entregado' ? 'selected' : '' }}>Entregado</option>
+                    <option value="Cancelado" {{ request('status') === 'Cancelado' ? 'selected' : '' }}>Cancelado</option>
+                </select>
+            </div>
+
+            <div class="w-full md:w-44">
                 <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">Origen</label>
                 <select name="source" class="w-full border-gray-200 rounded-lg text-sm text-gray-700 focus:ring-[#4A1525] focus:border-[#4A1525] py-2" onchange="this.form.submit()">
                     <option value="Todos">Todos los orígenes</option>
@@ -44,7 +58,7 @@
                 </select>
             </div>
 
-            <div class="w-full md:w-48">
+            <div class="w-full md:w-44">
                 <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">Método de Pago</label>
                 <select name="payment_method" class="w-full border-gray-200 rounded-lg text-sm text-gray-700 focus:ring-[#4A1525] focus:border-[#4A1525] py-2" onchange="this.form.submit()">
                     <option value="Todos">Todos los métodos</option>
@@ -119,6 +133,7 @@
                 <thead>
                     <tr class="bg-white border-b border-gray-100 text-[10px] font-bold text-gray-500 uppercase tracking-wider">
                         <th class="p-3 pl-6 font-medium">#NOTA</th>
+                        <th class="p-3 font-medium">ESTATUS</th>
                         <th class="p-3 font-medium">MODELO</th>
                         <th class="p-3 font-medium">SOLICITANTE</th>
                         <th class="p-3 font-medium">FECHA ENT.</th>
@@ -160,9 +175,23 @@
                             $total = $subtotal + $extra;
                             $deliveryDate = $order->delivery_date ? \Carbon\Carbon::parse($order->delivery_date)->format('Y-m-d') : '';
                             $fechaCorte = $order->created_at->format('Y-m-d');
+
+                            $badgeClass = match($order->status) {
+                                'Cerrado (Pagado)' => 'bg-emerald-50 text-emerald-700 border-emerald-200',
+                                'Entregado' => 'bg-blue-50 text-blue-700 border-blue-200',
+                                'En ruta' => 'bg-amber-50 text-amber-700 border-amber-200',
+                                'En proceso' => 'bg-purple-50 text-purple-700 border-purple-200',
+                                'Cancelado' => 'bg-rose-50 text-rose-700 border-rose-200',
+                                default => 'bg-gray-50 text-gray-700 border-gray-200'
+                            };
                         @endphp
                         <tr class="hover:bg-gray-50 transition">
                             <td class="p-3 pl-6 font-medium text-[#4A1525]">{{ $order->order_number }}</td>
+                            <td class="p-3">
+                                <span class="px-2 py-0.5 rounded text-[10px] font-semibold border {{ $badgeClass }} whitespace-nowrap">
+                                    {{ $order->status ?: 'Sin Estatus' }}
+                                </span>
+                            </td>
                             <td class="p-3">{{ Str::limit($modelo, 20) }}</td>
                             <td class="p-3">{{ Str::limit($order->client_name, 25) }}</td>
                             <td class="p-3 text-gray-500">{{ $deliveryDate }}</td>
@@ -181,7 +210,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="14" class="p-8 text-center text-gray-500 text-xs">
+                            <td colspan="17" class="p-8 text-center text-gray-500 text-xs">
                                 No se encontraron pedidos con estos filtros en este periodo.
                             </td>
                         </tr>

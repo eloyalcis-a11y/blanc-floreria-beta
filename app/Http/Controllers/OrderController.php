@@ -54,7 +54,13 @@ class OrderController extends Controller
         // El comprobante no es obligatorio para ventas/staff, pueden agregarlo después
         $rules['payment_proof'] = 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120';
 
-        $validated = $request->validate($rules);
+        $messages = [
+            'arrangements.*.reference_image.uploaded' => 'La imagen de referencia que intentas subir es demasiado pesada para el servidor. Por favor reduce su tamaño (menos de 5MB).',
+            'delivery_reference_image.uploaded' => 'La foto de fachada que intentas subir es demasiado pesada. Por favor reduce su tamaño.',
+            'payment_proof.uploaded' => 'El comprobante de pago que intentas subir es demasiado pesado. Por favor reduce su tamaño.',
+        ];
+
+        $validated = $request->validate($rules, $messages);
 
         // Generar folio secuencial (PD-0001, PD-0002...)
         $lastOrder = \App\Models\Order::where('order_number', 'like', 'PD-%')->orderBy('id', 'desc')->first();
@@ -135,7 +141,27 @@ class OrderController extends Controller
 
     public function print(\App\Models\Order $order)
     {
+        if (!$order->acuse_printed) {
+            $order->update(['acuse_printed' => true]);
+        }
         return view('orders.print', compact('order'));
+    }
+
+    public function toggleAcusePrinted(Request $request, \App\Models\Order $order)
+    {
+        $order->update([
+            'acuse_printed' => !$order->acuse_printed
+        ]);
+
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'acuse_printed' => $order->acuse_printed,
+                'message' => $order->acuse_printed ? 'Acuse marcado como impreso.' : 'Acuse marcado como pendiente.'
+            ]);
+        }
+
+        return redirect()->back()->with('success', $order->acuse_printed ? 'Acuse marcado como impreso.' : 'Acuse marcado como pendiente.');
     }
 
     public function edit(\App\Models\Order $order)
@@ -180,7 +206,13 @@ class OrderController extends Controller
             'arrangements.*.shopify_image_url' => 'nullable|url',
         ];
 
-        $validated = $request->validate($rules);
+        $messages = [
+            'arrangements.*.reference_image.uploaded' => 'La imagen de referencia que intentas subir es demasiado pesada para el servidor. Por favor reduce su tamaño (menos de 5MB).',
+            'delivery_reference_image.uploaded' => 'La foto de fachada que intentas subir es demasiado pesada. Por favor reduce su tamaño.',
+            'payment_proof.uploaded' => 'El comprobante de pago que intentas subir es demasiado pesado. Por favor reduce su tamaño.',
+        ];
+
+        $validated = $request->validate($rules, $messages);
 
 
 

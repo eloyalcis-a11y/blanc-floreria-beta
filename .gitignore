@@ -25,3 +25,7 @@ _ide_helper.php
 Homestead.json
 Homestead.yaml
 Thumbs.db
+check_order.php
+run_tests.php
+sync_shopify_orders.php
+

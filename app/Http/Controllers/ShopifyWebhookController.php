@@ -96,7 +96,7 @@ class ShopifyWebhookController extends Controller
         $totalPrice = (float) ($payload['total_price'] ?? 0);
 
         // 5.5. Extraer Fecha y Hora de Entrega de note_attributes
-        $deliveryDate = \Carbon\Carbon::parse($payload['created_at'] ?? now())->toDateString();
+        $deliveryDate = \Carbon\Carbon::parse($payload['created_at'] ?? now())->setTimezone('America/Mexico_City')->toDateString();
         $deliveryTime = null;
 
         if (!empty($payload['note_attributes']) && is_array($payload['note_attributes'])) {
