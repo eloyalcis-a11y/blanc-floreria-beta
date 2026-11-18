@@ -26,11 +26,18 @@ class ShopifyWebhookController extends Controller
             return response()->json(['message' => 'Invalid payload'], 400);
         }
 
-        // Determinar el status en nuestra BD basado en el financial_status
-        $localStatus = 'Pendiente de Pago';
-        if (isset($payload['financial_status']) && in_array($payload['financial_status'], ['paid', 'partially_paid'])) {
-            $localStatus = 'Confirmado';
+        // Filtro estricto: Solo migrar pedidos que ya estén pagados (regla de negocio de la florería)
+        $financialStatus = strtolower($payload['financial_status'] ?? '');
+        if (!in_array($financialStatus, ['paid', 'partially_paid'])) {
+            Log::info('Shopify Webhook Omitido: Pedido no pagado', [
+                'order_id' => $payload['id'] ?? null,
+                'order_name' => $payload['name'] ?? null,
+                'financial_status' => $payload['financial_status'] ?? null,
+            ]);
+            return response()->json(['message' => 'Pedido omitido: Solo se migran pedidos pagados.'], 200);
         }
+
+        $localStatus = 'Confirmado';
 
         // 1. Extraer Cliente
         $clientName = 'Cliente Shopify';

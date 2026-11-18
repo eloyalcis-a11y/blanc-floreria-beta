@@ -165,6 +165,7 @@ require __DIR__.'/auth.php';
 
 // Shopify Webhooks e Integración
 Route::post('/webhook/shopify/orders/create', [\App\Http\Controllers\ShopifyWebhookController::class, 'handleOrderCreate'])->name('webhook.shopify.orders.create');
+Route::post('/webhook/shopify/orders/paid', [\App\Http\Controllers\ShopifyWebhookController::class, 'handleOrderCreate'])->name('webhook.shopify.orders.paid');
 Route::get('/shopify/install', [\App\Http\Controllers\ShopifyAuthController::class, 'install'])->name('shopify.install');
 Route::get('/shopify/callback', [\App\Http\Controllers\ShopifyAuthController::class, 'callback'])->name('shopify.callback');
 Route::get('/api/shopify/products', [\App\Http\Controllers\ShopifyProductController::class, 'search'])->name('shopify.products.search');
